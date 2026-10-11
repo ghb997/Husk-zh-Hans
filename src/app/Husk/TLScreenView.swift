@@ -163,8 +163,8 @@ final class TLScreenUIView: UIView {
         var pf = husk_tl_perf()
         husk_tl_perf_snapshot(&pf)
         stats.text = pf.fps > 0
-            ? String(format: "%.0f fps · %.1f ms", shownFps, pf.logic_ms + pf.render_ms)
-            : String(format: "%.0f fps", shownFps)
+            ? String(format: "%.0f 帧/秒 · %.1f 毫秒", shownFps, pf.logic_ms + pf.render_ms)
+            : String(format: "%.0f 帧/秒", shownFps)
     }
 
     // MARK: touch

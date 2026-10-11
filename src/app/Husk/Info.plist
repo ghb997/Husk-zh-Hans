@@ -9,14 +9,18 @@
 		<string>$(PRODUCT_BUNDLE_IDENTIFIER).*</string>
 	</array>
 	<key>CFBundleDevelopmentRegion</key>
-	<string>$(DEVELOPMENT_LANGUAGE)</string>
+	<string>zh-Hans</string>
+	<key>CFBundleLocalizations</key>
+	<array>
+		<string>zh-Hans</string>
+	</array>
 	<key>CFBundleDisplayName</key>
 	<string>Husk</string>
 	<key>CFBundleDocumentTypes</key>
 	<array>
 		<dict>
 			<key>CFBundleTypeName</key>
-			<string>Android App</string>
+			<string>Android 应用</string>
 			<key>CFBundleTypeRole</key>
 			<string>Viewer</string>
 			<key>LSHandlerRank</key>
@@ -75,7 +79,7 @@
 		<string>_remotepairing-pairable-host._tcp</string>
 	</array>
 	<key>NSLocalNetworkUsageDescription</key>
-	<string>Husk uses the local network to pair with this iPhone for JIT, without a computer.</string>
+	<string>Husk 需要访问本地网络，以便直接与此 iPhone 配对并开启 JIT，无需电脑。</string>
 	<key>NSSupportsLiveActivities</key>
 	<true/>
 	<key>NSSupportsLiveActivitiesFrequentUpdates</key>
@@ -120,7 +124,7 @@
 				<string>public.archive</string>
 			</array>
 			<key>UTTypeDescription</key>
-			<string>Android App</string>
+			<string>Android 应用</string>
 			<key>UTTypeIdentifier</key>
 			<string>com.android.package-archive</string>
 			<key>UTTypeTagSpecification</key>
@@ -142,7 +146,7 @@
 				<string>public.archive</string>
 			</array>
 			<key>UTTypeDescription</key>
-			<string>Android App Bundle (XAPK)</string>
+			<string>Android 应用安装包 (XAPK)</string>
 			<key>UTTypeIdentifier</key>
 			<string>app.husk.xapk</string>
 			<key>UTTypeTagSpecification</key>
@@ -160,7 +164,7 @@
 				<string>public.archive</string>
 			</array>
 			<key>UTTypeDescription</key>
-			<string>Android App Bundle (APKM)</string>
+			<string>Android 应用安装包 (APKM)</string>
 			<key>UTTypeIdentifier</key>
 			<string>app.husk.apkm</string>
 			<key>UTTypeTagSpecification</key>
@@ -178,7 +182,7 @@
 				<string>public.archive</string>
 			</array>
 			<key>UTTypeDescription</key>
-			<string>Android App Bundle (APKS)</string>
+			<string>Android 应用安装包 (APKS)</string>
 			<key>UTTypeIdentifier</key>
 			<string>app.husk.apks</string>
 			<key>UTTypeTagSpecification</key>

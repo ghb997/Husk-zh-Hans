@@ -34,8 +34,7 @@ enum PlayDevice {
     static let cellOperator = "310260"
 
     static var locale: String {
-        let id = Locale.current.identifier.replacingOccurrences(of: "-", with: "_")
-        return id.contains("_") ? id : "en_US"
+        "zh_CN"
     }
     static var country: String { (Locale.current.region?.identifier ?? "US").lowercased() }
 

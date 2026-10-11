@@ -116,7 +116,7 @@ final class Downloads: ObservableObject {
         problem = nil
         let text = raw.trimmingCharacters(in: .whitespacesAndNewlines)
         guard var url = URL(string: text.contains("://") ? text : "http://" + text), url.scheme?.hasPrefix("http") == true else {
-            problem = "That is not a web address."
+            problem = "这不是有效的网页地址。"
             return
         }
         HuskLog.log("downloads", "adding \(url.absoluteString)")
@@ -127,8 +127,8 @@ final class Downloads: ObservableObject {
                 let path = f.path.split(separator: "/").map { $0.addingPercentEncoding(withAllowedCharacters: .urlPathAllowed) ?? String($0) }.joined(separator: "/")
                 return File(path: f.path, url: URL(string: "f/" + path, relativeTo: url)!.absoluteString, size: f.size)
             }
-            guard !files.isEmpty else { problem = "That folder is empty."; return }
-            start(Job(title: manifest.name.isEmpty ? (url.host ?? "Folder") : manifest.name, source: url.absoluteString, kind: .folder, files: files))
+            guard !files.isEmpty else { problem = "此文件夹为空。"; return }
+            start(Job(title: manifest.name.isEmpty ? (url.host ?? "文件夹") : manifest.name, source: url.absoluteString, kind: .folder, files: files))
             return
         }
         let (name, size) = await Self.probe(url)
@@ -158,7 +158,7 @@ final class Downloads: ObservableObject {
         var job = new
         let need = job.files.filter { !$0.done }.reduce(Int64(0)) { $0 + max(0, $1.size - Self.onDisk(job.kind, $1.path)) }
         if let free = Self.freeSpace(), need > free {
-            problem = "This needs \(Self.bytes(need)) more and the device has \(Self.bytes(free)) free."
+            problem = "还需要 \(Self.bytes(need))，设备可用空间为 \(Self.bytes(free))。"
             return
         }
         Self.settle(&job)
@@ -255,7 +255,7 @@ final class Downloads: ObservableObject {
         if DownloadKeepAlive.shared.running { HuskLog.log("downloads", "leaving the screen; kept running, downloads carry on"); return }
         awake = false
         if grace == .invalid {
-            grace = UIApplication.shared.beginBackgroundTask(withName: "Husk downloads") {
+            grace = UIApplication.shared.beginBackgroundTask(withName: "Husk 下载") {
                 MainActor.assumeIsolated { Downloads.shared.endGrace() }
             }
         }
@@ -393,7 +393,7 @@ final class Downloads: ObservableObject {
                     self.pump()
                 }
             } else {
-                jobs[j].files[i].error = error ?? "the transfer kept stopping"
+                jobs[j].files[i].error = error ?? "传输多次中断"
                 HuskLog.log("downloads", "\(f.path): giving up after \(n - 1) tries")
             }
         }
@@ -492,7 +492,7 @@ final class Downloads: ObservableObject {
         req.timeoutInterval = 15
         let fallback = url.lastPathComponent.isEmpty ? (url.host ?? "download") : url.lastPathComponent
         guard let (_, r) = try? await URLSession.shared.data(for: req) else { return (fallback, 0) }
-        let name = r.suggestedFilename.flatMap { $0.isEmpty || $0 == "Unknown" ? nil : $0 } ?? fallback
+        let name = r.suggestedFilename.flatMap { $0.isEmpty || $0 == "未知" ? nil : $0 } ?? fallback
         return (name, max(0, r.expectedContentLength))
     }
 
@@ -568,7 +568,7 @@ final class DirectDownloadDelegate: NSObject, URLSessionDataDelegate {
         let fm = FileManager.default
         try? fm.createDirectory(at: t.part.deletingLastPathComponent(), withIntermediateDirectories: true)
         if !fm.fileExists(atPath: t.part.path) { fm.createFile(atPath: t.part.path, contents: nil) }
-        guard let h = try? FileHandle(forWritingTo: t.part) else { t.error = "cannot write the file"; completionHandler(.cancel); return }
+        guard let h = try? FileHandle(forWritingTo: t.part) else { t.error = "无法写入文件"; completionHandler(.cancel); return }
         switch http.statusCode {
         case 206:
             // The rest, from where the .part ends.
@@ -587,7 +587,7 @@ final class DirectDownloadDelegate: NSObject, URLSessionDataDelegate {
             completionHandler(.cancel)
             return
         default:
-            t.error = "the server answered \(http.statusCode)"
+            t.error = "服务器返回 \(http.statusCode)"
             try? h.close()
             completionHandler(.cancel)
             return
@@ -599,7 +599,7 @@ final class DirectDownloadDelegate: NSObject, URLSessionDataDelegate {
 
     func urlSession(_ session: URLSession, dataTask: URLSessionDataTask, didReceive data: Data) {
         guard let t = transfer(dataTask), let h = t.handle else { return }
-        do { try h.write(contentsOf: data) } catch { t.error = "cannot write: \(error.localizedDescription)"; dataTask.cancel(); return }
+        do { try h.write(contentsOf: data) } catch { t.error = "无法写入：\(error.localizedDescription)"; dataTask.cancel(); return }
         t.written += Int64(data.count)
         let now = Date()
         if now.timeIntervalSince(t.lastReport) > 0.5 {
@@ -619,7 +619,7 @@ final class DirectDownloadDelegate: NSObject, URLSessionDataDelegate {
         let message = t.error ?? (cancelled ? nil : error?.localizedDescription)
         let incomplete = t.expected > 0 && t.written < t.expected
         let tag = t.tag
-        Task { @MainActor in Downloads.shared.ended(tag, error: message ?? (incomplete && !cancelled ? "the connection ended early" : nil), cancelled: cancelled) }
+        Task { @MainActor in Downloads.shared.ended(tag, error: message ?? (incomplete && !cancelled ? "连接提前结束" : nil), cancelled: cancelled) }
     }
 }
 
@@ -653,7 +653,7 @@ final class BackgroundDownloadDelegate: NSObject, URLSessionDownloadDelegate {
                 try? fm.removeItem(at: part)
                 try fm.moveItem(at: location, to: part)
             } else {
-                throw NSError(domain: "HuskDownloads", code: status, userInfo: [NSLocalizedDescriptionKey: "the server answered \(status)"])
+                throw NSError(domain: "HuskDownloads", code: status, userInfo: [NSLocalizedDescriptionKey: "服务器返回 \(status)"])
             }
         } catch {
             let message = error.localizedDescription
@@ -715,7 +715,7 @@ private enum Live {
         guard !active.isEmpty else {
             if let a = activity {
                 let last = jobs.first
-                let state = HuskDownloadAttributes.ContentState(title: last?.title ?? "Downloads", received: last?.received ?? 0, total: last?.total ?? 0,
+                let state = HuskDownloadAttributes.ContentState(title: last?.title ?? "下载", received: last?.received ?? 0, total: last?.total ?? 0,
                                                                 finishBy: nil, started: started, finished: !(last?.failed ?? false), failed: last?.failed ?? false)
                 Task { await a.end(using: state, dismissalPolicy: .after(Date().addingTimeInterval(60 * 10))) }
                 activity = nil
@@ -724,7 +724,7 @@ private enum Live {
         }
         let received = active.reduce(0) { $0 + $1.received }, total = active.reduce(0) { $0 + $1.total }
         let finishBy = speed > 1 && total > received ? Date().addingTimeInterval(Double(total - received) / speed) : nil
-        let title = active.count == 1 ? active[0].title : "\(active.count) downloads"
+        let title = active.count == 1 ? active[0].title : "\(active.count) 项下载"
         var state = HuskDownloadAttributes.ContentState(title: title, received: received, total: total, finishBy: finishBy, started: started,
                                                         finished: false, failed: active.contains { $0.failed })
         state.speed = speed
@@ -787,7 +787,7 @@ enum ContinuedDownload {
             registered = pattern
         }
         let id = "\(bundle).downloads.\(UUID().uuidString.prefix(8))"
-        let request = BGContinuedProcessingTaskRequest(identifier: id, title: "Downloading \(title)", subtitle: "Starting…")
+        let request = BGContinuedProcessingTaskRequest(identifier: id, title: "正在下载 \(title)", subtitle: "正在开始…")
         request.strategy = .fail
         do {
             try BGTaskScheduler.shared.submit(request)
@@ -821,7 +821,7 @@ enum ContinuedDownload {
         if active.isEmpty {
             let failed = jobs.contains { $0.failed }
             t.progress.completedUnitCount = t.progress.totalUnitCount
-            t.updateTitle(failed ? "Download stopped" : "Download finished", subtitle: failed ? "Open Husk to retry" : (jobs.first?.title ?? ""))
+            t.updateTitle(failed ? "下载已停止" : "下载已完成", subtitle: failed ? "打开 Husk 重试" : (jobs.first?.title ?? ""))
             t.setTaskCompleted(success: !failed)
             task = nil
             HuskLog.log("downloads", "background task completed")
@@ -833,16 +833,16 @@ enum ContinuedDownload {
         t.progress.completedUnitCount = min(t.progress.totalUnitCount, received / 1_000_000)
         if Date().timeIntervalSince(lastSubtitle) > 2 {
             lastSubtitle = Date()
-            var sub = "\(Downloads.bytes(received)) of \(Downloads.bytes(total))"
+            var sub = "\(Downloads.bytes(received)) / \(Downloads.bytes(total))"
             if speed > 1 { sub += " · \(Downloads.bytes(Int64(speed)))/s" }
             let files = active.reduce(0) { $0 + $1.files.count }
-            if files > 1 { sub += " · \(active.reduce(0) { $0 + $1.filesDone })/\(files) files" }
+            if files > 1 { sub += " · \(active.reduce(0) { $0 + $1.filesDone })/\(files) 个文件" }
             if speed > 1, total > received {
                 let left = Double(total - received) / speed
-                let f = DateComponentsFormatter(); f.allowedUnits = left > 3600 ? [.hour, .minute] : [.minute, .second]; f.unitsStyle = .abbreviated
-                if let tl = f.string(from: left) { sub += " · \(tl) left" }
+                let f = DateComponentsFormatter(); var calendar = Calendar.current; calendar.locale = Locale(identifier: "zh_Hans_CN"); f.calendar = calendar; f.allowedUnits = left > 3600 ? [.hour, .minute] : [.minute, .second]; f.unitsStyle = .abbreviated
+                if let tl = f.string(from: left) { sub += " · 还需 \(tl)" }
             }
-            t.updateTitle(active.count == 1 ? "Downloading \(active[0].title)" : "Downloading \(active.count) items", subtitle: sub)
+            t.updateTitle(active.count == 1 ? "正在下载 \(active[0].title)" : "正在下载 \(active.count) 项内容", subtitle: sub)
         }
         return true
     }

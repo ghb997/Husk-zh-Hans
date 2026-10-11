@@ -38,8 +38,8 @@ final class QemuRunner: ObservableObject {
     /// app bundle with no download, no UEFI and no disk, so if it draws and Phase 1
     /// does not, the problem is above the JIT/display layer.
     enum Profile: String, CaseIterable {
-        case phase0Alpine   = "Alpine (substrate check)"
-        case phase1Android = "Android (LineageOS guest)"
+        case phase0Alpine   = "Alpine（底层验证）"
+        case phase1Android = "Android（LineageOS 客户系统）"
     }
 
     var profile: Profile = .phase1Android
@@ -86,23 +86,23 @@ final class QemuRunner: ObservableObject {
     /// bootanim exits. Evenly spaced numbers would race to 90% and then sit
     /// there, which is the specific thing progress bars are distrusted for.
     nonisolated(unsafe) static let bootMilestones: [(String, String, Int)] = [
-        ("Linux version",                 "Starting the Linux kernel",           5),
-        ("init: init first stage started","Android init, first stage",           10),
-        ("init: init second stage started","Android init, second stage",         15),
-        ("SELinux: policy loaded",        "Loading the security policy",         20),
-        ("apexd: activating",             "Activating system packages",          28),
-        ("servicemanager: Waiting",       "Starting system services",            35),
-        ("starting service 'vold'",       "Preparing storage",                   42),
-        ("starting service 'surfaceflinger'", "Starting the display server",     50),
-        ("starting service 'zygote'",     "Starting the Android runtime",        58),
+        ("Linux version",                 "正在启动 Linux 内核",           5),
+        ("init: init first stage started","Android 初始化：第一阶段",           10),
+        ("init: init second stage started","Android 初始化：第二阶段",         15),
+        ("SELinux: policy loaded",        "正在加载安全策略",         20),
+        ("apexd: activating",             "正在启用系统软件包",          28),
+        ("servicemanager: Waiting",       "正在启动系统服务",            35),
+        ("starting service 'vold'",       "正在准备存储",                   42),
+        ("starting service 'surfaceflinger'", "正在启动显示服务",     50),
+        ("starting service 'zygote'",     "正在启动 Android 运行环境",        58),
         // The LineageOS image sets ro.boot.nobootanim=1, so the bootanim milestones
         // below never fire. Without these, the bar sat at 58% for the whole second half
         // of a cold boot, which looked like a hang. Both appear on console once system_server is up.
-        ("sid=u:r:system_server:s0",      "Starting Android system services",    66),
-        ("ctl.stop for 'idmap2d'",        "Loading system overlays",             72),
-        ("starting service 'bootanim'",   "Boot animation running",              65),
-        ("Service 'bootanim' (pid",       "Compiling apps (this is the slow part)", 80),
-        ("sys.boot_completed=1",          "Android is up",                       100),
+        ("sid=u:r:system_server:s0",      "正在启动 Android 系统服务",    66),
+        ("ctl.stop for 'idmap2d'",        "正在加载系统叠加资源",             72),
+        ("starting service 'bootanim'",   "正在播放开机动画",              65),
+        ("Service 'bootanim' (pid",       "正在编译应用（此阶段较慢）", 80),
+        ("sys.boot_completed=1",          "Android 已启动",                       100),
     ]
 
     /// How far through the boot the guest is, 0 to 100.

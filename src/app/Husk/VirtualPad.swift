@@ -78,7 +78,7 @@ struct PadLayout: Codable, Equatable {
 
     /// The names the editor shows.
     static func name(_ id: String) -> String {
-        ["lstick": "Left stick", "rstick": "Right stick", "dpad": "D-pad", "back": "Back", "start": "Start"][id] ?? id.uppercased()
+        ["lstick": "左摇杆", "rstick": "右摇杆", "dpad": "方向键", "back": "返回", "start": "开始"][id] ?? id.uppercased()
     }
 }
 
@@ -233,8 +233,8 @@ final class PadView: UIView {
         list.append(Control(kind: .bumper(.r1, "R1"), center: CGPoint(x: w - right - m - bw * 1.5 - 8 * k, y: 10 * k + bh / 2), size: CGSize(width: bw, height: bh)))
 
         let sw = 60 * k, sh = 26 * k
-        list.append(Control(kind: .bumper(.select, "Back"), center: CGPoint(x: w / 2 - sw / 2 - 12 * k, y: 10 * k + sh / 2 + 4 * k), size: CGSize(width: sw, height: sh)))
-        list.append(Control(kind: .bumper(.start, "Start"), center: CGPoint(x: w / 2 + sw / 2 + 12 * k, y: 10 * k + sh / 2 + 4 * k), size: CGSize(width: sw, height: sh)))
+        list.append(Control(kind: .bumper(.select, "返回"), center: CGPoint(x: w / 2 - sw / 2 - 12 * k, y: 10 * k + sh / 2 + 4 * k), size: CGSize(width: sw, height: sh)))
+        list.append(Control(kind: .bumper(.start, "开始"), center: CGPoint(x: w / 2 + sw / 2 + 12 * k, y: 10 * k + sh / 2 + 4 * k), size: CGSize(width: sw, height: sh)))
         return list
     }
 

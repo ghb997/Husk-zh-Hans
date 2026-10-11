@@ -12,8 +12,8 @@ extension TLReport {
     /// What runs it, in words.
     var runnerName: String {
         if runsOnNativeRuntime { return nativeEngineName }
-        if let web = webKind { return "\(web.name) (web app)" }
-        return canRun ? "Java (Husk's interpreter)" : "None"
+        if let web = webKind { return "\(web.name)（网页应用）" }
+        return canRun ? "Java（Husk 解释器）" : "无"
     }
 }
 
@@ -53,24 +53,24 @@ struct TLTechnicalView: View {
 
     var body: some View {
         List {
-            Section("Runtime") {
-                row("Runs With", report?.runnerName ?? "Not scanned")
-                row("Package", app.packageName ?? "—", mono: true)
-                row("Architectures", report.map { $0.abis.isEmpty ? "None (Java only)" : $0.abis.joined(separator: ", ") } ?? "—")
+            Section("运行环境") {
+                row("运行引擎", report?.runnerName ?? "尚未扫描")
+                row("包名", app.packageName ?? "—", mono: true)
+                row("架构", report.map { $0.abis.isEmpty ? "无（仅 Java）" : $0.abis.joined(separator: ", ") } ?? "—")
                 if let summary = report?.displaySummary {
                     Text(summary).font(.footnote).foregroundStyle(.secondary)
                 }
             }
 
-            Section("Package") {
+            Section("安装包") {
                 ForEach(app.apks, id: \.self) { apk in
                     row((apk as NSString).lastPathComponent, size(of: apk), mono: true)
                 }
                 if let r = report {
-                    row("Java Code", r.dexCount == 0 ? "None" : "\(r.dexCount) DEX file\(r.dexCount == 1 ? "" : "s"), \(bytes(r.dexBytes))")
-                    row("Android Libraries Used", "\(r.systemLibraries.count)")
+                    row("Java 代码", r.dexCount == 0 ? "无" : "\(r.dexCount) 个 DEX 文件，\(bytes(r.dexBytes))")
+                    row("使用的 Android 库", "\(r.systemLibraries.count)")
                 }
-                row("Saved Data", dataSize)
+                row("已保存的数据", dataSize)
             }
 
             if !arm64.isEmpty {
@@ -87,9 +87,9 @@ struct TLTechnicalView: View {
                         .padding(.vertical, 2)
                     }
                 } header: {
-                    Text("Native Libraries (\(arm64.count))")
+                    Text("原生库（\(arm64.count)）")
                 } footer: {
-                    Text("How each 64-bit library maps onto the iPhone: its relocations, the instructions Husk rewrites, and anything the loader works around.")
+                    Text("各个 64 位库在 iPhone 上的加载情况：重定位、Husk 改写的指令，以及加载器处理的兼容性问题。")
                 }
             }
 
@@ -103,19 +103,19 @@ struct TLTechnicalView: View {
                             .padding(.vertical, 4)
                     }
                     .frame(maxHeight: 320)
-                    Button { sharing = true } label: { Label("Share Log", systemImage: "square.and.arrow.up") }
+                    Button { sharing = true } label: { Label("分享日志", systemImage: "square.and.arrow.up") }
                 } else {
-                    Text(log == nil ? "Reading…" : "No log yet. It is written the first time the game runs.")
+                    Text(log == nil ? "正在读取…" : "暂无日志，首次运行游戏后会生成。")
                         .font(.footnote).foregroundStyle(.secondary)
                 }
             } header: {
-                Text("Last Run")
+                Text("上次运行")
             } footer: {
-                Text("The end of the log from the last time the game started. Share it when reporting a problem.")
+                Text("上次启动游戏时的日志末尾内容。反馈问题时可分享此日志。")
             }
         }
         .listStyle(.insetGrouped)
-        .navigationTitle("Technical Details")
+        .navigationTitle("技术详情")
         .navigationBarTitleDisplayMode(.inline)
         .task {
             let url = logURL, dir = app.dataDirectory
@@ -132,7 +132,7 @@ struct TLTechnicalView: View {
                 return (text, total)
             }.value
             log = text
-            dataSize = total == 0 ? "Nothing yet" : bytes(total)
+            dataSize = total == 0 ? "暂无数据" : bytes(total)
         }
         .sheet(isPresented: $sharing) { ShareSheet(items: [logURL]) }
     }
@@ -150,13 +150,13 @@ struct TLTechnicalView: View {
 
     private func libraryDetail(_ lib: TLLibrary) -> String {
         var parts: [String] = []
-        if let r = lib.relocations { parts.append("\(r) relocations") }
-        if let t = lib.tpidrReads, t > 0 { parts.append("\(t) thread-register reads") }
-        if let s = lib.svc, s > 0 { parts.append("\(s) system calls") }
-        if let c = lib.conflictPages, c > 0 { parts.append("\(c) shared code/data pages") }
-        if lib.tls == true { parts.append("thread-local storage") }
+        if let r = lib.relocations { parts.append("\(r) 次重定位") }
+        if let t = lib.tpidrReads, t > 0 { parts.append("\(t) 次线程寄存器读取") }
+        if let s = lib.svc, s > 0 { parts.append("\(s) 次系统调用") }
+        if let c = lib.conflictPages, c > 0 { parts.append("\(c) 个代码与数据共享页面") }
+        if lib.tls == true { parts.append("线程本地存储") }
         if !lib.notes.isEmpty { parts.append(contentsOf: lib.notes) }
-        return parts.isEmpty ? (lib.status == "ok" ? "Loads as it is" : lib.status) : parts.joined(separator: " · ")
+        return parts.isEmpty ? (lib.status == "ok" ? "可直接加载" : lib.status) : parts.joined(separator: " · ")
     }
 
     private func size(of path: String) -> String {

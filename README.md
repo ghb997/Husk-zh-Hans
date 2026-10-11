@@ -1,5 +1,7 @@
 # Husk
 
+> **简体中文构建：** 基于上游 2.0.0（103）开发源码的独立汉化版本。阅读 [中文说明](README.zh-CN.md)，或前往 [构建与下载](https://github.com/ghb997/Husk-zh-Hans/actions/workflows/build-zh-hans.yml)。上游项目为 [Leviidev/Husk](https://github.com/Leviidev/Husk)，以下保留原始介绍。
+
 <p align="center">
   <a href="https://trendshift.io/repositories/233057?utm_source=trendshift-badge&amp;utm_medium=badge&amp;utm_campaign=badge-trendshift-233057" target="_blank" rel="noopener noreferrer">
     <img src="https://trendshift.io/api/badge/trendshift/repositories/233057/daily?language=Swift" alt="Leviidev/Husk | Trendshift" width="250" height="55"/>

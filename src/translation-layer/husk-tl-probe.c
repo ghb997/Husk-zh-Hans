@@ -59,7 +59,7 @@ static void result(tl_json *j, const char *id, const char *title, const char *st
 static void result(tl_json *j, const char *id, const char *title, const char *status,
                    const char *fmt, ...)
 {
-    char detail[512];
+    char detail[2048];
     va_list ap;
     va_start(ap, fmt);
     vsnprintf(detail, sizeof(detail), fmt, ap);
@@ -194,7 +194,7 @@ static bool tpidr_in_signal(uint64_t want, uint64_t *in_handler, uint64_t *after
 
 static void check_tpidr(tl_json *j)
 {
-    static const char *title = "Thread register (TPIDR_EL0)";
+    static const char *title = "线程寄存器（TPIDR_EL0）";
     tpidr_run runs[TPIDR_THREADS];
     pthread_t threads[TPIDR_THREADS];
     memset(runs, 0, sizeof(runs));
@@ -213,7 +213,7 @@ static void check_tpidr(tl_json *j)
         pthread_join(threads[i], NULL);
     }
     if (started == 0) {
-        result(j, "tpidr", title, "skip", "Could not start a thread to measure with.");
+        result(j, "tpidr", title, "skip", "无法创建用于测量的线程。");
         return;
     }
 
@@ -228,17 +228,17 @@ static void check_tpidr(tl_json *j)
 
     if (in_use) {
         result(j, "tpidr", title, "fail",
-               "Already in use: it holds 0x%llx before Husk touches it, so the system "
-               "owns it. Android code reads its stack guard from it; the guard would "
-               "have to live wherever it points, or every read be rewritten.",
+               "已被占用：Husk 操作前其值为 0x%llx，说明系统"
+               "正在使用它。Android 代码会从此寄存器读取栈保护值，"
+               "需要将保护值放在它指向的位置，或改写所有读取指令。",
                (unsigned long long)in_use);
         return;
     }
     if (lost) {
         result(j, "tpidr", title, "fail",
-               "Not kept: set on %d threads, it read back as 0x%llx after being "
-               "switched out (%u of %u reads lost). Every read of it in Android code "
-               "would have to be rewritten at load time.",
+               "值未保留：在 %d 个线程中设置后，上下文切换后读回 0x%llx，"
+               "%u/%u 次读取丢失。必须在加载时改写 Android 代码中"
+               "对此寄存器的所有读取操作。",
                started, (unsigned long long)seen, lost, rounds);
         return;
     }
@@ -247,19 +247,19 @@ static void check_tpidr(tl_json *j)
     uint64_t want = (uint64_t)(uintptr_t)block, in_handler = 0, after = 0;
     if (!tpidr_in_signal(want, &in_handler, &after)) {
         result(j, "tpidr", title, "pass",
-               "Free, and kept across %u context switches on %d threads. (No signal "
-               "arrived to check it inside a handler.)", rounds, started);
+               "未被占用，并在 %u 次上下文切换、%d 个线程中保留。"
+               "（未收到可用于检查信号处理函数的信号。）", rounds, started);
     } else if (in_handler != want || after != want) {
         result(j, "tpidr", title, "warn",
-               "Kept across %u context switches, but inside a signal handler it read "
-               "0x%llx and afterwards 0x%llx. Android code would run, but its signal "
-               "handlers would need the register set on entry.",
+               "在 %u 次上下文切换中保留，但信号处理函数中读到"
+               "0x%llx，之后为 0x%llx。Android 代码可以运行，"
+               "但进入信号处理函数时需要重新设置寄存器。",
                rounds, (unsigned long long)in_handler, (unsigned long long)after);
     } else {
         result(j, "tpidr", title, "pass",
-               "Free, and ours: kept across %u context switches on %d threads and "
-               "into a signal handler. Android code can read its stack guard from it "
-               "as it is.", rounds, started);
+               "可由 Husk 使用：在 %u 次上下文切换、%d 个线程以及"
+               "信号处理函数中均保留。Android 代码可以直接从中"
+               "读取栈保护值。", rounds, started);
     }
 }
 
@@ -267,7 +267,7 @@ static void check_tpidr(tl_json *j)
 
 static void check_tpidr(tl_json *j)
 {
-    result(j, "tpidr", "Thread register (TPIDR_EL0)", "skip", "Only meaningful on arm64.");
+    result(j, "tpidr", "线程寄存器（TPIDR_EL0）", "skip", "仅适用于 arm64。");
 }
 
 #endif
@@ -300,21 +300,21 @@ static uint32_t x18_run(uint32_t rounds, uint64_t *seen)
 
 static void check_x18(tl_json *j)
 {
-    static const char *title = "Platform register (x18)";
+    static const char *title = "平台寄存器（x18）";
     uint64_t seen = 0;
     const uint32_t rounds = 300;
     starting("x18");
     uint32_t lost = x18_run(rounds, &seen);
     if (lost == 0) {
         result(j, "x18", title, "pass",
-               "Kept across %u context switches. Libraries that keep values in x18 -- "
-               "shadow call stacks, some older builds -- can run.", rounds);
+               "在 %u 次上下文切换中保留。使用 x18 保存数据的库，"
+               "包括影子调用栈和部分旧版本库，可以正常运行。", rounds);
     } else {
         result(j, "x18", title, "fail",
-               "Changed by the system: read 0x%llx after a switch (%u of %u). Code from "
-               "current Android compilers never uses x18, but a library built with "
-               "shadow call stacks, or an old one that treats x18 as scratch, would "
-               "fail at random.", (unsigned long long)seen, lost, rounds);
+               "被系统改写：切换后读到 0x%llx（%u/%u 次）。当前"
+               "Android 编译器生成的代码不会使用 x18，"
+               "但启用影子调用栈的库或将 x18 用作临时寄存器的旧库，"
+               "可能会随机出错。", (unsigned long long)seen, lost, rounds);
     }
 }
 
@@ -322,8 +322,8 @@ static void check_x18(tl_json *j)
 
 static void check_x18(tl_json *j)
 {
-    result(j, "x18", "Platform register (x18)", "skip",
-           "Only meaningful on Apple arm64, where the compiler leaves x18 alone.");
+    result(j, "x18", "平台寄存器（x18）", "skip",
+           "仅适用于编译器保留 x18 的 Apple arm64 平台。");
 }
 
 #endif
@@ -449,16 +449,16 @@ static const uint32_t kReturn7[2] = { 0x528000E0u, 0xD65F03C0u };   /* mov w0, #
  */
 static void check_carve(tl_json *j, size_t page)
 {
-    static const char *title = "Code beside data, carved from JIT memory";
+    static const char *title = "在 JIT 内存中分隔相邻的代码与数据";
     starting("carve");
     uint8_t *r = mmap(NULL, 3 * page, PROT_READ | PROT_WRITE | PROT_EXEC, JIT_FLAGS, -1, 0);
     if (r == MAP_FAILED) {
-        result(j, "carve", title, "fail", "No executable mapping: %s.", strerror(errno));
+        result(j, "carve", title, "fail", "无可执行内存映射：%s。", strerror(errno));
         return;
     }
     uint8_t *data = r + page, *tail = r + 2 * page;
     const char *volatile status = "fail";
-    char why[200] = "";
+    char why[512] = "";
     guard_arm();
     if (sigsetjmp(g_guard_jump, 1) == 0) {
         uint32_t fn[5];
@@ -473,11 +473,11 @@ static void check_carve(tl_json *j, size_t page)
         void *d = mmap(data, page, PROT_READ | PROT_WRITE,
                        MAP_FIXED | MAP_PRIVATE | MAP_ANON, -1, 0);
         if (d != data) {
-            snprintf(why, sizeof(why), "The kernel would not replace a page inside the "
-                     "JIT mapping (%s).", d == MAP_FAILED ? strerror(errno) : "moved");
+            snprintf(why, sizeof(why), "内核不允许替换 JIT 映射中的页面"
+                     "（%s）。", d == MAP_FAILED ? strerror(errno) : "moved");
         } else if (!page_executable(r) || !page_executable(tail)) {
-            snprintf(why, sizeof(why), "Replacing one page took execute permission away "
-                     "from the pages either side of it.");
+            snprintf(why, sizeof(why), "替换一个页面后，"
+                     "相邻两侧页面失去了执行权限。");
         } else {
             *(volatile uint64_t *)data = 41;
             uint64_t got = ((uint64_t (*)(void))(void *)r)();
@@ -485,22 +485,22 @@ static void check_carve(tl_json *j, size_t page)
             if (got == 42 && *(volatile uint64_t *)data == 42 && seven == 7) {
                 status = "pass";
             } else {
-                snprintf(why, sizeof(why), "The code ran but got the wrong answer "
+                snprintf(why, sizeof(why), "代码已执行，但返回结果错误"
                          "(%llu, %d).", (unsigned long long)got, seven);
             }
         }
     } else {
-        snprintf(why, sizeof(why), "Faulted writing or running the code.");
+        snprintf(why, sizeof(why), "写入或执行代码时发生错误。");
     }
     guard_disarm();
     munmap(r, 3 * page);
 
     if (!strcmp(status, "pass")) {
         result(j, "carve", title, "pass",
-               "A page in the middle of a MAP_JIT mapping was replaced with ordinary "
-               "memory. The code before it still ran and wrote to it PC-relatively, "
-               "and the code after it still ran: a library's code and data can sit "
-               "side by side.");
+               "MAP_JIT 映射中间的页面已替换为普通内存。"
+               "前方代码仍能执行，并通过 PC 相对寻址写入该页面；"
+               "后方代码也能正常执行，说明库的代码与数据"
+               "可以相邻放置。");
     } else {
         result(j, "carve", title, "fail", "%s", why);
     }
@@ -513,21 +513,21 @@ static void check_carve(tl_json *j, size_t page)
  */
 static void check_place(tl_json *j, size_t page)
 {
-    static const char *title = "Code placed in front of data";
+    static const char *title = "将代码放置在数据之前";
     starting("place");
     uint8_t *r = mmap(NULL, 2 * page, PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANON, -1, 0);
     if (r == MAP_FAILED) {
-        result(j, "place", title, "fail", "Could not reserve memory: %s.", strerror(errno));
+        result(j, "place", title, "fail", "无法预留内存：%s。", strerror(errno));
         return;
     }
     uint8_t *data = r + page;
     const char *volatile status = "fail";
-    char why[200] = "";
+    char why[512] = "";
 
     void *c = mmap(r, page, PROT_READ | PROT_WRITE | PROT_EXEC, MAP_FIXED | JIT_FLAGS, -1, 0);
     if (c != r) {
-        snprintf(why, sizeof(why), "The kernel would not map executable memory at a "
-                 "chosen address (%s).", c == MAP_FAILED ? strerror(errno) : "moved");
+        snprintf(why, sizeof(why), "内核不允许在指定地址"
+                 "映射可执行内存（%s）。", c == MAP_FAILED ? strerror(errno) : "moved");
     } else {
         guard_arm();
         if (sigsetjmp(g_guard_jump, 1) == 0) {
@@ -539,18 +539,18 @@ static void check_place(tl_json *j, size_t page)
             flush_icache(r, sizeof(fn));
             *(volatile uint64_t *)data = 99;
             if (!page_executable(r)) {
-                snprintf(why, sizeof(why), "The page was mapped but is not executable.");
+                snprintf(why, sizeof(why), "页面已映射，但没有执行权限。");
             } else {
                 uint64_t got = ((uint64_t (*)(void))(void *)r)();
                 if (got == 100 && *(volatile uint64_t *)data == 100) {
                     status = "pass";
                 } else {
-                    snprintf(why, sizeof(why), "The code ran but got %llu.",
+                    snprintf(why, sizeof(why), "代码已执行，但返回 %llu。",
                              (unsigned long long)got);
                 }
             }
         } else {
-            snprintf(why, sizeof(why), "Faulted writing or running the code.");
+            snprintf(why, sizeof(why), "写入或执行代码时发生错误。");
         }
         guard_disarm();
     }
@@ -558,8 +558,8 @@ static void check_place(tl_json *j, size_t page)
 
     if (!strcmp(status, "pass")) {
         result(j, "place", title, "pass",
-               "An executable page was mapped at a chosen address in front of "
-               "ordinary memory, and its code wrote to that memory PC-relatively.");
+               "已在普通内存前方的指定地址映射可执行页面，"
+               "其中的代码可以通过 PC 相对寻址写入该内存。");
     } else {
         result(j, "place", title, "fail", "%s", why);
     }
@@ -570,10 +570,10 @@ static void check_place(tl_json *j, size_t page)
 #if defined(__aarch64__)
 static void check_dualmap(tl_json *j, size_t page, tl_dual_mapping *stik)
 {
-    static const char *title = "Code beside data, in debugger-granted memory";
+    static const char *title = "在调试器授权的内存中相邻放置代码与数据";
     if (!stik || !stik->rw_addr || !stik->rx_addr || stik->size < 2 * page) {
         result(j, "dualmap", title, "skip",
-               "No debugger-granted dual mapping is active in this process.");
+               "当前进程中没有可用的调试器授权双重映射。");
         return;
     }
     starting("dualmap");
@@ -587,24 +587,24 @@ static void check_dualmap(tl_json *j, size_t page, tl_dual_mapping *stik)
 
     guard_arm();
     const char *status = "fail";
-    char why[200] = "";
+    char why[512] = "";
     if (sigsetjmp(g_guard_jump, 1) == 0) {
         int (*fn)(void) = (int (*)(void))(void *)rx;
         int ans = fn();
         if (ans == 42) {
             status = "pass";
         } else {
-            snprintf(why, sizeof(why), "Code executed through RX alias but returned %d instead of 42.", ans);
+            snprintf(why, sizeof(why), "代码通过 RX 别名执行，但返回 %d，预期为 42。", ans);
         }
     } else {
-        snprintf(why, sizeof(why), "Faulted executing code from the RX alias.");
+        snprintf(why, sizeof(why), "从 RX 别名执行代码时发生错误。");
     }
     guard_disarm();
 
     if (!strcmp(status, "pass")) {
         result(j, "dualmap", title, "pass",
-               "StikDebug dual-mapped JIT memory is live (rw=%p, rx=%p, size=%zu MiB). "
-               "Generated code written to the RW alias executed cleanly from the RX alias.",
+               "StikDebug 双重映射 JIT 内存已生效（rw=%p，rx=%p，大小=%zu MiB）。"
+               "写入 RW 别名的代码可以通过 RX 别名正常执行。",
                (void *)stik->rw_addr, (void *)stik->rx_addr, stik->size / (1024 * 1024));
     } else {
         result(j, "dualmap", title, "fail", "%s", why);
@@ -620,25 +620,25 @@ static void check_memory(tl_json *j, bool may_execute, size_t page)
         check_carve(j, page);
         check_place(j, page);
     } else {
-        const char *why = "Skipped on TXM devices (A17 Pro and newer) or where unprivileged "
-                          "MAP_JIT is blocked. StikDebug dual mapping is used instead.";
-        result(j, "carve", "Code beside data, carved from JIT memory", "skip", "%s", why);
-        result(j, "place", "Code placed in front of data", "skip", "%s", why);
+        const char *why = "在 TXM 设备（A17 Pro 及更新机型）或禁止非特权 MAP_JIT"
+                          "的设备上跳过，改用 StikDebug 双重映射。";
+        result(j, "carve", "在 JIT 内存中分隔相邻的代码与数据", "skip", "%s", why);
+        result(j, "place", "将代码放置在数据之前", "skip", "%s", why);
     }
 
     tl_dual_mapping *stik = tl_find_stikdebug_prewarmed();
     if (stik && stik->rw_addr && stik->rx_addr) {
         check_dualmap(j, page, stik);
     } else {
-        result(j, "dualmap", "Code beside data, in debugger-granted memory", "skip",
-               "StikDebug JIT region has not been claimed yet. Start QEMU or run an attempt with StikDebug attached.");
+        result(j, "dualmap", "在调试器授权的内存中相邻放置代码与数据", "skip",
+               "尚未获取 StikDebug JIT 内存区域。请附加 StikDebug 后启动 QEMU 或尝试运行应用。");
     }
 #else
     (void)may_execute;
     (void)page;
-    result(j, "carve", "Code beside data, carved from JIT memory", "skip", "Only meaningful on arm64.");
-    result(j, "place", "Code placed in front of data", "skip", "Only meaningful on arm64.");
-    result(j, "dualmap", "Code beside data, in debugger-granted memory", "skip", "Only meaningful on arm64.");
+    result(j, "carve", "在 JIT 内存中分隔相邻的代码与数据", "skip", "仅适用于 arm64。");
+    result(j, "place", "将代码放置在数据之前", "skip", "仅适用于 arm64。");
+    result(j, "dualmap", "在调试器授权的内存中相邻放置代码与数据", "skip", "仅适用于 arm64。");
 #endif
 }
 
@@ -649,10 +649,10 @@ char *husk_tl_run_checks(bool may_execute)
     tl_json_begin_array(&j);
 
     long page = sysconf(_SC_PAGESIZE);
-    result(&j, "page", "Page size", "info",
-           "%ld bytes.%s", page,
-           page > 4096 ? " Libraries built for 4 KiB pages are laid out afresh for it; "
-                         "each app's report says whether that works." : "");
+    result(&j, "page", "页面大小", "info",
+           "%ld 字节。%s", page,
+           page > 4096 ? " 对于按 4 KiB 页面构建的库，会重新安排内存布局；"
+                         "可在应用报告中查看是否兼容。" : "");
 
     check_tpidr(&j);
     check_x18(&j);

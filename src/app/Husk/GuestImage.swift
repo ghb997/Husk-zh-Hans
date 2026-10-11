@@ -319,7 +319,7 @@ final class GuestImage: ObservableObject {
         let fm = FileManager.default
         guard let attrs = try? fm.attributesOfItem(atPath: path),
               let size = (attrs[.size] as? NSNumber)?.int64Value else {
-            return (nil, "file is missing")
+            return (nil, "文件不存在")
         }
         guard size >= minimumPlausibleSize else {
             // Show a little of it: when this fires the content is usually a short
@@ -328,19 +328,19 @@ final class GuestImage: ObservableObject {
             if size > 0, size < 512,
                let d = fm.contents(atPath: path),
                let text = String(data: d, encoding: .utf8) {
-                hint = " — content was: \(text.trimmingCharacters(in: .whitespacesAndNewlines))"
+                hint = " — 文件内容为：\(text.trimmingCharacters(in: .whitespacesAndNewlines))"
             }
-            return (nil, "only \(size) bytes, expected at least "
+            return (nil, "仅有 \(size) 字节，至少需要"
                         + "\(minimumPlausibleSize / (1024 * 1024)) MB\(hint)")
         }
         guard let fh = FileHandle(forReadingAtPath: path),
               let head = try? fh.read(upToCount: 4), head.count == 4 else {
-            return (nil, "could not read the file header")
+            return (nil, "无法读取文件头")
         }
         try? fh.close()
         guard Array(head) == qcow2Magic else {
             let hex = head.map { String(format: "%02x", $0) }.joined(separator: " ")
-            return (nil, "not a qcow2 image (header was \(hex), expected 51 46 49 fb)")
+            return (nil, "不是 qcow2 镜像（文件头为 \(hex)，应为 51 46 49 fb）")
         }
         return (size, nil)
     }
@@ -370,7 +370,7 @@ final class GuestImage: ObservableObject {
         if let why = check.problem {
             HuskLog.log("guest", "existing guest disk is INVALID (\(why)); removing it")
             try? FileManager.default.removeItem(atPath: diskPath)
-            state = .failed("The runtime on disk is not a valid image (\(why)). Tap to retry.")
+            state = .failed("本地运行环境不是有效镜像（\(why)）。请轻点重试。")
         } else {
             HuskLog.log("guest", "guest disk present and valid: \(check.size ?? 0) bytes")
             state = .ready
@@ -414,7 +414,7 @@ final class GuestImage: ObservableObject {
         if !fm.fileExists(atPath: firmwarePath) {
             guard let src = Bundle.main.path(forResource: "edk2-aarch64-code", ofType: "fd") else {
                 throw NSError(domain: "husk", code: 1, userInfo: [
-                    NSLocalizedDescriptionKey: "edk2-aarch64-code.fd missing from the app bundle"])
+                    NSLocalizedDescriptionKey: "应用包中缺少 edk2-aarch64-code.fd"])
             }
             // Copied rather than used in place: pflash wants a plain file and the
             // bundle is read-only, and keeping both volumes together in Documents
@@ -448,7 +448,7 @@ final class GuestImage: ObservableObject {
             // starting from empty anyway.
             guard let seed = Bundle.main.path(forResource: "lineage-efi-vars-seed", ofType: "fd") else {
                 throw NSError(domain: "husk", code: 2, userInfo: [
-                    NSLocalizedDescriptionKey: "lineage-efi-vars-seed.fd missing from the app bundle"])
+                    NSLocalizedDescriptionKey: "应用包中缺少 lineage-efi-vars-seed.fd"])
             }
             try? fm.removeItem(atPath: varsPath)
             try fm.copyItem(atPath: seed, toPath: varsPath)
@@ -484,7 +484,7 @@ final class GuestImage: ObservableObject {
                 // missing resource must not turn an upgrade into a missing disk.
                 guard let seed = Bundle.main.path(forResource: "lineage-vdb-seed", ofType: "qcow2") else {
                     throw NSError(domain: "husk", code: 3, userInfo: [
-                        NSLocalizedDescriptionKey: "lineage-vdb-seed.qcow2 missing from the app bundle"])
+                        NSLocalizedDescriptionKey: "应用包中缺少 lineage-vdb-seed.qcow2"])
                 }
                 HuskLog.log("guest", "userdata seed \(seededWith ?? "unversioned") -> \(seedVersion); "
                                    + "starting from a clean partition")
@@ -497,7 +497,7 @@ final class GuestImage: ObservableObject {
         if !fm.fileExists(atPath: userdataPath) {
             guard let seed = Bundle.main.path(forResource: "lineage-vdb-seed", ofType: "qcow2") else {
                 throw NSError(domain: "husk", code: 3, userInfo: [
-                    NSLocalizedDescriptionKey: "lineage-vdb-seed.qcow2 missing from the app bundle"])
+                    NSLocalizedDescriptionKey: "应用包中缺少 lineage-vdb-seed.qcow2"])
             }
             try fm.copyItem(atPath: seed, toPath: userdataPath)
             try seedVersion.write(to: seedStamp, atomically: true, encoding: .utf8)
@@ -561,8 +561,8 @@ final class GuestImage: ObservableObject {
                         if let want = self.manifest?.snapshot.sha256, want != joined.digest {
                             try? FileManager.default.removeItem(at: joined.url)
                             self.isFetchingSnapshot = false
-                            self.failed("The snapshot did not match the release "
-                                      + "(sha256 \(joined.digest.prefix(12)), expected "
+                            self.failed("快照与发布版本不符"
+                                      + "（SHA256 为 \(joined.digest.prefix(12))，预期为"
                                       + "\(want.prefix(12))).")
                             return
                         }
@@ -608,7 +608,7 @@ final class GuestImage: ObservableObject {
                 try? FileManager.default.removeItem(at: dest)
                 try? FileManager.default.removeItem(atPath: self.snapshotStampPath)
                 DispatchQueue.main.async {
-                    self.state = .failed("Could not unpack the snapshot: \(error.localizedDescription)")
+                    self.state = .failed("无法解压快照：\(error.localizedDescription)")
                 }
             }
         }
@@ -707,7 +707,7 @@ final class GuestImage: ObservableObject {
         var head = try input.read(upToCount: 10) ?? Data()
         guard head.count == 10, head[0] == 0x1f, head[1] == 0x8b, head[2] == 8 else {
             throw NSError(domain: "husk", code: 1, userInfo:
-                [NSLocalizedDescriptionKey: "not a gzip file"])
+                [NSLocalizedDescriptionKey: "不是 gzip 文件"])
         }
         let flg = head[3]
         if flg & 0x04 != 0 {                                  // FEXTRA
@@ -728,7 +728,7 @@ final class GuestImage: ObservableObject {
         guard compression_stream_init(&stream, COMPRESSION_STREAM_DECODE,
                                       COMPRESSION_ZLIB) == COMPRESSION_STATUS_OK else {
             throw NSError(domain: "husk", code: 2, userInfo:
-                [NSLocalizedDescriptionKey: "inflate init failed"])
+                [NSLocalizedDescriptionKey: "解压初始化失败"])
         }
         defer { compression_stream_destroy(&stream) }
 
@@ -755,7 +755,7 @@ final class GuestImage: ObservableObject {
                     if st == COMPRESSION_STATUS_END { finished = true; break }
                     if st == COMPRESSION_STATUS_ERROR {
                         throw NSError(domain: "husk", code: 3, userInfo:
-                            [NSLocalizedDescriptionKey: "inflate failed"])
+                            [NSLocalizedDescriptionKey: "解压失败"])
                     }
                 } while stream.src_size > 0 || (last && !finished)
             }
@@ -781,7 +781,7 @@ final class GuestImage: ObservableObject {
             try? FileManager.default.removeItem(at: tempURL)
             HuskLog.log("guest", "image rejected: sha256 \(got.prefix(12)) but the "
                                + "release says \(want.prefix(12))")
-            state = .failed("The downloaded image did not match the release. Tap to retry.")
+            state = .failed("下载的镜像与发布版本不符，请轻点重试。")
             return
         }
         // Validate BEFORE installing, so a bad download never becomes the thing
@@ -790,7 +790,7 @@ final class GuestImage: ObservableObject {
         if let why = check.problem {
             try? FileManager.default.removeItem(at: tempURL)
             HuskLog.log("guest", "downloaded file rejected: \(why)")
-            state = .failed("Download did not produce a disk image: \(why)")
+            state = .failed("下载结果不是有效磁盘镜像：\(why)")
             return
         }
         let size = check.size ?? 0
@@ -870,10 +870,10 @@ private final class DownloadDelegate: NSObject, URLSessionDownloadDelegate {
            !(200...299).contains(http.statusCode) {
             let body = (try? String(contentsOf: location, encoding: .utf8))?
                 .trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
-            let detail = body.isEmpty ? "" : " — server said: \(body.prefix(200))"
+            let detail = body.isEmpty ? "" : " — 服务器返回：\(body.prefix(200))"
             let url = downloadTask.originalRequest?.url?.absoluteString ?? "?"
             Task { @MainActor in
-                self.owner?.failed("HTTP \(http.statusCode) from \(url)\(detail)")
+                self.owner?.failed("\(url) 返回 HTTP \(http.statusCode)\(detail)")
             }
             return
         }
@@ -887,7 +887,7 @@ private final class DownloadDelegate: NSObject, URLSessionDownloadDelegate {
             try FileManager.default.moveItem(at: location, to: stable)
         } catch {
             Task { @MainActor in
-                self.owner?.failed("could not stage download: \(error.localizedDescription)")
+                self.owner?.failed("无法暂存下载文件：\(error.localizedDescription)")
             }
             return
         }
@@ -985,8 +985,8 @@ private final class SnapshotFetcher: NSObject, URLSessionDownloadDelegate {
         // looking exactly like the file that was asked for.
         if let http = downloadTask.response as? HTTPURLResponse,
            !(200...299).contains(http.statusCode) {
-            fail("HTTP \(http.statusCode) fetching "
-               + (downloadTask.originalRequest?.url?.lastPathComponent ?? "a snapshot part"))
+            fail("下载快照分片时收到 HTTP \(http.statusCode)"
+               + (downloadTask.originalRequest?.url?.lastPathComponent ?? ""))
             return
         }
         do {
@@ -1001,7 +1001,7 @@ private final class SnapshotFetcher: NSObject, URLSessionDownloadDelegate {
                 bytesDone += Int64(chunk.count)
             }
         } catch {
-            fail("could not join snapshot part \(index + 1): \(error.localizedDescription)")
+            fail("无法合并第 \(index + 1) 个快照分片：\(error.localizedDescription)")
             return
         }
         try? FileManager.default.removeItem(at: location)

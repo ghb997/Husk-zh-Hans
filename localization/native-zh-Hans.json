@@ -1,0 +1,830 @@
+[
+  {
+    "file": "src/translation-layer/husk-tl-probe.c",
+    "line": 655,
+    "en": "each app's report says whether that works.",
+    "zh-Hans": "可在应用报告中查看是否兼容。"
+  },
+  {
+    "file": "src/translation-layer/husk-tl-probe.c",
+    "line": 654,
+    "en": " Libraries built for 4 KiB pages are laid out afresh for it; ",
+    "zh-Hans": " 对于按 4 KiB 页面构建的库，会重新安排内存布局；"
+  },
+  {
+    "file": "src/translation-layer/husk-tl-probe.c",
+    "line": 653,
+    "en": "%ld bytes.%s",
+    "zh-Hans": "%ld 字节。%s"
+  },
+  {
+    "file": "src/translation-layer/husk-tl-probe.c",
+    "line": 652,
+    "en": "Page size",
+    "zh-Hans": "页面大小"
+  },
+  {
+    "file": "src/translation-layer/husk-tl-probe.c",
+    "line": 641,
+    "en": "Only meaningful on arm64.",
+    "zh-Hans": "仅适用于 arm64。"
+  },
+  {
+    "file": "src/translation-layer/husk-tl-probe.c",
+    "line": 641,
+    "en": "Code beside data, in debugger-granted memory",
+    "zh-Hans": "在调试器授权的内存中相邻放置代码与数据"
+  },
+  {
+    "file": "src/translation-layer/husk-tl-probe.c",
+    "line": 640,
+    "en": "Only meaningful on arm64.",
+    "zh-Hans": "仅适用于 arm64。"
+  },
+  {
+    "file": "src/translation-layer/husk-tl-probe.c",
+    "line": 640,
+    "en": "Code placed in front of data",
+    "zh-Hans": "将代码放置在数据之前"
+  },
+  {
+    "file": "src/translation-layer/husk-tl-probe.c",
+    "line": 639,
+    "en": "Only meaningful on arm64.",
+    "zh-Hans": "仅适用于 arm64。"
+  },
+  {
+    "file": "src/translation-layer/husk-tl-probe.c",
+    "line": 639,
+    "en": "Code beside data, carved from JIT memory",
+    "zh-Hans": "在 JIT 内存中分隔相邻的代码与数据"
+  },
+  {
+    "file": "src/translation-layer/husk-tl-probe.c",
+    "line": 634,
+    "en": "StikDebug JIT region has not been claimed yet. Start QEMU or run an attempt with StikDebug attached.",
+    "zh-Hans": "尚未获取 StikDebug JIT 内存区域。请附加 StikDebug 后启动 QEMU 或尝试运行应用。"
+  },
+  {
+    "file": "src/translation-layer/husk-tl-probe.c",
+    "line": 633,
+    "en": "Code beside data, in debugger-granted memory",
+    "zh-Hans": "在调试器授权的内存中相邻放置代码与数据"
+  },
+  {
+    "file": "src/translation-layer/husk-tl-probe.c",
+    "line": 626,
+    "en": "Code placed in front of data",
+    "zh-Hans": "将代码放置在数据之前"
+  },
+  {
+    "file": "src/translation-layer/husk-tl-probe.c",
+    "line": 625,
+    "en": "Code beside data, carved from JIT memory",
+    "zh-Hans": "在 JIT 内存中分隔相邻的代码与数据"
+  },
+  {
+    "file": "src/translation-layer/husk-tl-probe.c",
+    "line": 624,
+    "en": "MAP_JIT is blocked. StikDebug dual mapping is used instead.",
+    "zh-Hans": "的设备上跳过，改用 StikDebug 双重映射。"
+  },
+  {
+    "file": "src/translation-layer/husk-tl-probe.c",
+    "line": 623,
+    "en": "Skipped on TXM devices (A17 Pro and newer) or where unprivileged ",
+    "zh-Hans": "在 TXM 设备（A17 Pro 及更新机型）或禁止非特权 MAP_JIT"
+  },
+  {
+    "file": "src/translation-layer/husk-tl-probe.c",
+    "line": 607,
+    "en": "Generated code written to the RW alias executed cleanly from the RX alias.",
+    "zh-Hans": "写入 RW 别名的代码可以通过 RX 别名正常执行。"
+  },
+  {
+    "file": "src/translation-layer/husk-tl-probe.c",
+    "line": 606,
+    "en": "StikDebug dual-mapped JIT memory is live (rw=%p, rx=%p, size=%zu MiB). ",
+    "zh-Hans": "StikDebug 双重映射 JIT 内存已生效（rw=%p，rx=%p，大小=%zu MiB）。"
+  },
+  {
+    "file": "src/translation-layer/husk-tl-probe.c",
+    "line": 600,
+    "en": "Faulted executing code from the RX alias.",
+    "zh-Hans": "从 RX 别名执行代码时发生错误。"
+  },
+  {
+    "file": "src/translation-layer/husk-tl-probe.c",
+    "line": 597,
+    "en": "Code executed through RX alias but returned %d instead of 42.",
+    "zh-Hans": "代码通过 RX 别名执行，但返回 %d，预期为 42。"
+  },
+  {
+    "file": "src/translation-layer/husk-tl-probe.c",
+    "line": 576,
+    "en": "No debugger-granted dual mapping is active in this process.",
+    "zh-Hans": "当前进程中没有可用的调试器授权双重映射。"
+  },
+  {
+    "file": "src/translation-layer/husk-tl-probe.c",
+    "line": 573,
+    "en": "Code beside data, in debugger-granted memory",
+    "zh-Hans": "在调试器授权的内存中相邻放置代码与数据"
+  },
+  {
+    "file": "src/translation-layer/husk-tl-probe.c",
+    "line": 562,
+    "en": "ordinary memory, and its code wrote to that memory PC-relatively.",
+    "zh-Hans": "其中的代码可以通过 PC 相对寻址写入该内存。"
+  },
+  {
+    "file": "src/translation-layer/husk-tl-probe.c",
+    "line": 561,
+    "en": "An executable page was mapped at a chosen address in front of ",
+    "zh-Hans": "已在普通内存前方的指定地址映射可执行页面，"
+  },
+  {
+    "file": "src/translation-layer/husk-tl-probe.c",
+    "line": 553,
+    "en": "Faulted writing or running the code.",
+    "zh-Hans": "写入或执行代码时发生错误。"
+  },
+  {
+    "file": "src/translation-layer/husk-tl-probe.c",
+    "line": 548,
+    "en": "The code ran but got %llu.",
+    "zh-Hans": "代码已执行，但返回 %llu。"
+  },
+  {
+    "file": "src/translation-layer/husk-tl-probe.c",
+    "line": 542,
+    "en": "The page was mapped but is not executable.",
+    "zh-Hans": "页面已映射，但没有执行权限。"
+  },
+  {
+    "file": "src/translation-layer/husk-tl-probe.c",
+    "line": 530,
+    "en": "chosen address (%s).",
+    "zh-Hans": "映射可执行内存（%s）。"
+  },
+  {
+    "file": "src/translation-layer/husk-tl-probe.c",
+    "line": 529,
+    "en": "The kernel would not map executable memory at a ",
+    "zh-Hans": "内核不允许在指定地址"
+  },
+  {
+    "file": "src/translation-layer/husk-tl-probe.c",
+    "line": 520,
+    "en": "Could not reserve memory: %s.",
+    "zh-Hans": "无法预留内存：%s。"
+  },
+  {
+    "file": "src/translation-layer/husk-tl-probe.c",
+    "line": 516,
+    "en": "Code placed in front of data",
+    "zh-Hans": "将代码放置在数据之前"
+  },
+  {
+    "file": "src/translation-layer/husk-tl-probe.c",
+    "line": 503,
+    "en": "side by side.",
+    "zh-Hans": "可以相邻放置。"
+  },
+  {
+    "file": "src/translation-layer/husk-tl-probe.c",
+    "line": 502,
+    "en": "and the code after it still ran: a library's code and data can sit ",
+    "zh-Hans": "后方代码也能正常执行，说明库的代码与数据"
+  },
+  {
+    "file": "src/translation-layer/husk-tl-probe.c",
+    "line": 501,
+    "en": "memory. The code before it still ran and wrote to it PC-relatively, ",
+    "zh-Hans": "前方代码仍能执行，并通过 PC 相对寻址写入该页面；"
+  },
+  {
+    "file": "src/translation-layer/husk-tl-probe.c",
+    "line": 500,
+    "en": "A page in the middle of a MAP_JIT mapping was replaced with ordinary ",
+    "zh-Hans": "MAP_JIT 映射中间的页面已替换为普通内存。"
+  },
+  {
+    "file": "src/translation-layer/husk-tl-probe.c",
+    "line": 493,
+    "en": "Faulted writing or running the code.",
+    "zh-Hans": "写入或执行代码时发生错误。"
+  },
+  {
+    "file": "src/translation-layer/husk-tl-probe.c",
+    "line": 488,
+    "en": "The code ran but got the wrong answer ",
+    "zh-Hans": "代码已执行，但返回结果错误"
+  },
+  {
+    "file": "src/translation-layer/husk-tl-probe.c",
+    "line": 480,
+    "en": "from the pages either side of it.",
+    "zh-Hans": "相邻两侧页面失去了执行权限。"
+  },
+  {
+    "file": "src/translation-layer/husk-tl-probe.c",
+    "line": 479,
+    "en": "Replacing one page took execute permission away ",
+    "zh-Hans": "替换一个页面后，"
+  },
+  {
+    "file": "src/translation-layer/husk-tl-probe.c",
+    "line": 477,
+    "en": "JIT mapping (%s).",
+    "zh-Hans": "（%s）。"
+  },
+  {
+    "file": "src/translation-layer/husk-tl-probe.c",
+    "line": 476,
+    "en": "The kernel would not replace a page inside the ",
+    "zh-Hans": "内核不允许替换 JIT 映射中的页面"
+  },
+  {
+    "file": "src/translation-layer/husk-tl-probe.c",
+    "line": 456,
+    "en": "No executable mapping: %s.",
+    "zh-Hans": "无可执行内存映射：%s。"
+  },
+  {
+    "file": "src/translation-layer/husk-tl-probe.c",
+    "line": 452,
+    "en": "Code beside data, carved from JIT memory",
+    "zh-Hans": "在 JIT 内存中分隔相邻的代码与数据"
+  },
+  {
+    "file": "src/translation-layer/husk-tl-probe.c",
+    "line": 326,
+    "en": "Only meaningful on Apple arm64, where the compiler leaves x18 alone.",
+    "zh-Hans": "仅适用于编译器保留 x18 的 Apple arm64 平台。"
+  },
+  {
+    "file": "src/translation-layer/husk-tl-probe.c",
+    "line": 325,
+    "en": "Platform register (x18)",
+    "zh-Hans": "平台寄存器（x18）"
+  },
+  {
+    "file": "src/translation-layer/husk-tl-probe.c",
+    "line": 317,
+    "en": "fail at random.",
+    "zh-Hans": "可能会随机出错。"
+  },
+  {
+    "file": "src/translation-layer/husk-tl-probe.c",
+    "line": 316,
+    "en": "shadow call stacks, or an old one that treats x18 as scratch, would ",
+    "zh-Hans": "但启用影子调用栈的库或将 x18 用作临时寄存器的旧库，"
+  },
+  {
+    "file": "src/translation-layer/husk-tl-probe.c",
+    "line": 315,
+    "en": "current Android compilers never uses x18, but a library built with ",
+    "zh-Hans": "Android 编译器生成的代码不会使用 x18，"
+  },
+  {
+    "file": "src/translation-layer/husk-tl-probe.c",
+    "line": 314,
+    "en": "Changed by the system: read 0x%llx after a switch (%u of %u). Code from ",
+    "zh-Hans": "被系统改写：切换后读到 0x%llx（%u/%u 次）。当前"
+  },
+  {
+    "file": "src/translation-layer/husk-tl-probe.c",
+    "line": 311,
+    "en": "shadow call stacks, some older builds -- can run.",
+    "zh-Hans": "包括影子调用栈和部分旧版本库，可以正常运行。"
+  },
+  {
+    "file": "src/translation-layer/husk-tl-probe.c",
+    "line": 310,
+    "en": "Kept across %u context switches. Libraries that keep values in x18 -- ",
+    "zh-Hans": "在 %u 次上下文切换中保留。使用 x18 保存数据的库，"
+  },
+  {
+    "file": "src/translation-layer/husk-tl-probe.c",
+    "line": 303,
+    "en": "Platform register (x18)",
+    "zh-Hans": "平台寄存器（x18）"
+  },
+  {
+    "file": "src/translation-layer/husk-tl-probe.c",
+    "line": 270,
+    "en": "Only meaningful on arm64.",
+    "zh-Hans": "仅适用于 arm64。"
+  },
+  {
+    "file": "src/translation-layer/husk-tl-probe.c",
+    "line": 270,
+    "en": "Thread register (TPIDR_EL0)",
+    "zh-Hans": "线程寄存器（TPIDR_EL0）"
+  },
+  {
+    "file": "src/translation-layer/husk-tl-probe.c",
+    "line": 262,
+    "en": "as it is.",
+    "zh-Hans": "读取栈保护值。"
+  },
+  {
+    "file": "src/translation-layer/husk-tl-probe.c",
+    "line": 261,
+    "en": "into a signal handler. Android code can read its stack guard from it ",
+    "zh-Hans": "信号处理函数中均保留。Android 代码可以直接从中"
+  },
+  {
+    "file": "src/translation-layer/husk-tl-probe.c",
+    "line": 260,
+    "en": "Free, and ours: kept across %u context switches on %d threads and ",
+    "zh-Hans": "可由 Husk 使用：在 %u 次上下文切换、%d 个线程以及"
+  },
+  {
+    "file": "src/translation-layer/husk-tl-probe.c",
+    "line": 256,
+    "en": "handlers would need the register set on entry.",
+    "zh-Hans": "但进入信号处理函数时需要重新设置寄存器。"
+  },
+  {
+    "file": "src/translation-layer/husk-tl-probe.c",
+    "line": 255,
+    "en": "0x%llx and afterwards 0x%llx. Android code would run, but its signal ",
+    "zh-Hans": "0x%llx，之后为 0x%llx。Android 代码可以运行，"
+  },
+  {
+    "file": "src/translation-layer/husk-tl-probe.c",
+    "line": 254,
+    "en": "Kept across %u context switches, but inside a signal handler it read ",
+    "zh-Hans": "在 %u 次上下文切换中保留，但信号处理函数中读到"
+  },
+  {
+    "file": "src/translation-layer/husk-tl-probe.c",
+    "line": 251,
+    "en": "arrived to check it inside a handler.)",
+    "zh-Hans": "（未收到可用于检查信号处理函数的信号。）"
+  },
+  {
+    "file": "src/translation-layer/husk-tl-probe.c",
+    "line": 250,
+    "en": "Free, and kept across %u context switches on %d threads. (No signal ",
+    "zh-Hans": "未被占用，并在 %u 次上下文切换、%d 个线程中保留。"
+  },
+  {
+    "file": "src/translation-layer/husk-tl-probe.c",
+    "line": 241,
+    "en": "would have to be rewritten at load time.",
+    "zh-Hans": "对此寄存器的所有读取操作。"
+  },
+  {
+    "file": "src/translation-layer/husk-tl-probe.c",
+    "line": 240,
+    "en": "switched out (%u of %u reads lost). Every read of it in Android code ",
+    "zh-Hans": "%u/%u 次读取丢失。必须在加载时改写 Android 代码中"
+  },
+  {
+    "file": "src/translation-layer/husk-tl-probe.c",
+    "line": 239,
+    "en": "Not kept: set on %d threads, it read back as 0x%llx after being ",
+    "zh-Hans": "值未保留：在 %d 个线程中设置后，上下文切换后读回 0x%llx，"
+  },
+  {
+    "file": "src/translation-layer/husk-tl-probe.c",
+    "line": 233,
+    "en": "have to live wherever it points, or every read be rewritten.",
+    "zh-Hans": "需要将保护值放在它指向的位置，或改写所有读取指令。"
+  },
+  {
+    "file": "src/translation-layer/husk-tl-probe.c",
+    "line": 232,
+    "en": "owns it. Android code reads its stack guard from it; the guard would ",
+    "zh-Hans": "正在使用它。Android 代码会从此寄存器读取栈保护值，"
+  },
+  {
+    "file": "src/translation-layer/husk-tl-probe.c",
+    "line": 231,
+    "en": "Already in use: it holds 0x%llx before Husk touches it, so the system ",
+    "zh-Hans": "已被占用：Husk 操作前其值为 0x%llx，说明系统"
+  },
+  {
+    "file": "src/translation-layer/husk-tl-probe.c",
+    "line": 216,
+    "en": "Could not start a thread to measure with.",
+    "zh-Hans": "无法创建用于测量的线程。"
+  },
+  {
+    "file": "src/translation-layer/husk-tl-probe.c",
+    "line": 197,
+    "en": "Thread register (TPIDR_EL0)",
+    "zh-Hans": "线程寄存器（TPIDR_EL0）"
+  },
+  {
+    "file": "src/translation-layer/husk-tl-scan.c",
+    "line": 387,
+    "en": "Native code, but none of it for arm64.",
+    "zh-Hans": "包含原生代码，但没有 arm64 版本。"
+  },
+  {
+    "file": "src/translation-layer/husk-tl-scan.c",
+    "line": 385,
+    "en": "need an x86 translator such as FEXCore.",
+    "zh-Hans": "需要 FEXCore 等 x86 指令转译器。"
+  },
+  {
+    "file": "src/translation-layer/husk-tl-scan.c",
+    "line": 384,
+    "en": "Native code for x86 only, which would ",
+    "zh-Hans": "仅包含 x86 原生代码，"
+  },
+  {
+    "file": "src/translation-layer/husk-tl-scan.c",
+    "line": 382,
+    "en": "cannot run 32-bit ARM code at all, so this would need a CPU emulator.",
+    "zh-Hans": "无法执行 32 位 ARM 代码，因此需要 CPU 模拟器。"
+  },
+  {
+    "file": "src/translation-layer/husk-tl-scan.c",
+    "line": 381,
+    "en": "Native code for 32-bit ARM only. iPhones ",
+    "zh-Hans": "仅包含 32 位 ARM 原生代码。iPhone"
+  },
+  {
+    "file": "src/translation-layer/husk-tl-scan.c",
+    "line": 376,
+    "en": "s",
+    "zh-Hans": ""
+  },
+  {
+    "file": "src/translation-layer/husk-tl-scan.c",
+    "line": 376,
+    "en": "ies",
+    "zh-Hans": ""
+  },
+  {
+    "file": "src/translation-layer/husk-tl-scan.c",
+    "line": 376,
+    "en": "y",
+    "zh-Hans": ""
+  },
+  {
+    "file": "src/translation-layer/husk-tl-scan.c",
+    "line": 375,
+    "en": "need%s extra work from the loader.",
+    "zh-Hans": "需要加载器额外处理%s。"
+  },
+  {
+    "file": "src/translation-layer/husk-tl-scan.c",
+    "line": 374,
+    "en": "arm64 native code, but %d of %d librar%s ",
+    "zh-Hans": "包含 arm64 原生代码，但有 %d/%d 个库%s"
+  },
+  {
+    "file": "src/translation-layer/husk-tl-scan.c",
+    "line": 371,
+    "en": "cleanly onto 16 KiB pages.",
+    "zh-Hans": "映射到 16 KiB 页面。"
+  },
+  {
+    "file": "src/translation-layer/husk-tl-scan.c",
+    "line": 370,
+    "en": "arm64 native code, and every library maps ",
+    "zh-Hans": "包含 arm64 原生代码，所有库都能正确"
+  },
+  {
+    "file": "src/translation-layer/husk-tl-scan.c",
+    "line": 367,
+    "en": "including the %d that use tricks the older loader could not handle.",
+    "zh-Hans": "其中包括旧加载器无法处理的 %d 个库。"
+  },
+  {
+    "file": "src/translation-layer/husk-tl-scan.c",
+    "line": 366,
+    "en": "A Unity game: Husk's native runtime loads its %d arm64 libraries itself, ",
+    "zh-Hans": "这是 Unity 游戏，Husk 原生运行环境负责加载 %d 个 arm64 库，"
+  },
+  {
+    "file": "src/translation-layer/husk-tl-scan.c",
+    "line": 362,
+    "en": "translation layer is needed to run it.",
+    "zh-Hans": "运行环境即可执行。"
+  },
+  {
+    "file": "src/translation-layer/husk-tl-scan.c",
+    "line": 361,
+    "en": "No native code. Only the Java side of the ",
+    "zh-Hans": "没有原生代码，仅需转译层的 Java"
+  },
+  {
+    "file": "src/translation-layer/husk-tl-scan.c",
+    "line": 358,
+    "en": "the plugins it calls.",
+    "zh-Hans": "插件调用由 Husk 处理。"
+  },
+  {
+    "file": "src/translation-layer/husk-tl-scan.c",
+    "line": 357,
+    "en": "A %s web app: its pages and scripts run in Safari's engine, with Husk answering ",
+    "zh-Hans": "这是 %s 网页应用，页面和脚本在 Safari 引擎中运行，"
+  },
+  {
+    "file": "src/translation-layer/husk-tl-scan.c",
+    "line": 354,
+    "en": "This is not an app: it has no manifest and no code.",
+    "zh-Hans": "此文件不是应用，既没有清单也没有代码。"
+  },
+  {
+    "file": "src/translation-layer/husk-tl-scan.c",
+    "line": 351,
+    "en": "Could not be read: %s",
+    "zh-Hans": "无法读取：%s"
+  },
+  {
+    "file": "src/translation-layer/husk-tl-scan.c",
+    "line": 267,
+    "en": "out of memory",
+    "zh-Hans": "内存不足"
+  },
+  {
+    "file": "src/translation-layer/husk-tl-scan.c",
+    "line": 173,
+    "en": "s",
+    "zh-Hans": ""
+  },
+  {
+    "file": "src/translation-layer/husk-tl-scan.c",
+    "line": 172,
+    "en": "%u relocation%s of a type the loader will not handle (first: %u).",
+    "zh-Hans": "有 %u 个重定位项%s的类型尚不受加载器支持（首个类型：%u）。"
+  },
+  {
+    "file": "src/translation-layer/husk-tl-scan.c",
+    "line": 169,
+    "en": "Patches its own code as it loads (text relocations).",
+    "zh-Hans": "在加载时修改自身代码（文本重定位）。"
+  },
+  {
+    "file": "src/translation-layer/husk-tl-scan.c",
+    "line": 166,
+    "en": "s",
+    "zh-Hans": ""
+  },
+  {
+    "file": "src/translation-layer/husk-tl-scan.c",
+    "line": 165,
+    "en": "Sets the thread register itself in %u place%s.",
+    "zh-Hans": "有 %u 处%s自行设置线程寄存器。"
+  },
+  {
+    "file": "src/translation-layer/husk-tl-scan.c",
+    "line": 162,
+    "en": "s",
+    "zh-Hans": ""
+  },
+  {
+    "file": "src/translation-layer/husk-tl-scan.c",
+    "line": 162,
+    "en": "each needs patching at load time.",
+    "zh-Hans": "需要在加载时逐一修补。"
+  },
+  {
+    "file": "src/translation-layer/husk-tl-scan.c",
+    "line": 161,
+    "en": "Makes %u direct Linux system call%s, which iOS would not understand; ",
+    "zh-Hans": "有 %u 处直接 Linux 系统调用%s，iOS 无法识别，"
+  },
+  {
+    "file": "src/translation-layer/husk-tl-scan.c",
+    "line": 158,
+    "en": "writable data, so it still maps.",
+    "zh-Hans": "16 KiB 页面的情况，仍可映射。"
+  },
+  {
+    "file": "src/translation-layer/husk-tl-scan.c",
+    "line": 157,
+    "en": "Built for 4 KiB pages, but no 16 KiB page mixes code with ",
+    "zh-Hans": "此库按 4 KiB 页面构建，但没有代码与可写数据混用"
+  },
+  {
+    "file": "src/translation-layer/husk-tl-scan.c",
+    "line": 155,
+    "en": "s",
+    "zh-Hans": ""
+  },
+  {
+    "file": "src/translation-layer/husk-tl-scan.c",
+    "line": 154,
+    "en": "emulation in the loader, or a build with 16 KiB alignment.",
+    "zh-Hans": "需要加载器模拟写入，或改用按 16 KiB 对齐构建的版本。"
+  },
+  {
+    "file": "src/translation-layer/husk-tl-scan.c",
+    "line": 153,
+    "en": "built for 4 KiB pages, so code and data share 16 KiB ones. Needs write ",
+    "zh-Hans": "4 KiB 页面构建，因此代码和数据会共用 16 KiB 页面。"
+  },
+  {
+    "file": "src/translation-layer/husk-tl-scan.c",
+    "line": 152,
+    "en": "%u page%s would have to be executable and writable at once: it was ",
+    "zh-Hans": "有 %u 个页面%s需要同时具备执行和写入权限。此库按"
+  },
+  {
+    "file": "src/translation-layer/husk-tl-zip.c",
+    "line": 354,
+    "en": "%s did not inflate cleanly",
+    "zh-Hans": "%s 未能完整解压"
+  },
+  {
+    "file": "src/translation-layer/husk-tl-zip.c",
+    "line": 319,
+    "en": "inflate failed to start",
+    "zh-Hans": "无法初始化解压"
+  },
+  {
+    "file": "src/translation-layer/husk-tl-zip.c",
+    "line": 312,
+    "en": "out of memory inflating %s",
+    "zh-Hans": "解压 %s 时内存不足"
+  },
+  {
+    "file": "src/translation-layer/husk-tl-zip.c",
+    "line": 306,
+    "en": "%s uses compression method %u",
+    "zh-Hans": "%s 使用压缩算法 %u"
+  },
+  {
+    "file": "src/translation-layer/husk-tl-zip.c",
+    "line": 298,
+    "en": "%s: stored entry with mismatched sizes",
+    "zh-Hans": "%s：存储条目的大小不匹配"
+  },
+  {
+    "file": "src/translation-layer/husk-tl-zip.c",
+    "line": 291,
+    "en": "%s runs past the end of the file",
+    "zh-Hans": "%s 超出文件末尾"
+  },
+  {
+    "file": "src/translation-layer/husk-tl-zip.c",
+    "line": 285,
+    "en": "%s: damaged local header",
+    "zh-Hans": "%s：本地文件头已损坏"
+  },
+  {
+    "file": "src/translation-layer/husk-tl-zip.c",
+    "line": 278,
+    "en": "%s is too large (%llu bytes)",
+    "zh-Hans": "%s 过大（%llu 字节）"
+  },
+  {
+    "file": "src/translation-layer/husk-tl-zip.c",
+    "line": 274,
+    "en": "%s is encrypted",
+    "zh-Hans": "%s 已加密"
+  },
+  {
+    "file": "src/translation-layer/husk-tl-zip.c",
+    "line": 219,
+    "en": "out of memory",
+    "zh-Hans": "内存不足"
+  },
+  {
+    "file": "src/translation-layer/husk-tl-zip.c",
+    "line": 212,
+    "en": "damaged ZIP64 field in entry %llu",
+    "zh-Hans": "第 %llu 个条目的 ZIP64 字段已损坏"
+  },
+  {
+    "file": "src/translation-layer/husk-tl-zip.c",
+    "line": 198,
+    "en": "central directory entry runs past its end",
+    "zh-Hans": "中央目录条目越界"
+  },
+  {
+    "file": "src/translation-layer/husk-tl-zip.c",
+    "line": 187,
+    "en": "damaged central directory at entry %llu",
+    "zh-Hans": "第 %llu 个中央目录条目已损坏"
+  },
+  {
+    "file": "src/translation-layer/husk-tl-zip.c",
+    "line": 178,
+    "en": "out of memory",
+    "zh-Hans": "内存不足"
+  },
+  {
+    "file": "src/translation-layer/husk-tl-zip.c",
+    "line": 171,
+    "en": "implausible entry count (%llu)",
+    "zh-Hans": "文件条目数量异常（%llu）"
+  },
+  {
+    "file": "src/translation-layer/husk-tl-zip.c",
+    "line": 166,
+    "en": "central directory lies outside the file",
+    "zh-Hans": "中央目录超出文件范围"
+  },
+  {
+    "file": "src/translation-layer/husk-tl-zip.c",
+    "line": 156,
+    "en": "damaged ZIP64 end-of-directory record",
+    "zh-Hans": "ZIP64 中央目录结束记录已损坏"
+  },
+  {
+    "file": "src/translation-layer/husk-tl-zip.c",
+    "line": 150,
+    "en": "ZIP64 archive without a ZIP64 locator",
+    "zh-Hans": "ZIP64 压缩包缺少 ZIP64 定位记录"
+  },
+  {
+    "file": "src/translation-layer/husk-tl-zip.c",
+    "line": 139,
+    "en": "not a ZIP file (no end-of-directory record)",
+    "zh-Hans": "不是 ZIP 文件（缺少中央目录结束记录）"
+  },
+  {
+    "file": "src/translation-layer/husk-tl-zip.c",
+    "line": 130,
+    "en": "cannot map: %s",
+    "zh-Hans": "无法映射：%s"
+  },
+  {
+    "file": "src/translation-layer/husk-tl-zip.c",
+    "line": 123,
+    "en": "empty or unreadable file",
+    "zh-Hans": "文件为空或无法读取"
+  },
+  {
+    "file": "src/translation-layer/husk-tl-zip.c",
+    "line": 118,
+    "en": "cannot open: %s",
+    "zh-Hans": "无法打开：%s"
+  },
+  {
+    "file": "src/translation-layer/husk-tl-elf.c",
+    "line": 726,
+    "en": "segments do not lay out",
+    "zh-Hans": "无法布局内存段"
+  },
+  {
+    "file": "src/translation-layer/husk-tl-elf.c",
+    "line": 718,
+    "en": "out of memory",
+    "zh-Hans": "内存不足"
+  },
+  {
+    "file": "src/translation-layer/husk-tl-elf.c",
+    "line": 713,
+    "en": "implausible image size",
+    "zh-Hans": "镜像大小异常"
+  },
+  {
+    "file": "src/translation-layer/husk-tl-elf.c",
+    "line": 706,
+    "en": "no loadable segments",
+    "zh-Hans": "没有可加载段"
+  },
+  {
+    "file": "src/translation-layer/husk-tl-elf.c",
+    "line": 683,
+    "en": "segment %u lies outside the file",
+    "zh-Hans": "第 %u 个段超出文件范围"
+  },
+  {
+    "file": "src/translation-layer/husk-tl-elf.c",
+    "line": 679,
+    "en": "more than %d loadable segments",
+    "zh-Hans": "可加载段超过 %d 个"
+  },
+  {
+    "file": "src/translation-layer/husk-tl-elf.c",
+    "line": 668,
+    "en": "damaged program headers",
+    "zh-Hans": "程序头已损坏"
+  },
+  {
+    "file": "src/translation-layer/husk-tl-elf.c",
+    "line": 657,
+    "en": "not a shared library",
+    "zh-Hans": "不是共享库"
+  },
+  {
+    "file": "src/translation-layer/husk-tl-elf.c",
+    "line": 652,
+    "en": "not arm64 code (ELF machine %u, %s)",
+    "zh-Hans": "不是 arm64 代码（ELF 架构 %u，%s）"
+  },
+  {
+    "file": "src/translation-layer/husk-tl-elf.c",
+    "line": 648,
+    "en": "big-endian ELF",
+    "zh-Hans": "大端序 ELF 文件"
+  },
+  {
+    "file": "src/translation-layer/husk-tl-elf.c",
+    "line": 642,
+    "en": "not an ELF file",
+    "zh-Hans": "不是 ELF 文件"
+  }
+]

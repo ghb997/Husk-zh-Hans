@@ -15,13 +15,13 @@ struct DiscoverView: View {
     var body: some View {
         Group {
             if manager.isLoading && manager.sources.isEmpty {
-                ProgressView("Fetching Repositories…")
+                ProgressView("正在获取软件源…")
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
             } else if manager.sources.isEmpty {
-                EmptyState(title: "No Repositories",
-                           message: "Add a source to start discovering apps.",
+                EmptyState(title: "暂无软件源",
+                           message: "添加软件源，开始发现应用。",
                            systemImage: "tray",
-                           actionTitle: "Add Source",
+                           actionTitle: "添加软件源",
                            action: { showingAddSource = true })
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
             } else {
@@ -29,22 +29,22 @@ struct DiscoverView: View {
             }
         }
         .background(Theme.backdrop)
-        .navigationTitle("Discover")
+        .navigationTitle("发现")
         .navigationBarTitleDisplayMode(.large)
-        .searchable(text: $searchText, prompt: "Search \(totalAppCount) apps")
+        .searchable(text: $searchText, prompt: "搜索 \(totalAppCount) 个应用")
         .toolbar {
             ToolbarItemGroup(placement: .topBarTrailing) {
                 Button { Task { await manager.fetchSources() } } label: {
-                    Label("Refresh", systemImage: "arrow.clockwise")
+                    Label("刷新", systemImage: "arrow.clockwise")
                 }
                 Menu {
                     Button { showingAddSource = true } label: {
-                        Label("Add Source", systemImage: "plus")
+                        Label("添加软件源", systemImage: "plus")
                     }
                     Button { showingSources = true } label: {
-                        Label("Manage Repositories", systemImage: "list.bullet")
+                        Label("管理软件源", systemImage: "list.bullet")
                     }
-                } label: { Label("Repositories", systemImage: "ellipsis.circle") }
+                } label: { Label("软件源", systemImage: "ellipsis.circle") }
             }
         }
         .sheet(isPresented: $showingSources) { sourcesSheet }
@@ -80,7 +80,7 @@ struct DiscoverView: View {
                             }
                         } icon: { Image(systemName: "exclamationmark.triangle.fill").foregroundStyle(.orange) }
                     }
-                } header: { Text("Could Not Load") }
+                } header: { Text("无法加载") }
             }
         }
         .listStyle(.insetGrouped)
@@ -109,7 +109,7 @@ struct DiscoverView: View {
             Text(source.name)
         } footer: {
             if debouncedSearchText.isEmpty && apps.count > 50 {
-                Text("Search to see \(apps.count - 50) more apps.")
+                Text("搜索可查看其余 \(apps.count - 50) 个应用。")
             }
         }
     }
@@ -140,7 +140,7 @@ struct DiscoverView: View {
             let progress = manager.downloadProgress[app.bundleIdentifier]
 
             if isInstalled {
-                Button("Open") {
+                Button("打开") {
                     let intent = "am start -n \(app.bundleIdentifier)/\(app.bundleIdentifier).MainActivity"
                     _ = try? GuestBridge.shared.shell(intent, timeout: 5)
                 }
@@ -156,7 +156,7 @@ struct DiscoverView: View {
                 }
                 .frame(width: 28, height: 28)
             } else {
-                Button("Get") { manager.downloadAndInstall(app: app) }
+                Button("获取") { manager.downloadAndInstall(app: app) }
                     .buttonStyle(.borderedProminent)
                     .buttonBorderShape(.capsule)
             }
@@ -174,12 +174,12 @@ struct DiscoverView: View {
                     TextField("https://f-droid.org/repo/index-v1.json", text: $newSourceURL)
                         .keyboardType(.URL).textInputAutocapitalization(.never).autocorrectionDisabled()
                 } header: {
-                    Text("Source URL")
+                    Text("软件源地址")
                 } footer: {
-                    Text("Paste any F-Droid-compatible repository index URL.")
+                    Text("粘贴兼容 F-Droid 的软件源索引地址。")
                 }
 
-                Section("Presets") {
+                Section("预设") {
                     ForEach([
                         ("F-Droid", "https://f-droid.org/repo/index-v1.json"),
                         ("IzzyOnDroid", "https://apt.izzysoft.de/fdroid/repo/index-v1.json"),
@@ -200,14 +200,14 @@ struct DiscoverView: View {
                     }
                 }
             }
-            .navigationTitle("Add Source")
+            .navigationTitle("添加软件源")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {
-                    Button("Cancel") { newSourceURL = ""; showingAddSource = false }
+                    Button("取消") { newSourceURL = ""; showingAddSource = false }
                 }
                 ToolbarItem(placement: .topBarTrailing) {
-                    Button("Add") {
+                    Button("添加") {
                         let url = newSourceURL
                         newSourceURL = ""
                         showingAddSource = false
@@ -231,20 +231,20 @@ struct DiscoverView: View {
                         VStack(alignment: .leading, spacing: 2) {
                             if let source = manager.sources.first(where: { $0.identifier == url }) {
                                 Text(source.name).font(.body.weight(.medium))
-                                Text("\(source.apps.count) apps").font(.caption).foregroundStyle(.secondary)
+                                Text("\(source.apps.count) 个应用").font(.caption).foregroundStyle(.secondary)
                             }
                             Text(url).font(.caption2).foregroundStyle(.secondary).lineLimit(1)
                         }
                         .padding(.vertical, 2)
                     }
                     .onDelete { manager.sourceURLs.remove(atOffsets: $0) }
-                } header: { Text("Active Repositories") }
+                } header: { Text("已启用的软件源") }
             }
-            .navigationTitle("Repositories")
+            .navigationTitle("软件源")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {
-                    Button("Done") { showingSources = false }
+                    Button("完成") { showingSources = false }
                 }
                 ToolbarItem(placement: .topBarTrailing) {
                     Button { showingSources = false; showingAddSource = true } label: {

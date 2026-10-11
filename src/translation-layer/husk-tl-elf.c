@@ -639,22 +639,22 @@ void tl_elf_analyze(const uint8_t *data, size_t size, tl_elf_report *r)
     r->ok = true;
 
     if (size < 64 || memcmp(data, "\x7f" "ELF", 4) != 0) {
-        set_error(r, "not an ELF file");
+        set_error(r, "不是 ELF 文件");
         return;
     }
     r->is64 = data[EI_CLASS] == ELFCLASS64;
     r->machine = rd16(data + 18);
     if (data[EI_DATA] != ELFDATA2LSB) {
-        set_error(r, "big-endian ELF");
+        set_error(r, "大端序 ELF 文件");
         return;
     }
     if (!r->is64 || r->machine != EM_AARCH64) {
-        set_error(r, "not arm64 code (ELF machine %u, %s)", r->machine,
+        set_error(r, "不是 arm64 代码（ELF 架构 %u，%s）", r->machine,
                   r->is64 ? "64-bit" : "32-bit");
         return;
     }
     if (rd16(data + 16) != ET_DYN) {
-        set_error(r, "not a shared library");
+        set_error(r, "不是共享库");
         return;
     }
 
@@ -665,7 +665,7 @@ void tl_elf_analyze(const uint8_t *data, size_t size, tl_elf_report *r)
     uint64_t phoff = rd64(data + 32);
     uint16_t phentsize = rd16(data + 54), phnum = rd16(data + 56);
     if (phentsize != 56 || phnum == 0 || !in_file(&e, phoff, (uint64_t)phnum * 56)) {
-        set_error(r, "damaged program headers");
+        set_error(r, "程序头已损坏");
         return;
     }
 
@@ -676,11 +676,11 @@ void tl_elf_analyze(const uint8_t *data, size_t size, tl_elf_report *r)
         uint64_t filesz = rd64(p + 32), memsz = rd64(p + 40), align = rd64(p + 48);
         if (type == PT_LOAD) {
             if (e.nloads == MAX_LOADS) {
-                set_error(r, "more than %d loadable segments", MAX_LOADS);
+                set_error(r, "可加载段超过 %d 个", MAX_LOADS);
                 return;
             }
             if (filesz > memsz || !in_file(&e, off, filesz)) {
-                set_error(r, "segment %u lies outside the file", i);
+                set_error(r, "第 %u 个段超出文件范围", i);
                 return;
             }
             e.loads[e.nloads] = (tl_segment){ vaddr, memsz, flags };
@@ -703,19 +703,19 @@ void tl_elf_analyze(const uint8_t *data, size_t size, tl_elf_report *r)
         }
     }
     if (e.nloads == 0) {
-        set_error(r, "no loadable segments");
+        set_error(r, "没有可加载段");
         return;
     }
 
     size_t n = tl_page_plan(e.loads, e.nloads, e.has_relro ? &e.relro : NULL,
                             TL_PAGE, NULL, 0, NULL);
     if (n == 0 || n > MAX_PAGES) {
-        set_error(r, "implausible image size");
+        set_error(r, "镜像大小异常");
         return;
     }
     uint8_t *flags = malloc(n);
     if (!flags) {
-        set_error(r, "out of memory");
+        set_error(r, "内存不足");
         return;
     }
     uint64_t base;
@@ -723,7 +723,7 @@ void tl_elf_analyze(const uint8_t *data, size_t size, tl_elf_report *r)
                      flags, n, &base);
     if (n == 0) {
         free(flags);
-        set_error(r, "segments do not lay out");
+        set_error(r, "无法布局内存段");
         return;
     }
     r->pages = (uint32_t)n;

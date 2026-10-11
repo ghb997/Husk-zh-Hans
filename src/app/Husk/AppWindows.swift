@@ -167,8 +167,8 @@ private struct AppWindow: View {
             WebAppSurface(app: app)
         } else if let other = blockedBy {
             VStack(spacing: 6) {
-                Text("Another game is already loaded").font(.subheadline.weight(.semibold))
-                Text("\(other) was started in this session. Close Husk completely and open it again to run \(app.label).")
+                Text("已加载另一个游戏").font(.subheadline.weight(.semibold))
+                Text("本次运行已启动 \(other)。请完全关闭并重新打开 Husk，再运行 \(app.label)。")
                     .font(.caption).foregroundStyle(.secondary).multilineTextAlignment(.center)
             }
             .foregroundStyle(.white)
@@ -184,7 +184,7 @@ private struct AppWindow: View {
                                 Text(model.statusText).font(.subheadline.weight(.semibold)).foregroundStyle(.white)
                             } else {
                                 ProgressView().tint(.white)
-                                Text("Starting \(app.label)…").font(.caption).foregroundStyle(.white.opacity(0.7))
+                                Text("正在启动 \(app.label)…").font(.caption).foregroundStyle(.white.opacity(0.7))
                             }
                         }
                         .allowsHitTesting(false)
@@ -195,17 +195,17 @@ private struct AppWindow: View {
 
     private var titleBar: some View {
         HStack(spacing: 8) {
-            light(.red, "xmark", "Close") { windows.close() }
-            light(.yellow, "minus", "Minimise") { windows.minimize() }
+            light(.red, "xmark", "关闭") { windows.close() }
+            light(.yellow, "minus", "最小化") { windows.minimize() }
             light(.green, windows.maximized ? "arrow.down.right.and.arrow.up.left" : "arrow.up.left.and.arrow.down.right",
-                  windows.maximized ? "Restore" : "Maximise") { windows.toggleMaximized() }
+                  windows.maximized ? "还原" : "最大化") { windows.toggleMaximized() }
             Spacer(minLength: 6)
             if app.screenEngine == .flutter || app.report?.webKind != nil {
                 Button { if app.report?.webKind != nil { WebAppRuntime.runtime(for: app)?.back() } else { husk_flutter_back() } } label: {
                     Image(systemName: "chevron.backward").font(.system(size: 13, weight: .semibold)).frame(width: 28, height: 28)
                 }
                 .buttonStyle(.plain)
-                .accessibilityLabel("Back")
+                .accessibilityLabel("返回")
             }
             ItemIcon(item: .game(app), size: 18)
             Text(app.label).font(.footnote.weight(.semibold)).lineLimit(1)
@@ -266,7 +266,7 @@ private struct AppWindow: View {
                     }
                     .onEnded { _ in startFrame = nil }
             )
-            .accessibilityLabel("Resize")
+            .accessibilityLabel("调整大小")
     }
 }
 
@@ -305,11 +305,11 @@ private struct WindowDock: View {
                     }
             )
             .contextMenu {
-                Button { windows.restore() } label: { Label("Show", systemImage: "macwindow") }
-                Button(role: .destructive) { windows.close() } label: { Label("Close", systemImage: "xmark") }
+                Button { windows.restore() } label: { Label("显示", systemImage: "macwindow") }
+                Button(role: .destructive) { windows.close() } label: { Label("关闭", systemImage: "xmark") }
             }
-            .accessibilityLabel("\(app.label), minimised")
-            .accessibilityHint("Shows the window again")
+            .accessibilityLabel("\(app.label)，已最小化")
+            .accessibilityHint("重新显示窗口")
     }
 }
 

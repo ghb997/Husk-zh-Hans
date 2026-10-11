@@ -16,25 +16,25 @@ enum WhatsNew {
     static let version = "1.0.1"
     static let items: [Item] = [
         Item(symbol: "bag.fill", title: "Google Play",
-             detail: "Get games from the Store tab. Play Store downloads, with their split APKs and asset packs, run in the Translation Layer."),
-        Item(symbol: "checkmark.seal.fill", title: "Google Play services",
-             detail: "Games see Play services as present and signed out, so they stop asking for it and carry on."),
-        Item(symbol: "arrow.up.doc.fill", title: "Save backups",
-             detail: "Back up a game's saves to a .zip from its page, and restore them later or on another device."),
-        Item(symbol: "exclamationmark.bubble.fill", title: "Crash reports",
-             detail: "When a game takes Husk down, the next launch says what happened and gives you a report to share."),
-        Item(symbol: "checkmark.circle.fill", title: "Know what works",
-             detail: "The library marks each game with how it did last time: it plays, it crashed, or it did not start."),
-        Item(symbol: "gamecontroller.fill", title: "Godot games",
-             detail: "Games made with Godot 3 and 4 now run in the Translation Layer."),
-        Item(symbol: "slider.horizontal.below.square.and.square.filled", title: "Your own controls",
-             detail: "Move, resize and hide the on-screen controller's buttons, for each game."),
-        Item(symbol: "keyboard.fill", title: "Typing in Minecraft",
-             detail: "Chat, sign and world-name fields bring up the keyboard."),
-        Item(symbol: "arrow.left.arrow.right", title: "Switching games",
-             detail: "Close Husk to play another game, and it starts by itself when Husk opens."),
+             detail: "从“商店”获取游戏。Play 商店下载的应用，包括拆分 APK 和资源包，均可交由转译层运行。"),
+        Item(symbol: "checkmark.seal.fill", title: "Google Play 服务",
+             detail: "游戏会检测到 Play 服务已安装但未登录，从而跳过安装提示并继续运行。"),
+        Item(symbol: "arrow.up.doc.fill", title: "存档备份",
+             detail: "在游戏页面将存档备份为 ZIP 文件，之后可在本机或其他设备上恢复。"),
+        Item(symbol: "exclamationmark.bubble.fill", title: "崩溃报告",
+             detail: "游戏导致 Husk 崩溃后，下次启动会说明原因，并提供可分享的报告。"),
+        Item(symbol: "checkmark.circle.fill", title: "查看兼容性",
+             detail: "应用库会标记游戏上次运行的结果：可以运行、发生崩溃或启动失败。"),
+        Item(symbol: "gamecontroller.fill", title: "Godot 游戏",
+             detail: "使用 Godot 3 和 4 制作的游戏现在可以在转译层中运行。"),
+        Item(symbol: "slider.horizontal.below.square.and.square.filled", title: "自定义控制",
+             detail: "可为每个游戏分别移动、缩放和隐藏虚拟手柄按钮。"),
+        Item(symbol: "keyboard.fill", title: "Minecraft 键盘输入",
+             detail: "聊天、告示牌和世界名称输入框现在可以唤起键盘。"),
+        Item(symbol: "arrow.left.arrow.right", title: "切换游戏",
+             detail: "关闭 Husk 后重新打开，即可自动启动选择的另一个游戏。"),
         Item(symbol: "puzzlepiece.extension.fill", title: "Geode",
-             detail: "Mods for Geometry Dash, Geode 5 included, turned on from the game's settings."),
+             detail: "在游戏设置中开启 Geometry Dash 模组支持，包括 Geode 5。"),
     ]
 
     private static let seenKey = "husk.whatsNew.seen"
@@ -58,8 +58,8 @@ struct WhatsNewSheet: View {
             ScrollView {
                 VStack(alignment: .leading, spacing: 26) {
                     VStack(alignment: .leading, spacing: 6) {
-                        Text("What's New in Husk \(WhatsNew.version)").font(.largeTitle.weight(.bold))
-                        Text("The first full release.").foregroundStyle(.secondary)
+                        Text("Husk \(WhatsNew.version) 更新内容").font(.largeTitle.weight(.bold))
+                        Text("首个完整版本。").foregroundStyle(.secondary)
                     }
                     .padding(.top, 36)
                     ForEach(WhatsNew.items) { item in
@@ -80,7 +80,7 @@ struct WhatsNewSheet: View {
                 .padding(.bottom, 20)
             }
             Button(action: done) {
-                Text("Continue").font(.headline).frame(maxWidth: .infinity).padding(.vertical, 8)
+                Text("继续").font(.headline).frame(maxWidth: .infinity).padding(.vertical, 8)
             }
             .buttonStyle(.borderedProminent)
             .padding(.horizontal, 28)

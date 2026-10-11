@@ -31,7 +31,7 @@ jobs:
           xcode-version: latest-stable
       - name: Install build tools
         run: |
-          brew install meson ninja pkg-config xcodegen qemu autoconf automake libtool cmake bison flex
+          brew install meson ninja pkg-config xcodegen qemu autoconf automake libtool cmake bison flex e2fsprogs
           rustup target add aarch64-apple-ios
           xcodebuild -version
       - name: Restore dependencies
@@ -46,10 +46,26 @@ jobs:
             src/rppairing-ios/target
           key: husk-macos15-deps-v1-${{ github.run_id }}
           restore-keys: husk-macos15-deps-v1-
+      - name: Check Swift syntax
+        if: ${{ !inputs.dependencies_only }}
+        run: |
+          python3 scripts/check_localization.py
+          find src/app -name '*.swift' -print0 | xargs -0 xcrun swiftc -frontend -parse
+      - uses: actions/setup-java@v4
+        if: ${{ !inputs.dependencies_only }}
+        with:
+          distribution: temurin
+          java-version: "17"
+      - name: Prepare Android Java and Flutter resources
+        if: ${{ !inputs.dependencies_only }}
+        run: python3 scripts/prepare_android_resources.py
       - name: Build
         run: |
           mkdir -p build
           ./scripts/ci_build.sh "$PWD/build/Husk-2.0.0-zh-Hans.ipa" 2>&1 | tee build/ci.log
+      - name: Verify IPA contents
+        if: success() && !inputs.dependencies_only
+        run: python3 scripts/verify_zh_ipa.py build/Husk-2.0.0-zh-Hans.ipa build/Husk-2.0.0-zh-Hans.tipa
       - name: Save dependencies
         if: always()
         uses: actions/cache/save@v4
@@ -70,6 +86,7 @@ jobs:
           path: |
             build/Husk-2.0.0-zh-Hans.ipa
             build/Husk-2.0.0-zh-Hans.tipa
+            build/Husk-2.0.0-zh-Hans.*.verification.json
           if-no-files-found: error
       - name: Upload build logs
         if: always()

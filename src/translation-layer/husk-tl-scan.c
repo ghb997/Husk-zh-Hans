@@ -149,28 +149,28 @@ static void write_notes(tl_json *j, const tl_elf_report *r)
         tl_json_string(j, r->error);
     } else {
         if (r->pages_conflict) {
-            note(j, "%u page%s would have to be executable and writable at once: it was "
-                    "built for 4 KiB pages, so code and data share 16 KiB ones. Needs write "
-                    "emulation in the loader, or a build with 16 KiB alignment.",
-                 r->pages_conflict, r->pages_conflict == 1 ? "" : "s");
+            note(j, "有 %u 个页面%s需要同时具备执行和写入权限。此库按"
+                    "4 KiB 页面构建，因此代码和数据会共用 16 KiB 页面。"
+                    "需要加载器模拟写入，或改用按 16 KiB 对齐构建的版本。",
+                 r->pages_conflict, r->pages_conflict == 1 ? "" : "");
         } else if (r->max_align < 16384) {
-            tl_json_string(j, "Built for 4 KiB pages, but no 16 KiB page mixes code with "
-                              "writable data, so it still maps.");
+            tl_json_string(j, "此库按 4 KiB 页面构建，但没有代码与可写数据混用"
+                              "16 KiB 页面的情况，仍可映射。");
         }
         if (r->svc) {
-            note(j, "Makes %u direct Linux system call%s, which iOS would not understand; "
-                    "each needs patching at load time.", r->svc, r->svc == 1 ? "" : "s");
+            note(j, "有 %u 处直接 Linux 系统调用%s，iOS 无法识别，"
+                    "需要在加载时逐一修补。", r->svc, r->svc == 1 ? "" : "");
         }
         if (r->tpidr_writes) {
-            note(j, "Sets the thread register itself in %u place%s.", r->tpidr_writes,
-                 r->tpidr_writes == 1 ? "" : "s");
+            note(j, "有 %u 处%s自行设置线程寄存器。", r->tpidr_writes,
+                 r->tpidr_writes == 1 ? "" : "");
         }
         if (r->textrel) {
-            tl_json_string(j, "Patches its own code as it loads (text relocations).");
+            tl_json_string(j, "在加载时修改自身代码（文本重定位）。");
         }
         if (r->relocs_unsupported) {
-            note(j, "%u relocation%s of a type the loader will not handle (first: %u).",
-                 r->relocs_unsupported, r->relocs_unsupported == 1 ? "" : "s",
+            note(j, "有 %u 个重定位项%s的类型尚不受加载器支持（首个类型：%u）。",
+                 r->relocs_unsupported, r->relocs_unsupported == 1 ? "" : "",
                  r->first_unsupported);
         }
     }
@@ -264,7 +264,7 @@ char *husk_tl_scan(const char *const *paths, int count)
     char error[256] = "";
 
     if (!own || !needed || !rep) {
-        snprintf(error, sizeof(error), "out of memory");
+        snprintf(error, sizeof(error), "内存不足");
     }
 
     /* The libraries first, while the facts about the whole app accumulate;
@@ -345,46 +345,46 @@ char *husk_tl_scan(const char *const *paths, int count)
     }
 
     const char *verdict;
-    char summary[320];
+    char summary[1024];
     if (error[0]) {
         verdict = "unreadable";
-        snprintf(summary, sizeof(summary), "Could not be read: %s", error);
+        snprintf(summary, sizeof(summary), "无法读取：%s", error);
     } else if (!manifest && dex_count == 0) {
         verdict = "unreadable";
-        snprintf(summary, sizeof(summary), "This is not an app: it has no manifest and no code.");
+        snprintf(summary, sizeof(summary), "此文件不是应用，既没有清单也没有代码。");
     } else if (eng.capacitor || eng.cordova) {
         verdict = "web";
-        snprintf(summary, sizeof(summary), "A %s web app: its pages and scripts run in Safari's engine, with Husk answering "
-                 "the plugins it calls.", eng.capacitor ? "Capacitor" : "Cordova");
+        snprintf(summary, sizeof(summary), "这是 %s 网页应用，页面和脚本在 Safari 引擎中运行，"
+                 "插件调用由 Husk 处理。", eng.capacitor ? "Capacitor" : "Cordova");
     } else if (!any_native) {
         verdict = "java";
-        snprintf(summary, sizeof(summary), "No native code. Only the Java side of the "
-                 "translation layer is needed to run it.");
+        snprintf(summary, sizeof(summary), "没有原生代码，仅需转译层的 Java"
+                 "运行环境即可执行。");
     } else if (abis[ABI_ARM64] && arm64_trouble > 0 && engine_name(&eng) && !strncmp(engine_name(&eng), "Unity", 5)) {
         /* The native runtime (src/translation-layer-next) handles what the per-library check flags. */
         verdict = "native";
-        snprintf(summary, sizeof(summary), "A Unity game: Husk's native runtime loads its %d arm64 libraries itself, "
-                 "including the %d that use tricks the older loader could not handle.", arm64_libs, arm64_trouble);
+        snprintf(summary, sizeof(summary), "这是 Unity 游戏，Husk 原生运行环境负责加载 %d 个 arm64 库，"
+                 "其中包括旧加载器无法处理的 %d 个库。", arm64_libs, arm64_trouble);
     } else if (abis[ABI_ARM64] && arm64_trouble == 0) {
         verdict = "native";
-        snprintf(summary, sizeof(summary), "arm64 native code, and every library maps "
-                 "cleanly onto 16 KiB pages.");
+        snprintf(summary, sizeof(summary), "包含 arm64 原生代码，所有库都能正确"
+                 "映射到 16 KiB 页面。");
     } else if (abis[ABI_ARM64]) {
         verdict = "nativeWithWork";
-        snprintf(summary, sizeof(summary), "arm64 native code, but %d of %d librar%s "
-                 "need%s extra work from the loader.", arm64_trouble, arm64_libs,
-                 arm64_libs == 1 ? "y" : "ies", arm64_trouble == 1 ? "s" : "");
+        snprintf(summary, sizeof(summary), "包含 arm64 原生代码，但有 %d/%d 个库%s"
+                 "需要加载器额外处理%s。", arm64_trouble, arm64_libs,
+                 arm64_libs == 1 ? "" : "", arm64_trouble == 1 ? "" : "");
     } else {
         verdict = "noArm64";
         bool arm32 = abis[1] || abis[2], x86 = abis[3] || abis[4];
         if (arm32 && !x86) {
-            snprintf(summary, sizeof(summary), "Native code for 32-bit ARM only. iPhones "
-                     "cannot run 32-bit ARM code at all, so this would need a CPU emulator.");
+            snprintf(summary, sizeof(summary), "仅包含 32 位 ARM 原生代码。iPhone"
+                     "无法执行 32 位 ARM 代码，因此需要 CPU 模拟器。");
         } else if (x86 && !arm32) {
-            snprintf(summary, sizeof(summary), "Native code for x86 only, which would "
-                     "need an x86 translator such as FEXCore.");
+            snprintf(summary, sizeof(summary), "仅包含 x86 原生代码，"
+                     "需要 FEXCore 等 x86 指令转译器。");
         } else {
-            snprintf(summary, sizeof(summary), "Native code, but none of it for arm64.");
+            snprintf(summary, sizeof(summary), "包含原生代码，但没有 arm64 版本。");
         }
     }
 

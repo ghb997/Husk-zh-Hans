@@ -30,23 +30,23 @@ final class CrashReport: ObservableObject {
 
         var title: String {
             switch self {
-            case .signal: return "The game crashed"
-            case .startFailed: return "The game could not start"
-            case .unknown: return "Husk closed while the game was running"
+            case .signal: return "游戏已崩溃"
+            case .startFailed: return "游戏无法启动"
+            case .unknown: return "游戏运行期间 Husk 已关闭"
             case .diagnosed(let d): return d.title
             }
         }
         var detail: String {
             switch self {
             case .signal(let s):
-                let name = [11: "SIGSEGV, a bad memory access", 6: "SIGABRT, the game or a library gave up",
-                            4: "SIGILL, an instruction this device does not run", 8: "SIGFPE, an arithmetic error",
-                            12: "SIGSYS, a system call iOS does not allow"][s] ?? "signal \(s)"
-                return "It stopped with \(name). The report has the full log of that run."
+                let name = [11: "SIGSEGV，无效的内存访问", 6: "SIGABRT，游戏或库主动终止",
+                            4: "SIGILL，设备不支持的指令", 8: "SIGFPE，算术错误",
+                            12: "SIGSYS，iOS 不允许的系统调用"][s] ?? "信号 \(s)"
+                return "游戏因 \(name) 停止运行。报告包含此次运行的完整日志。"
             case .startFailed:
-                return "The runtime could not start it. The report says which part was missing."
+                return "运行环境无法启动此游戏，报告中列出了缺失的部分。"
             case .unknown:
-                return "Nothing was recorded, which usually means iOS ended Husk for using too much memory, or Husk was closed from the app switcher."
+                return "未记录到原因，通常是 iOS 因内存占用过高而终止 Husk，或用户从应用切换器中关闭了 Husk。"
             case .diagnosed(let d):
                 return d.detail
             }
@@ -110,7 +110,7 @@ final class CrashReport: ObservableObject {
         }
         if let d = AppDiagnosis.fromLog(lines.joined(separator: "\n")) { cause = .diagnosed(d) }
         let time = (info["time"] as? Double).map { Date(timeIntervalSince1970: $0) }
-        pending = Report(game: info["label"] as? String ?? "A game", appID: info["id"] as? String ?? "",
+        pending = Report(game: info["label"] as? String ?? "某个游戏", appID: info["id"] as? String ?? "",
                          cause: cause, when: time, excerpt: Array(Self.interesting(lines).suffix(14)))
         HuskLog.log("crash", "\(pending!.game) did not close normally last run: \(cause.title)")
         switch cause {
@@ -135,23 +135,23 @@ final class CrashReport: ObservableObject {
     static func writeReport(_ r: Report) -> URL? {
         let info = Bundle.main.infoDictionary ?? [:]
         var text = """
-        Husk crash report
+        Husk 崩溃报告
         =================
-        Game     : \(r.game)
-        What     : \(r.cause.title)
-        Started  : \(r.when.map { ISO8601DateFormatter().string(from: $0) } ?? "?")
+        游戏     : \(r.game)
+        问题     : \(r.cause.title)
+        开始时间 : \(r.when.map { ISO8601DateFormatter().string(from: $0) } ?? "?")
         Husk     : \(info["CFBundleShortVersionString"] as? String ?? "?") (\(info["CFBundleVersion"] as? String ?? "?")) \(info["HuskBuildCommit"] as? String ?? "")
-        Device   : \(HuskLog.deviceModel), \(UIDevice.current.systemName) \(UIDevice.current.systemVersion)
+        设备     : \(HuskLog.deviceModel), \(UIDevice.current.systemName) \(UIDevice.current.systemVersion)
 
         """
         if let app = TranslationLayerStore.shared.apps.first(where: { $0.id == r.appID }) {
-            text += "Package  : \(app.packageName ?? "?")\n"
+            text += "包名     : \(app.packageName ?? "?")\n"
             text += "APKs     : \(app.apks.map { ($0 as NSString).lastPathComponent }.joined(separator: ", "))\n"
-            text += "Engine   : \(app.report?.nativeEngine.map { "\($0)" } ?? "?")\n"
+            text += "引擎     : \(app.report?.nativeEngine.map { "\($0)" } ?? "?")\n"
         }
-        text += "\n---- husk.log of that run ----\n"
-        text += (try? String(contentsOf: previousLogURL, encoding: .utf8)) ?? "(not kept)\n"
-        text += "\n---- native output of that run ----\n"
+        text += "\n---- 此次运行的 husk.log ----\n"
+        text += (try? String(contentsOf: previousLogURL, encoding: .utf8)) ?? "（未保留）\n"
+        text += "\n---- 此次运行的原生输出 ----\n"
         text += (try? String(contentsOf: HuskLog.previousNativeLogURL, encoding: .utf8)) ?? "(none)\n"
         let safe = r.game.replacingOccurrences(of: "/", with: "-")
         let url = FileManager.default.temporaryDirectory.appendingPathComponent("Husk crash report - \(safe).txt")
@@ -182,7 +182,7 @@ struct CrashReportSheet: View {
 
                     if !report.excerpt.isEmpty {
                         VStack(alignment: .leading, spacing: 6) {
-                            Text("Last lines").font(.footnote.weight(.semibold)).foregroundStyle(.secondary)
+                            Text("最后几行日志").font(.footnote.weight(.semibold)).foregroundStyle(.secondary)
                             Text(report.excerpt.joined(separator: "\n"))
                                 .font(.system(size: 10.5, design: .monospaced))
                                 .textSelection(.enabled)
@@ -194,19 +194,19 @@ struct CrashReportSheet: View {
 
                     if let file {
                         ShareLink(item: file) {
-                            Label("Share Report", systemImage: "square.and.arrow.up")
+                            Label("分享报告", systemImage: "square.and.arrow.up")
                                 .frame(maxWidth: .infinity).padding(.vertical, 6)
                         }
                         .buttonStyle(.borderedProminent)
                     }
-                    Text("The report holds the full log of that run and which device and build it was on. Nothing is sent anywhere unless you share it.")
+                    Text("报告包含此次运行的完整日志、设备和构建版本信息。只有你主动分享时，报告才会发送给他人。")
                         .font(.footnote).foregroundStyle(.secondary)
                 }
                 .padding(20)
             }
-            .navigationTitle("Crash Report")
+            .navigationTitle("崩溃报告")
             .navigationBarTitleDisplayMode(.inline)
-            .toolbar { ToolbarItem(placement: .confirmationAction) { Button("Done") { dismiss() } } }
+            .toolbar { ToolbarItem(placement: .confirmationAction) { Button("完成") { dismiss() } } }
         }
         .task { file = CrashReport.writeReport(report) }
     }

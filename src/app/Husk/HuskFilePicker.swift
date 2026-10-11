@@ -23,7 +23,7 @@ enum HuskFilePicker {
         live = coordinator
         guard let top = topController() else {
             live = nil
-            onFail?("There is no screen to show the file picker on.")
+            onFail?("没有可用于显示文件选择器的窗口。")
             return
         }
         HuskLog.log("ui", "file picker: presenting from \(type(of: top))")

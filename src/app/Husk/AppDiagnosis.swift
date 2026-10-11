@@ -49,26 +49,26 @@ struct AppDiagnosis: Identifiable, Equatable {
     static func preflight(_ app: TLApp) -> AppDiagnosis? {
         guard let r = app.report else { return nil }
         if !r.ok || r.verdict == "unreadable" {
-            return AppDiagnosis(kind: .badAPK, title: "Bad APK",
-                                detail: "This file is not an app Husk can read" + (r.error.map { ": \($0)." } ?? ".")
-                                    + " It may be damaged, only partly downloaded, or not an Android app at all.",
+            return AppDiagnosis(kind: .badAPK, title: "无效的 APK",
+                                detail: "Husk 无法读取此应用文件" + (r.error.map { ": \($0)." } ?? ".")
+                                    + " 文件可能已损坏、尚未下载完整，或并非 Android 应用。",
                                 evidence: r.error ?? r.summary)
         }
         if r.verdict == "noArm64" {
-            return AppDiagnosis(kind: .unsupportedCPU, title: "Not supported: wrong kind of CPU code",
-                                detail: r.summary + " iPhones run 64-bit ARM (arm64) code. Look for an arm64 or universal build of this app.",
+            return AppDiagnosis(kind: .unsupportedCPU, title: "不支持此 CPU 架构",
+                                detail: r.summary + " iPhone 只能运行 64 位 ARM（arm64）代码，请寻找此应用的 arm64 或通用版本。",
                                 evidence: "ABIs: " + r.abis.joined(separator: ", "))
         }
         if app.apks.count == 1, let base = app.apks.first, husk_apk_split_required(base) != 0 {
-            return AppDiagnosis(kind: .missingSplits, title: "Incomplete app",
-                                detail: "This app is published in several pieces (split APKs) and only its base was imported, so its libraries or "
-                                    + "resources are missing. Import the whole bundle (.apks, .xapk or .apkm), or get it from Husk's store.",
+            return AppDiagnosis(kind: .missingSplits, title: "应用安装包不完整",
+                                detail: "此应用由多个拆分 APK 组成，但目前只导入了基础包，缺少所需的库或资源。"
+                                    + "请导入完整安装包（.apks、.xapk 或 .apkm），或从 Husk 商店获取。",
                                 evidence: "manifest: split APKs required")
         }
         if let lib = r.libraries.first(where: { l in protectorLibraries.contains(where: { l.name.hasPrefix($0) }) }) {
-            return AppDiagnosis(kind: .protected, title: "Protected app",
-                                detail: "This app carries anti-tamper protection (\(lib.name)). Such protection checks that it runs on a certified "
-                                    + "Android phone and closes the app otherwise, so it may not start in Husk.",
+            return AppDiagnosis(kind: .protected, title: "应用受保护",
+                                detail: "此应用包含防篡改保护（\(lib.name)），会检查是否运行在经过认证的"
+                                    + "Android 手机上，否则会关闭应用，因此可能无法在 Husk 中启动。",
                                 evidence: lib.name)
         }
         return nil
@@ -87,24 +87,24 @@ struct AppDiagnosis: Identifiable, Equatable {
                 guard l.contains("pc ") else { return nil }
                 return l.split(separator: " ").map(String.init).first { $0.hasSuffix(".so") || $0.contains(".so") }
             }.first
-            let signal = head.range(of: "signal \\d+", options: .regularExpression).map { String(head[$0]) } ?? "a fatal signal"
+            let signal = head.range(of: "signal \\d+", options: .regularExpression).map { String(head[$0]) } ?? "致命信号"
             if let lib, !lib.hasPrefix("libhusk"), !lib.contains("Husk") {
-                return AppDiagnosis(kind: .nativeCrash, title: "Crashed in \(lib)",
-                                    detail: "The app's own native code (\(lib)) stopped with \(signal). It most likely needs something from Android "
-                                        + "that Husk does not provide yet, or does something iOS does not allow.",
+                return AppDiagnosis(kind: .nativeCrash, title: "在 \(lib) 中崩溃",
+                                    detail: "应用的原生代码（\(lib)）因 \(signal) 停止运行。可能需要 Husk 尚未提供的"
+                                        + "Android 功能，或执行了 iOS 不允许的操作。",
                                     evidence: head)
             }
-            return AppDiagnosis(kind: .nativeCrash, title: "The app crashed",
-                                detail: "It stopped with \(signal). The report has the full log of the run.", evidence: head)
+            return AppDiagnosis(kind: .nativeCrash, title: "应用已崩溃",
+                                detail: "应用因 \(signal) 停止运行。报告包含此次运行的完整日志。", evidence: head)
         }
 
         // The app ended itself from native code: protection that found it is not on a certified phone, most of the time
         if let l = lines.last(where: { $0.contains("bionic: exit(") && $0.contains("called from") }),
            let code = l.range(of: "exit\\((\\d+)\\)", options: .regularExpression).map({ String(l[$0]) }), code != "exit(0)" {
-            let lib = l.components(separatedBy: "called from ").last?.split(separator: " ").first.map(String.init) ?? "its code"
-            return AppDiagnosis(kind: .closedItself, title: "The app refused to run here",
-                                detail: "\(lib) closed the app on purpose (\(code)). Apps with anti-tamper or anti-cheat protection do this when "
-                                    + "they find they are not on a certified Android phone, which Husk cannot pretend to be for them.",
+            let lib = l.components(separatedBy: "called from ").last?.split(separator: " ").first.map(String.init) ?? "应用代码"
+            return AppDiagnosis(kind: .closedItself, title: "应用拒绝在此环境中运行",
+                                detail: "\(lib) 主动关闭了应用（\(code)）。带有防篡改或反作弊保护的应用"
+                                    + "可能会在检测到非认证 Android 设备时退出，Husk 无法满足其认证要求。",
                                 evidence: l)
         }
 
@@ -117,15 +117,15 @@ struct AppDiagnosis: Identifiable, Equatable {
             let firstPart = message.components(separatedBy: " | caused by").first ?? String(message)
             if ["NoSuchMethodError", "NoClassDefFoundError", "UnsatisfiedLinkError", "AbstractMethodError", "NoSuchFieldError",
                 "IncompatibleClassChangeError"].contains(short) {
-                return AppDiagnosis(kind: .missingFeature, title: "Uses something Husk does not have yet",
-                                    detail: "The app needs a part of Android that Husk's runtime does not provide yet: \(apiName(firstPart)).",
+                return AppDiagnosis(kind: .missingFeature, title: "使用了 Husk 尚未支持的功能",
+                                    detail: "此应用需要 Husk 运行环境尚未提供的 Android 功能：\(apiName(firstPart))。",
                                     evidence: l)
             }
             if what.localizedCaseInsensitiveContains("google play services") || what.contains("GooglePlayServices") {
                 return googleDiagnosis(l)
             }
-            return AppDiagnosis(kind: .javaCrash, title: "The app crashed",
-                                detail: "Its code stopped with \(short)" + (firstPart.isEmpty ? "." : ": \(firstPart.prefix(220))"),
+            return AppDiagnosis(kind: .javaCrash, title: "应用已崩溃",
+                                detail: "应用代码因 \(short) 停止运行" + (firstPart.isEmpty ? "." : ": \(firstPart.prefix(220))"),
                                 evidence: l)
         }
 
@@ -140,52 +140,52 @@ struct AppDiagnosis: Identifiable, Equatable {
         // a proot userland): its own screens run, the programs can not, as an iOS app may not start processes
         if let l = lines.first(where: { $0.contains("the app started a process:") }),
            ["box64", "box86", "wine", "proot", "/usr/bin/", "imagefs", "rootfs", "termux", "ld-linux"].contains(where: { l.localizedCaseInsensitiveContains($0) }) {
-            let prog = l.components(separatedBy: "the app started a process: ").last?.components(separatedBy: " -- ").first ?? "a program"
-            return AppDiagnosis(kind: .missingFeature, title: "Runs Linux programs as separate processes",
-                                detail: "This app does its main work in Linux programs it starts as processes of their own (here \(prog.prefix(120))). "
-                                    + "Its own screens run in Husk, but iOS does not let an app start other processes, so those programs, and the "
-                                    + "games or tools they run, can not start yet.",
+            let prog = l.components(separatedBy: "the app started a process: ").last?.components(separatedBy: " -- ").first ?? "某个程序"
+            return AppDiagnosis(kind: .missingFeature, title: "需要启动独立的 Linux 进程",
+                                detail: "此应用的主要功能依赖独立启动的 Linux 程序（此处为 \(prog.prefix(120))）。"
+                                    + "应用界面可以在 Husk 中运行，但 iOS 不允许应用启动其他进程，因此这些程序"
+                                    + "及其运行的游戏或工具暂时无法启动。",
                                 evidence: l)
         }
 
         // An app that only works signed in to a Google account: it asked Android's account picker, got none, and closed
         if let l = lines.last(where: { $0.contains("ChooseTypeAndAccountActivity") || $0.contains("AccountManager.newChooseAccountIntent") }),
            lines.contains(where: { $0.contains("the app finished") }) {
-            return AppDiagnosis(kind: .needsGoogle, title: "Needs a Google account",
-                                detail: "This app only works signed in to a Google account. It asked Android to pick one, and Husk has no Google "
-                                    + "accounts to offer, so the app closed.",
+            return AppDiagnosis(kind: .needsGoogle, title: "需要 Google 账户",
+                                detail: "此应用必须登录 Google 账户才能使用。它请求 Android 选择账户，"
+                                    + "但 Husk 无法提供 Google 账户，因此应用已关闭。",
                                 evidence: l)
         }
 
         // A game whose data comes as an expansion file the store did not install
         if let l = lines.first(where: { $0.contains("expansion file (OBB) is missing") }) {
-            return AppDiagnosis(kind: .missingSplits, title: "Missing game data",
-                                detail: "This game keeps most of its data in an expansion file (OBB) that the Play Store downloads separately "
-                                    + "from the app. Husk installed the app itself but not that file, so the game cannot load.",
+            return AppDiagnosis(kind: .missingSplits, title: "缺少游戏数据",
+                                detail: "此游戏的大部分数据存储在 OBB 扩展文件中，由 Play 商店单独下载。"
+                                    + "Husk 目前只安装了应用本身，缺少该文件，游戏无法加载。",
                                 evidence: l)
         }
 
         // Video that only plays with DRM keys
         if let l = lines.first(where: { $0.contains("Husk cannot decrypt protected media") }) {
-            return AppDiagnosis(kind: .protected, title: "Protected video is not supported",
-                                detail: "The app's video is DRM-protected (Widevine), which only certified Android devices can decrypt. "
-                                    + "Unprotected video plays; protected video stays black.",
+            return AppDiagnosis(kind: .protected, title: "不支持受保护的视频",
+                                detail: "此视频受 Widevine DRM 保护，只有经过认证的 Android 设备才能解密。"
+                                    + "无保护的视频可以播放，受保护的视频会保持黑屏。",
                                 evidence: l)
         }
 
         // A function of Android's C library or system libraries that was never written for Husk
         if let l = lines.first(where: { $0.contains("CALLED an unresolved import: ") }), lines.contains(where: { $0.contains("the app finished") || $0.contains("CRASH") }) {
             let fn = l.components(separatedBy: "unresolved import: ").last?.split(separator: " ").first.map(String.init) ?? "?"
-            return AppDiagnosis(kind: .missingFunction, title: "Uses something Husk does not have yet",
-                                detail: "The app called \(fn), a system function Husk does not provide yet.", evidence: l)
+            return AppDiagnosis(kind: .missingFunction, title: "使用了 Husk 尚未支持的功能",
+                                detail: "此应用调用了 Husk 尚未提供的系统函数 \(fn)。", evidence: l)
         }
         return nil
     }
 
     private static func googleDiagnosis(_ line: String) -> AppDiagnosis {
-        AppDiagnosis(kind: .needsGoogle, title: "Needs Google Play services",
-                     detail: "This app relies on Google Play services (Google sign-in, Google's account and device checks) for more than Husk "
-                        + "can answer for. Apps that only use Google's libraries run; this one stops without the real services.",
+        AppDiagnosis(kind: .needsGoogle, title: "需要 Google Play 服务",
+                     detail: "此应用对 Google Play 服务（Google 登录、账户和设备检查）的依赖超出了 Husk 的支持范围。"
+                        + "只使用 Google 库的应用可以运行，而此应用缺少真实的 Play 服务就会停止。",
                      evidence: line)
     }
 
@@ -240,10 +240,10 @@ struct AppStoppedOverlay: View {
                 AppDiagnosisCard(diagnosis: diagnosis, showsEvidence: true)
                 HStack(spacing: 10) {
                     if let report {
-                        ShareLink(item: report) { Label("Share Report", systemImage: "square.and.arrow.up").frame(maxWidth: .infinity) }
+                        ShareLink(item: report) { Label("分享报告", systemImage: "square.and.arrow.up").frame(maxWidth: .infinity) }
                             .buttonStyle(.bordered)
                     }
-                    Button(action: close) { Text("Close").frame(maxWidth: .infinity) }
+                    Button(action: close) { Text("关闭").frame(maxWidth: .infinity) }
                         .buttonStyle(.borderedProminent)
                 }
             }
@@ -261,18 +261,18 @@ extension AppDiagnosis {
     @MainActor static func writeReport(app: TLApp, diagnosis d: AppDiagnosis) -> URL? {
         let info = Bundle.main.infoDictionary ?? [:]
         var text = """
-        Husk app report
+        Husk 应用报告
         ===============
-        App      : \(app.label) (\(app.packageName ?? "?"))
-        What     : \(d.title)
-        Why      : \(d.detail)
-        Evidence : \(d.evidence ?? "-")
+        应用     : \(app.label) (\(app.packageName ?? "?"))
+        问题     : \(d.title)
+        原因     : \(d.detail)
+        证据     : \(d.evidence ?? "-")
         Husk     : \(info["CFBundleShortVersionString"] as? String ?? "?") (\(info["CFBundleVersion"] as? String ?? "?"))
-        Device   : \(HuskLog.deviceModel), \(UIDevice.current.systemName) \(UIDevice.current.systemVersion)
+        设备     : \(HuskLog.deviceModel), \(UIDevice.current.systemName) \(UIDevice.current.systemVersion)
         APKs     : \(app.apks.map { ($0 as NSString).lastPathComponent }.joined(separator: ", "))
-        Engine   : \(app.report?.runnerName ?? "?")
+        引擎     : \(app.report?.runnerName ?? "?")
 
-        ---- log of the run ----
+        ---- 此次运行日志 ----
 
         """
         if let c = husk_tl_attempt_log() { text += String(cString: c); free(c) }

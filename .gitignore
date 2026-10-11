@@ -22,3 +22,5 @@ third_party/gpu/
 .build/
 *.ipa
 .freebuff/
+__pycache__/
+*.pyc

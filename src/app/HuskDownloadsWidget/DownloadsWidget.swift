@@ -100,7 +100,7 @@ private struct TimeLeft: View {
 
 @available(iOS 16.1, *)
 private func statePercent(_ s: HuskDownloadAttributes.ContentState) -> String {
-    if s.finished { return "Done" }
+    if s.finished { return "完成" }
     guard s.total > 0 else { return "…" }
     return "\(Int(Double(s.received) / Double(s.total) * 100))%"
 }
@@ -108,11 +108,11 @@ private func statePercent(_ s: HuskDownloadAttributes.ContentState) -> String {
 @available(iOS 16.1, *)
 private func stateDetail(_ s: HuskDownloadAttributes.ContentState) -> String {
     let f = ByteCountFormatter()
-    if s.failed { return "Stopped. Open Husk to retry." }
-    if s.finished { return "\(f.string(fromByteCount: s.total)) downloaded" }
-    var text = "\(f.string(fromByteCount: s.received)) of \(f.string(fromByteCount: s.total))"
+    if s.failed { return "已停止，请打开 Husk 重试。" }
+    if s.finished { return "已下载 \(f.string(fromByteCount: s.total))" }
+    var text = "\(f.string(fromByteCount: s.received)) / \(f.string(fromByteCount: s.total))"
     if s.speed > 1 { text += " · \(f.string(fromByteCount: Int64(s.speed)))/s" }
-    if s.filesTotal > 1 { text += " · \(s.filesDone)/\(s.filesTotal) files" }
+    if s.filesTotal > 1 { text += " · \(s.filesDone)/\(s.filesTotal) 个文件" }
     return text
 }
 

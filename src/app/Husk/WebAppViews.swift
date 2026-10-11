@@ -66,9 +66,9 @@ struct WebAppScreenView: View {
     var body: some View {
         VStack(spacing: 0) {
             HStack(spacing: 12) {
-                Button { dismiss() } label: { Label("Close", systemImage: "xmark").font(.system(size: 13, weight: .semibold)) }
+                Button { dismiss() } label: { Label("关闭", systemImage: "xmark").font(.system(size: 13, weight: .semibold)) }
                 Button { WebAppRuntime.runtime(for: app)?.back() } label: {
-                    Label("Back", systemImage: "chevron.backward").font(.system(size: 13, weight: .semibold))
+                    Label("返回", systemImage: "chevron.backward").font(.system(size: 13, weight: .semibold))
                 }
                 Spacer()
                 Text(app.label).font(.system(size: 12, weight: .medium)).foregroundStyle(.secondary).lineLimit(1)

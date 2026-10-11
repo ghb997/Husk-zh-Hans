@@ -59,7 +59,7 @@ final class IncomingFiles: ObservableObject {
 
     /// Copy files to Husk's own folder, off the main thread -- a game can be gigabytes -- then hand back the copies.
     private func take(_ urls: [URL], then: @escaping @MainActor ([URL]) -> Void) {
-        preparing = urls.count == 1 ? "Preparing \(urls[0].lastPathComponent)…" : "Preparing \(urls.count) files…"
+        preparing = urls.count == 1 ? "正在准备 \(urls[0].lastPathComponent)…" : "正在准备 \(urls.count) 个文件…"
         Task.detached(priority: .userInitiated) {
             var copies: [URL] = []
             for url in urls {
@@ -124,18 +124,18 @@ struct IncomingChooser: View {
 
     private var title: String {
         guard let first = incoming.waiting.first else { return "" }
-        return incoming.waiting.count == 1 ? first.lastPathComponent : "\(incoming.waiting.count) files"
+        return incoming.waiting.count == 1 ? first.lastPathComponent : "\(incoming.waiting.count) 个文件"
     }
 
     var body: some View {
         VStack(alignment: .leading, spacing: 18) {
             VStack(alignment: .leading, spacing: 4) {
-                Text("Add to Husk").font(.title2.weight(.bold))
+                Text("添加到 Husk").font(.title2.weight(.bold))
                 Text(title).font(.subheadline).foregroundStyle(.secondary).lineLimit(2)
             }
 
-            choice(icon: "bolt.fill", title: "Translation Layer",
-                   detail: "Runs the game directly on your iPhone, without starting Android. Best for games.") {
+            choice(icon: "bolt.fill", title: "转译层",
+                   detail: "直接在 iPhone 上运行游戏，无需启动 Android。适合游戏使用。") {
                 incoming.sendToTranslationLayer()
             }
             choice(icon: "apps.iphone", title: "Android",
@@ -143,7 +143,7 @@ struct IncomingChooser: View {
                 incoming.sendToAndroid()
             }
 
-            Button("Cancel", role: .cancel) { incoming.discard() }
+            Button("取消", role: .cancel) { incoming.discard() }
                 .frame(maxWidth: .infinity)
                 .padding(.top, 2)
         }
@@ -151,9 +151,9 @@ struct IncomingChooser: View {
     }
 
     private var androidDetail: String {
-        if host.isReady { return "Installs it into Android, where any app can run." }
-        if guest.state == .ready { return "Installs it into Android the next time Android starts." }
-        return "Installs it into Android once Android is downloaded and started."
+        if host.isReady { return "安装到 Android 系统中，可用于运行各种应用。" }
+        if guest.state == .ready { return "在下次启动 Android 时安装。" }
+        return "下载并启动 Android 后安装。"
     }
 
     private func choice(icon: String, title: String, detail: String, action: @escaping () -> Void) -> some View {

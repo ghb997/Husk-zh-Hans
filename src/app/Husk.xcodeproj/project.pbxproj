@@ -892,11 +892,11 @@
 				};
 			};
 			buildConfigurationList = 184E6EA7BF1031F1EE9611FC /* Build configuration list for PBXProject "Husk" */;
-			developmentRegion = en;
+			developmentRegion = "zh-Hans";
 			hasScannedForEncodings = 0;
 			knownRegions = (
 				Base,
-				en,
+				"zh-Hans",
 			);
 			mainGroup = 1E59FB82FCE9A2CABD19395C;
 			minimizedProjectReferenceProxies = 1;

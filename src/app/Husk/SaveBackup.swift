@@ -35,7 +35,7 @@ enum SaveBackup {
         let appDir = TranslationLayer.root.appendingPathComponent(app.id)
         var files: [(name: String, url: URL)] = []
         for folder in dataFolders(appDir) { collect(folder, prefix: folder.lastPathComponent, into: &files) }
-        guard !files.isEmpty else { throw Failure("\(app.label) has not saved anything yet.") }
+        guard !files.isEmpty else { throw Failure("\(app.label) 尚未保存任何数据。") }
 
         let manifest: [String: Any] = [
             "format": 1, "package": app.packageName ?? "", "label": app.label,
@@ -77,11 +77,11 @@ enum SaveBackup {
         let zip = try ZipReader(zipURL)
         guard let mdata = try zip.data(manifestName),
               let manifest = try JSONSerialization.jsonObject(with: mdata) as? [String: Any] else {
-            throw Failure("That file is not a Husk save backup.")
+            throw Failure("此文件不是 Husk 存档备份。")
         }
         let pkg = manifest["package"] as? String ?? ""
         if let mine = app.packageName, !pkg.isEmpty, pkg != mine {
-            throw Failure("That backup is of \(manifest["label"] as? String ?? pkg), not \(app.label).")
+            throw Failure("此备份属于 \(manifest["label"] as? String ?? pkg)，不属于 \(app.label)。")
         }
 
         // Unpacked beside the game first, and swapped in only once all of it is out: a backup that fails halfway leaves
@@ -101,7 +101,7 @@ enum SaveBackup {
             try zip.extract(name, to: dest)
             count += 1
         }
-        guard count > 0 else { throw Failure("That backup has no saves in it.") }
+        guard count > 0 else { throw Failure("此备份中没有存档。") }
         for folder in (try? fm.contentsOfDirectory(at: staging, includingPropertiesForKeys: nil)) ?? [] {
             let live = appDir.appendingPathComponent(folder.lastPathComponent)
             let old = appDir.appendingPathComponent(".old-" + folder.lastPathComponent)
@@ -156,7 +156,7 @@ private final class ZipWriter {
         defer { try? input.close() }
         var crc: UInt32 = 0, size: UInt64 = 0
         while let chunk = try input.read(upToCount: 1 << 20), !chunk.isEmpty { crc = crc32(crc, chunk); size += UInt64(chunk.count) }
-        guard size < 0xFFFF_FFFF, offset < 0xFFFF_FFFF else { throw SaveBackup.Failure("A save file is too large to back up.") }
+        guard size < 0xFFFF_FFFF, offset < 0xFFFF_FFFF else { throw SaveBackup.Failure("存档文件过大，无法备份。") }
         try input.seek(toOffset: 0)
         try write(name, size: size, crc: crc) {
             var left = size
@@ -209,7 +209,7 @@ private final class ZipReader {
         let b = [UInt8](try file.read(upToCount: Int(tail)) ?? Data())
         var e = b.count - 22
         while e >= 0, !(b[e] == 0x50 && b[e + 1] == 0x4b && b[e + 2] == 5 && b[e + 3] == 6) { e -= 1 }
-        guard e >= 0 else { throw SaveBackup.Failure("That file is not a zip.") }
+        guard e >= 0 else { throw SaveBackup.Failure("此文件不是 ZIP 压缩包。") }
         let count = Int(Self.u16(b, e + 10)), dirSize = Int(Self.u32(b, e + 12)), dirOff = UInt64(Self.u32(b, e + 16))
         try file.seek(toOffset: dirOff)
         let cd = [UInt8](try file.read(upToCount: dirSize) ?? Data())
@@ -229,10 +229,10 @@ private final class ZipReader {
     deinit { try? file.close() }
 
     private func start(_ e: Entry) throws -> UInt64 {
-        guard e.method == 0 else { throw SaveBackup.Failure("That backup was recompressed by another app; Husk reads only the backups it makes.") }
+        guard e.method == 0 else { throw SaveBackup.Failure("此备份曾被其他应用重新压缩，Husk 只能读取自身创建的原始备份。") }
         try file.seek(toOffset: e.local)
         let h = [UInt8](try file.read(upToCount: 30) ?? Data())
-        guard h.count == 30 else { throw SaveBackup.Failure("That backup is damaged.") }
+        guard h.count == 30 else { throw SaveBackup.Failure("此备份已损坏。") }
         return e.local + 30 + UInt64(Self.u16(h, 26)) + UInt64(Self.u16(h, 28))
     }
 
@@ -250,7 +250,7 @@ private final class ZipReader {
         defer { try? out.close() }
         var left = e.size
         while left > 0 {
-            guard let chunk = try file.read(upToCount: Int(min(left, 1 << 20))), !chunk.isEmpty else { throw SaveBackup.Failure("That backup is damaged.") }
+            guard let chunk = try file.read(upToCount: Int(min(left, 1 << 20))), !chunk.isEmpty else { throw SaveBackup.Failure("此备份已损坏。") }
             try out.write(contentsOf: chunk); left -= UInt64(chunk.count)
         }
     }

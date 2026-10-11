@@ -83,6 +83,7 @@ struct HuskApp: App {
     var body: some Scene {
         WindowGroup {
             ContentView()
+                .environment(\.locale, Locale(identifier: "zh_Hans_CN"))
                 // An APK shared to Husk, or opened in it from Files.
                 .onOpenURL { url in
                     // husk://open_app?unique_identifier=… from a Home Screen clip; anything else may be a shared APK

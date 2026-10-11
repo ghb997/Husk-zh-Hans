@@ -23,15 +23,15 @@ final class AppTheme: ObservableObject {
 
     static let presets: [Preset] = [
         Preset(id: "husk", name: "Husk", color: husk),
-        Preset(id: "blue", name: "Blue", color: .blue),
-        Preset(id: "purple", name: "Purple", color: .purple),
-        Preset(id: "pink", name: "Pink", color: .pink),
-        Preset(id: "red", name: "Red", color: .red),
-        Preset(id: "orange", name: "Orange", color: .orange),
-        Preset(id: "yellow", name: "Yellow", color: .yellow),
-        Preset(id: "green", name: "Green", color: .green),
-        Preset(id: "teal", name: "Teal", color: .teal),
-        Preset(id: "mint", name: "Mint", color: .mint),
+        Preset(id: "blue", name: "蓝色", color: .blue),
+        Preset(id: "purple", name: "紫色", color: .purple),
+        Preset(id: "pink", name: "粉色", color: .pink),
+        Preset(id: "red", name: "红色", color: .red),
+        Preset(id: "orange", name: "橙色", color: .orange),
+        Preset(id: "yellow", name: "黄色", color: .yellow),
+        Preset(id: "green", name: "绿色", color: .green),
+        Preset(id: "teal", name: "青色", color: .teal),
+        Preset(id: "mint", name: "薄荷绿", color: .mint),
     ]
 
     @Published var accentColor: Color {

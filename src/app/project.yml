@@ -7,6 +7,7 @@ options:
     # rppairing are built for 15.5, below it.
     iOS: "16.0"
   createIntermediateGroups: true
+  developmentLanguage: zh-Hans
 
 settings:
   base:
@@ -22,6 +23,7 @@ settings:
     ONLY_ACTIVE_ARCH: YES
     ENABLE_BITCODE: NO
     SWIFT_VERSION: "5.0"
+    DEVELOPMENT_LANGUAGE: zh-Hans
     # The guest framebuffer path is latency-sensitive and the JIT path is
     # timing-sensitive; never let a debug build of the display loop mislead us.
     SWIFT_OPTIMIZATION_LEVEL: "-O"

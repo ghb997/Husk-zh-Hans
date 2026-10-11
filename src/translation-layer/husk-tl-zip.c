@@ -115,19 +115,19 @@ bool tl_zip_open(tl_zip *z, const char *path, char *err, size_t errlen)
 
     z->fd = open(path, O_RDONLY);
     if (z->fd < 0) {
-        fail(err, errlen, "cannot open: %s", strerror(errno));
+        fail(err, errlen, "无法打开：%s", strerror(errno));
         return false;
     }
     struct stat st;
     if (fstat(z->fd, &st) != 0 || st.st_size <= 0) {
-        fail(err, errlen, "empty or unreadable file");
+        fail(err, errlen, "文件为空或无法读取");
         tl_zip_close(z);
         return false;
     }
     z->size = (size_t)st.st_size;
     void *map = mmap(NULL, z->size, PROT_READ, MAP_PRIVATE, z->fd, 0);
     if (map == MAP_FAILED) {
-        fail(err, errlen, "cannot map: %s", strerror(errno));
+        fail(err, errlen, "无法映射：%s", strerror(errno));
         z->size = 0;
         tl_zip_close(z);
         return false;
@@ -136,7 +136,7 @@ bool tl_zip_open(tl_zip *z, const char *path, char *err, size_t errlen)
 
     uint64_t end;
     if (!find_end(z, &end)) {
-        fail(err, errlen, "not a ZIP file (no end-of-directory record)");
+        fail(err, errlen, "不是 ZIP 文件（缺少中央目录结束记录）");
         tl_zip_close(z);
         return false;
     }
@@ -147,13 +147,13 @@ bool tl_zip_open(tl_zip *z, const char *path, char *err, size_t errlen)
 
     if (count == 0xFFFF || cd_size == 0xFFFFFFFFu || cd_off == 0xFFFFFFFFu) {
         if (end < 20 || rd32(z->map + end - 20) != SIG_END64_LOC) {
-            fail(err, errlen, "ZIP64 archive without a ZIP64 locator");
+            fail(err, errlen, "ZIP64 压缩包缺少 ZIP64 定位记录");
             tl_zip_close(z);
             return false;
         }
         uint64_t rec = rd64(z->map + end - 20 + 8);
         if (!in_file(z, rec, 56) || rd32(z->map + rec) != SIG_END64) {
-            fail(err, errlen, "damaged ZIP64 end-of-directory record");
+            fail(err, errlen, "ZIP64 中央目录结束记录已损坏");
             tl_zip_close(z);
             return false;
         }
@@ -163,19 +163,19 @@ bool tl_zip_open(tl_zip *z, const char *path, char *err, size_t errlen)
     }
 
     if (!in_file(z, cd_off, cd_size)) {
-        fail(err, errlen, "central directory lies outside the file");
+        fail(err, errlen, "中央目录超出文件范围");
         tl_zip_close(z);
         return false;
     }
     if (count > MAX_ENTRIES || count > cd_size / 46) {
-        fail(err, errlen, "implausible entry count (%llu)", (unsigned long long)count);
+        fail(err, errlen, "文件条目数量异常（%llu）", (unsigned long long)count);
         tl_zip_close(z);
         return false;
     }
 
     z->entries = calloc(count ? count : 1, sizeof(*z->entries));
     if (!z->entries) {
-        fail(err, errlen, "out of memory");
+        fail(err, errlen, "内存不足");
         tl_zip_close(z);
         return false;
     }
@@ -184,7 +184,7 @@ bool tl_zip_open(tl_zip *z, const char *path, char *err, size_t errlen)
     const uint64_t limit = cd_off + cd_size;
     for (uint64_t i = 0; i < count; i++) {
         if (pos > limit || limit - pos < 46 || rd32(z->map + pos) != SIG_CENTRAL) {
-            fail(err, errlen, "damaged central directory at entry %llu",
+            fail(err, errlen, "第 %llu 个中央目录条目已损坏",
                  (unsigned long long)i);
             tl_zip_close(z);
             return false;
@@ -195,7 +195,7 @@ bool tl_zip_open(tl_zip *z, const char *path, char *err, size_t errlen)
         uint16_t comment_len = rd16(c + 32);
         uint64_t record = 46ull + name_len + extra_len + comment_len;
         if (limit - pos < record) {
-            fail(err, errlen, "central directory entry runs past its end");
+            fail(err, errlen, "中央目录条目越界");
             tl_zip_close(z);
             return false;
         }
@@ -209,14 +209,14 @@ bool tl_zip_open(tl_zip *z, const char *path, char *err, size_t errlen)
         if (!apply_zip64_extra(c + 46 + name_len, extra_len, en,
                                en->usize == 0xFFFFFFFFu, en->csize == 0xFFFFFFFFu,
                                en->local_offset == 0xFFFFFFFFu)) {
-            fail(err, errlen, "damaged ZIP64 field in entry %llu",
+            fail(err, errlen, "第 %llu 个条目的 ZIP64 字段已损坏",
                  (unsigned long long)i);
             tl_zip_close(z);
             return false;
         }
         en->name = malloc((size_t)name_len + 1);
         if (!en->name) {
-            fail(err, errlen, "out of memory");
+            fail(err, errlen, "内存不足");
             tl_zip_close(z);
             return false;
         }
@@ -271,31 +271,31 @@ bool tl_zip_data(const tl_zip *z, const tl_zip_entry *e, size_t limit,
     *owned = false;
 
     if (e->flags & 1) {
-        fail(err, errlen, "%s is encrypted", e->name);
+        fail(err, errlen, "%s 已加密", e->name);
         return false;
     }
     if (e->usize > limit) {
-        fail(err, errlen, "%s is too large (%llu bytes)", e->name,
+        fail(err, errlen, "%s 过大（%llu 字节）", e->name,
              (unsigned long long)e->usize);
         return false;
     }
     /* The local header repeats the name and carries its own extra field,
      * whose length need not match the central directory's. */
     if (!in_file(z, e->local_offset, 30) || rd32(z->map + e->local_offset) != SIG_LOCAL) {
-        fail(err, errlen, "%s: damaged local header", e->name);
+        fail(err, errlen, "%s：本地文件头已损坏", e->name);
         return false;
     }
     const uint8_t *l = z->map + e->local_offset;
     uint64_t data_off = e->local_offset + 30ull + rd16(l + 26) + rd16(l + 28);
     if (!in_file(z, data_off, e->csize)) {
-        fail(err, errlen, "%s runs past the end of the file", e->name);
+        fail(err, errlen, "%s 超出文件末尾", e->name);
         return false;
     }
     const uint8_t *data = z->map + data_off;
 
     if (e->method == 0) {
         if (e->csize != e->usize) {
-            fail(err, errlen, "%s: stored entry with mismatched sizes", e->name);
+            fail(err, errlen, "%s：存储条目的大小不匹配", e->name);
             return false;
         }
         *out = data;
@@ -303,20 +303,20 @@ bool tl_zip_data(const tl_zip *z, const tl_zip_entry *e, size_t limit,
         return true;
     }
     if (e->method != 8) {
-        fail(err, errlen, "%s uses compression method %u", e->name, e->method);
+        fail(err, errlen, "%s 使用压缩算法 %u", e->name, e->method);
         return false;
     }
 
     uint8_t *buf = malloc(e->usize ? (size_t)e->usize : 1);
     if (!buf) {
-        fail(err, errlen, "out of memory inflating %s", e->name);
+        fail(err, errlen, "解压 %s 时内存不足", e->name);
         return false;
     }
     z_stream zs;
     memset(&zs, 0, sizeof(zs));
     if (inflateInit2(&zs, -MAX_WBITS) != Z_OK) {
         free(buf);
-        fail(err, errlen, "inflate failed to start");
+        fail(err, errlen, "无法初始化解压");
         return false;
     }
     /* zlib counts in uInt; feed and drain in chunks so entries over 4 GiB
@@ -351,7 +351,7 @@ bool tl_zip_data(const tl_zip *z, const tl_zip_entry *e, size_t limit,
     inflateEnd(&zs);
     if (rc != Z_STREAM_END || produced != e->usize) {
         free(buf);
-        fail(err, errlen, "%s did not inflate cleanly", e->name);
+        fail(err, errlen, "%s 未能完整解压", e->name);
         return false;
     }
     *out = buf;

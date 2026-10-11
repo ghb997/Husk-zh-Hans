@@ -61,6 +61,7 @@ jobs:
         run: python3 scripts/prepare_android_resources.py
       - name: Build
         run: |
+          set -o pipefail
           mkdir -p build
           ./scripts/ci_build.sh "$PWD/build/Husk-2.0.0-zh-Hans.ipa" 2>&1 | tee build/ci.log
       - name: Verify IPA contents

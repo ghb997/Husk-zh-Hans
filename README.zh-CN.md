@@ -15,6 +15,8 @@ Husk 用于在 iPhone / iPad 上通过转译层或完整 Android 模拟环境运
 
 翻译对照保存在 localization/zh-Hans.json 和 localization/native-zh-Hans.json 中。此版本直接使用中文界面，保留产品名、技术标识、包名、接口键及用于故障分析的原始日志；第三方应用内容由相应来源提供。用户已有的旧诊断记录不会被重新翻译。
 
+应用更新提示使用本仓库的正式发布渠道，避免把中文版更新为上游英文版。Android 镜像继续使用上游维护的来源。
+
 ## 构建和下载
 
 打开 [GitHub Actions](https://github.com/ghb997/Husk-zh-Hans/actions/workflows/build-zh-hans.yml)，选择 Run workflow，并保持 dependencies_only 为 false。成功后下载 Husk-2.0.0-zh-Hans 构建产物。

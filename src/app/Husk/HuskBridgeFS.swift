@@ -209,7 +209,7 @@ enum BridgeError: LocalizedError {
     var errorDescription: String? {
         switch self {
         case .io(let m):      return m
-        case .timeout(let m): return "timed out \(m)"
+        case .timeout(let m): return "操作超时：\(m)"
         }
     }
 }

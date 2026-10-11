@@ -7990,5 +7990,41 @@
     "line": 141,
     "en": "inside Android now, including installed apps.",
     "zh-Hans": "当前 Android 中的内容，包括已安装的应用。"
+  },
+  {
+    "file": "src/app/Husk/JITBootstrap.swift",
+    "line": 98,
+    "en": "The debugger is attached but is not answering trap ",
+    "zh-Hans": "调试器已附加，但没有响应陷阱请求，"
+  },
+  {
+    "file": "src/app/Husk/JITBootstrap.swift",
+    "line": 99,
+    "en": "requests, and this device will not execute a MAP_JIT ",
+    "zh-Hans": "此设备也无法执行 MAP_JIT 映射中的代码，"
+  },
+  {
+    "file": "src/app/Husk/JITBootstrap.swift",
+    "line": 100,
+    "en": "mapping either, so no executable memory could be ",
+    "zh-Hans": "因此无法申请可执行内存。"
+  },
+  {
+    "file": "src/app/Husk/JITBootstrap.swift",
+    "line": 101,
+    "en": "claimed. This is what happens when Husk runs inside ",
+    "zh-Hans": "如果 Husk 在其他容器应用内运行，"
+  },
+  {
+    "file": "src/app/Husk/JITBootstrap.swift",
+    "line": 102,
+    "en": "another container app rather than sideloaded on its own.",
+    "zh-Hans": "而没有作为独立应用侧载安装，就会出现这种情况。"
+  },
+  {
+    "file": "src/app/Husk/HuskBridgeFS.swift",
+    "line": 212,
+    "en": "timed out \\(m)",
+    "zh-Hans": "操作超时：\\(m)"
   }
 ]

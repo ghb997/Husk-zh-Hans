@@ -44,6 +44,8 @@ cd "$WK/Source/ThirdParty/ANGLE"
 # matters, supportsBCTextureCompression, sits behind @available, so the warning
 # is turned off rather than the target raised. Husk deploys to 15.5 (TrollStore
 # and Dopamine devices), and ANGLE is built to match.
+# Current ANGLE annotates its std::mutex wrapper. Enable libc++'s corresponding
+# mutex annotations, otherwise Xcode rejects it under -Werror=thread-safety.
 ALIASES="$GPU/angle-aliases.txt"
 
 angle_build () {
@@ -62,13 +64,13 @@ angle_build () {
 
     env -i PATH="$PATH" HOME="$HOME" xcodebuild archive \
         -archivePath "ANGLE" -scheme "ANGLE" \
-        -sdk iphoneos -arch arm64 -configuration Release \
+        -sdk iphoneos -arch arm64 -destination 'generic/platform=iOS' -configuration Release \
         WEBCORE_LIBRARY_DIR="/usr/local/lib" NORMAL_UMBRELLA_FRAMEWORKS_DIR="" \
         CODE_SIGNING_ALLOWED=NO CODE_SIGNING_REQUIRED=NO \
         WK_AVAILABILITY_OVERLAY_FLAGS="" WK_AVAILABILITY_OVERLAY_SWIFT_FLAGS="" \
         IPHONEOS_DEPLOYMENT_TARGET="15.5" \
         OTHER_CFLAGS='$(inherited) -Wno-unguarded-availability-new' \
-        OTHER_CPLUSPLUSFLAGS='$(inherited) -Wno-unguarded-availability-new' \
+        OTHER_CPLUSPLUSFLAGS='$(inherited) -Wno-unguarded-availability-new -D_LIBCPP_ENABLE_THREAD_SAFETY_ANNOTATIONS' \
         ${ldflags[@]+"${ldflags[@]}"} \
         > "$LOG" 2>&1 \
       || { echo "ANGLE build failed; last errors:" >&2

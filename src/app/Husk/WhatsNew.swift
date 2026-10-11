@@ -104,7 +104,8 @@ final class AppUpdates: ObservableObject {
 
     @Published var available: Release?
 
-    private static let api = URL(string: "https://api.github.com/repos/Leviidev/Husk/releases/latest")!
+    // Keep the Chinese build on its own release channel.
+    private static let api = URL(string: "https://api.github.com/repos/ghb997/Husk-zh-Hans/releases/latest")!
     private static let checkedKey = "husk.updates.checked", dismissedKey = "husk.updates.dismissed"
 
     static var current: String { Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "0" }

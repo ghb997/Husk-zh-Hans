@@ -1,0 +1,17 @@
+# The games the regression run plays, one per line:
+#   name | harness | APK | seconds before the screenshot | width height | extra environment | text the log must have
+# $HUSK_ENGINES is a folder of GitHub-release APKs for the newer drivers (GameMaker, Kivy).
+# An APK path starting with fdroid: is downloaded from F-Droid into the cache (package_versioncode). Paths may use ~ and
+# $VARIABLES; a case whose APK is not there is skipped, not failed. ANGLE comes from TL_ANGLE_EGL/TL_ANGLE_GLES (the
+# harnesses default to the copy inside Steam's Chromium Embedded Framework on this Mac).
+subway     | unity-test | ~/Documents/Subway+Surfers_3.69.2_APKPure.apk                | 55 | 804 1748 |
+fruitninja | unity-test | $HUSK_FRUITNINJA/com.halfbrick.fruitninjafree.apk             | 50 | 1748 804 | TL_PACKAGE=com.halfbrick.fruitninjafree TL_SPLITS=$HUSK_FRUITNINJA/com.halfbrick.fruitninjafree.config.arm64_v8a.apk:$HUSK_FRUITNINJA/com.halfbrick.fruitninjafree.UnityDataAssetPack.apk | I/Unity: [PlayFab]
+gd         | cocos-test | ~/Documents/Geometry-Dash-APK-2.207-Thegeometrydash.net.apk  | 25 | 1748 804 |
+gd-geode   | cocos-test | $HUSK_GEODE_GD                                               | 30 | 1748 804 | TL_GEODE=$HUSK_GEODE_ZIP TL_GEODE_LAUNCHER=$HOME/Downloads/geode-launcher-v1.8.0.apk TL_START_THREAD=1 TL_START_THREAD_KEEP=1 | Loading non-early mods
+minecraft  | ga-test    | ~/Documents/Minecraft-v1.26.60.29-full-apkvision.apk         | 95 | 1200 552 |
+rocksndiamonds | sdl-test | fdroid:org.artsoft.rocksndiamonds_4020200                  | 20 | 1748 804 |
+pocketbroomball | godot-test | fdroid:com.simondalvai.pocketbroomball_100           | 12 | 804 1748 | TL_PACKAGE=com.simondalvai.pocketbroomball | Godot Engine v3.6
+burgers    | godot-test | fdroid:org.xolatgames.burgers_7                              | 15 | 1748 804 | TL_PACKAGE=org.xolatgames.burgers | Godot Engine v4.6
+bytelife   | gamemaker-test | $HUSK_ENGINES/ByteLife.Simulator.apk                     | 10 | 1748 804 | | gamemaker: started
+kivy-ttt   | sdl-test   | $HUSK_ENGINES/TicTacToe-v1.0.0-Android.apk                   | 35 | 804 1748 | | Start application main loop
+rnd-java   | javaapp-test | fdroid:org.artsoft.rocksndiamonds_4020200                  | 50 | 1748 804 | TL_PACKAGE=org.artsoft.rocksndiamonds TL_FRAMEWORK=$R/build/java-runtime/husk-framework.dex | nativeRunMain

@@ -1,0 +1,105 @@
+name: Problem with Husk itself
+description: Husk crashes, freezes, won't install, won't turn on JIT, or something in its own screens is wrong.
+title: "[Husk] "
+labels: ["bug", "husk"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        This form is for problems with **Husk itself**. If a particular **game or app** doesn't work, use the "Game or app doesn't work" form instead.
+
+        Issues without logs or the details below will be closed. **Logs are how problems get fixed.**
+  - type: dropdown
+    id: area
+    attributes:
+      label: What kind of problem is it?
+      options:
+        - Husk crashes or closes
+        - Husk freezes or stops responding
+        - Husk won't install
+        - JIT won't turn on
+        - Android (emulated) won't start or download
+        - Something in Husk's own screens is wrong
+        - Other
+    validations:
+      required: true
+  - type: textarea
+    id: what
+    attributes:
+      label: What happened?
+      description: What you did, step by step, what you expected, and what happened instead.
+      placeholder: |
+        1. Opened Husk
+        2. Tapped ...
+        3. Husk closed
+    validations:
+      required: true
+  - type: textarea
+    id: logs
+    attributes:
+      label: Logs
+      description: |
+        **Required.** Attach `husk.log` and `husk-native.log` (drag the files into this box). They are in the **Files** app › **On My iPhone** › **Husk**.
+        If Husk crashed, open it again: it offers a crash report you can share. Settings › About › **Open Console** shows the live log.
+        A screenshot or screen recording helps too.
+      placeholder: Drag husk.log and husk-native.log here.
+    validations:
+      required: true
+  - type: input
+    id: husk-version
+    attributes:
+      label: Husk version
+      description: The top of Settings shows it, for example "Version 1.0.1 · 6bee247". Copy the whole line.
+      placeholder: Version 1.0.1 · 6bee247
+    validations:
+      required: true
+  - type: input
+    id: device
+    attributes:
+      label: Device
+      placeholder: iPhone 15 Pro
+    validations:
+      required: true
+  - type: input
+    id: ios
+    attributes:
+      label: iOS version
+      placeholder: "18.6.2"
+    validations:
+      required: true
+  - type: dropdown
+    id: install
+    attributes:
+      label: How did you install Husk?
+      options:
+        - SideStore
+        - AltStore
+        - TrollStore
+        - TrollStore Lite
+        - A paid or enterprise certificate (Esign, Scarlet, Feather, ...)
+        - Xcode
+        - Other
+    validations:
+      required: true
+  - type: dropdown
+    id: jit
+    attributes:
+      label: How do you turn on JIT?
+      options:
+        - StikDebug
+        - Built-in StikJIT
+        - TrollStore
+        - Jailbreak (Dopamine or other)
+        - I don't have JIT
+        - Other
+    validations:
+      required: true
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: Before you send it
+      options:
+        - label: I am on the newest Husk release.
+          required: true
+        - label: I searched the existing issues and this one is not already reported.
+          required: true

@@ -1,0 +1,181 @@
+{
+  "format": 1,
+  "apps": {
+    "com.flappybird.recreation": [
+      {
+        "file": "com.flappybird.recreation_screenshot1.jpg",
+        "sha256": "6c5f8c559cdfdc0f29ae5f2a4472c3690276411335972dc8bcb5616dc5752275",
+        "size": 64051
+      },
+      {
+        "file": "com.flappybird.recreation_screenshot2.jpg",
+        "sha256": "d672297bf2136215855f31daad69e1901ca736dfbb052ccb050b7a8cf0ab8c7b",
+        "size": 41165
+      },
+      {
+        "file": "com.flappybird.recreation_screenshot3.jpg",
+        "sha256": "dd6294b2feb6770ced84c6aacb0e859a6203092587bc74160a8a5bcdbac35007",
+        "size": 43218
+      },
+      {
+        "file": "com.flappybird.recreation_screenshot4.jpg",
+        "sha256": "7ef2dd401e448899dcad26b5a1a7a811f7a1ba1c83988aa5056b8976e54f95e9",
+        "size": 68615
+      }
+    ],
+    "com.geode.launcher": [
+      {
+        "file": "com.geode.launcher_screenshot1.jpg",
+        "sha256": "f82becb73adea98a6b83bb86ccaee7da9d1b319257e71ac90351acffe19d52d2",
+        "size": 168355
+      },
+      {
+        "file": "com.geode.launcher_screenshot2.jpg",
+        "sha256": "51b14a571f2be559c3d032f8db84d84b9206535ce04350a2f7641dcc39fbb5be",
+        "size": 223660
+      },
+      {
+        "file": "com.geode.launcher_screenshot3.jpg",
+        "sha256": "cbb9ed38ab6444ddfe7abfcc445b8f3d9824ee5b2df339cb1dc3ece13f77c537",
+        "size": 216184
+      },
+      {
+        "file": "com.geode.launcher_screenshot4.jpg",
+        "sha256": "c68316ba74b935bcd60423f66b204264962a5be0bf8bf2a193c87c38c2e65ce1",
+        "size": 207293
+      }
+    ],
+    "com.kiloo.subwaysurf": [
+      {
+        "file": "com.kiloo.subwaysurf_screenshot1.jpg",
+        "sha256": "398b7e3f9133b043994b52213e2d99469b993d41b53840174bd0482218c91871",
+        "size": 249213
+      },
+      {
+        "file": "com.kiloo.subwaysurf_screenshot2.jpg",
+        "sha256": "5974bb28fb5c1f6b5e09311514973806e0ff1e58b83383a65dc4fc0569648789",
+        "size": 192828
+      },
+      {
+        "file": "com.kiloo.subwaysurf_screenshot3.jpg",
+        "sha256": "78788cf2af059f4fa392a58c603322b4153102b4f60a5a5a247e20eb797517ce",
+        "size": 241710
+      },
+      {
+        "file": "com.kiloo.subwaysurf_screenshot4.jpg",
+        "sha256": "828a65f6c2fc7507e3019363424279688009f81fdd55f638eb933ef0c5886694",
+        "size": 246713
+      }
+    ],
+    "com.mojang.minecraftpe": [
+      {
+        "file": "com.mojang.minecraftpe_screenshot1.jpg",
+        "sha256": "1d3b734279c5776c0b5d7353d429cb5dbbf8a7f0237c14b8ac522670809396e6",
+        "size": 246047
+      },
+      {
+        "file": "com.mojang.minecraftpe_screenshot2.jpg",
+        "sha256": "f65891b9b3e502ea7c39629f5b0b22bd1d7b979bb6e51b967ad2159d37dd93f6",
+        "size": 255095
+      },
+      {
+        "file": "com.mojang.minecraftpe_screenshot3.jpg",
+        "sha256": "16f8bfd78c17bf0e84589c4b97ebbfd4007fa314315c57ff4ab988d5c60edb1d",
+        "size": 173066
+      },
+      {
+        "file": "com.mojang.minecraftpe_screenshot4.jpg",
+        "sha256": "14e44848149a53f80137153139d78bdda3576c69ed41516dd2722f1d504f57e0",
+        "size": 250455
+      }
+    ],
+    "com.nintendosss.spice": [
+      {
+        "file": "com.nintendosss.spice_screenshot1.jpg",
+        "sha256": "dc6d1e4d86bb118d4f7ddfd6295463ad1997d0f54dc3d5fde57d5dd223700c8c",
+        "size": 415006
+      },
+      {
+        "file": "com.nintendosss.spice_screenshot2.jpg",
+        "sha256": "8c9cba452e020f147ae7ed23e9e62bca1f62ad4a101490ec40faa829068ea942",
+        "size": 166544
+      },
+      {
+        "file": "com.nintendosss.spice_screenshot3.jpg",
+        "sha256": "c10b99372021d4690289ec9a35d6734221de82e8a2a6438802ed7d2a5263ce12",
+        "size": 156520
+      },
+      {
+        "file": "com.nintendosss.spice_screenshot4.jpg",
+        "sha256": "ec516c31e19b9d7f2337fb61fd4b93929ec7cbbe6252e79a157be12f9a2cf1ca",
+        "size": 389707
+      }
+    ],
+    "com.robtopx.geometryjump": [
+      {
+        "file": "com.robtopx.geometryjump_screenshot1.jpg",
+        "sha256": "fe3ad2ccc99c12c1978da9df7b779f13c5c03304d42ff19ba3270c41e89478fe",
+        "size": 252972
+      },
+      {
+        "file": "com.robtopx.geometryjump_screenshot2.jpg",
+        "sha256": "921cf1f7cd37363b986ba1e251c2bf1c97c343a4d8a28e085b12ed43f9c8e1e9",
+        "size": 211041
+      },
+      {
+        "file": "com.robtopx.geometryjump_screenshot3.jpg",
+        "sha256": "516425a5578896d6bb3af9aeeab187d3695edfe2294629605c65054da4ba9787",
+        "size": 123289
+      },
+      {
+        "file": "com.robtopx.geometryjump_screenshot4.jpg",
+        "sha256": "75ed85d60dd70840dc3137b23d9d542658286f54bdeb46bb356c2f91b8d2b688",
+        "size": 69600
+      }
+    ],
+    "com.rockstargames.gtasa": [
+      {
+        "file": "com.rockstargames.gtasa_screenshot1.jpg",
+        "sha256": "67e93829a8424f4665d892ffc5b63098725e12fa43f914d79a491e240d6277a7",
+        "size": 311994
+      },
+      {
+        "file": "com.rockstargames.gtasa_screenshot2.jpg",
+        "sha256": "4b2f98eb376f95a88049da3bcb9d1be28ea1bb8dcd236e2b61483805ce48d5a8",
+        "size": 203362
+      },
+      {
+        "file": "com.rockstargames.gtasa_screenshot3.jpg",
+        "sha256": "34969b563420f8e3dd5134846281e7e6240d3821a607af20c3f613251b561001",
+        "size": 230634
+      },
+      {
+        "file": "com.rockstargames.gtasa_screenshot4.jpg",
+        "sha256": "71adc9d50c7787c748899d832c0ad8ee57eaad8180921b9cf1de375bad818df0",
+        "size": 277808
+      }
+    ],
+    "com.vectorunit.cobalt.googleplay": [
+      {
+        "file": "com.vectorunit.cobalt.googleplay_screenshot1.jpg",
+        "sha256": "bc3014a618d5af206315488c92270e44cdb1a14fbf0748cd8a3e8a9a84401be3",
+        "size": 264625
+      },
+      {
+        "file": "com.vectorunit.cobalt.googleplay_screenshot2.jpg",
+        "sha256": "713988df9303caae615b3d16e984594cebd3b4958bf62f413da5b22f4123c281",
+        "size": 300734
+      },
+      {
+        "file": "com.vectorunit.cobalt.googleplay_screenshot3.jpg",
+        "sha256": "58900030f922b510ab8e0a2d754b72b9ddc5cf335b5e387491c25d098addba29",
+        "size": 253546
+      },
+      {
+        "file": "com.vectorunit.cobalt.googleplay_screenshot4.jpg",
+        "sha256": "ed742f8a4fcfa421aa7d608cbe3a8a4c49b0abe81773898959ca824d0d144b63",
+        "size": 233501
+      }
+    ]
+  }
+}

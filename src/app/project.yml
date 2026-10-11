@@ -1,0 +1,305 @@
+name: Husk
+options:
+  bundleIdPrefix: com.husk
+  deploymentTarget:
+    # 16.0: the lowest the app builds at as written (its SwiftUI is iOS 16), so
+    # it installs on the iOS 16 versions TrollStore runs on. QEMU, ANGLE and
+    # rppairing are built for 15.5, below it.
+    iOS: "16.0"
+  createIntermediateGroups: true
+
+settings:
+  base:
+    # The app and its JIT helper extension follow this together: the helper's
+    # identifier has to sit under the app's. Change this, not
+    # PRODUCT_BUNDLE_IDENTIFIER.
+    HUSK_BUNDLE_IDENTIFIER: com.husk.app
+    # The app's entitlements only. A signed development build has to drop
+    # dynamic-codesigning, which Apple will not provision; overriding this
+    # rather than CODE_SIGN_ENTITLEMENTS keeps the override off the helper.
+    HUSK_ENTITLEMENTS: Husk/Husk.entitlements
+    ARCHS: arm64
+    ONLY_ACTIVE_ARCH: YES
+    ENABLE_BITCODE: NO
+    SWIFT_VERSION: "5.0"
+    # The guest framebuffer path is latency-sensitive and the JIT path is
+    # timing-sensitive; never let a debug build of the display loop mislead us.
+    SWIFT_OPTIMIZATION_LEVEL: "-O"
+
+targets:
+  Husk:
+    type: application
+    platform: iOS
+    sources:
+      - path: Husk
+        excludes:
+          - "Resources/**"
+      # NOT `type: folder`: a folder reference copies the directory itself into the
+      # bundle, and Bundle.path(forResource:ofType:) does not search subdirectories,
+      # so the script would be present but unfindable at runtime.
+      - path: Husk/Resources
+        buildPhase: resources
+      # The experimental translation layer's C side. Compiled into the app,
+      # not into the QEMU library -- see docs/04-translation-layer.md.
+      - path: ../translation-layer
+      # The native runtime: a real linker for Android's libraries, a bionic shim, JNI with a
+      # Java world written in C, and the Unity and cocos2d-x drivers. Runs Unity games such as Subway Surfers
+      # and cocos2d-x games such as Geometry Dash.
+      - path: ../translation-layer-next
+        excludes:
+          - "husk-tl-unity-app.h"
+      # The messages the app and its JIT helper exchange.
+      - path: HuskJITHelper/HuskJITMessages.swift
+      # The download Live Activity's attributes, shared with the widget that draws it.
+      - path: Shared
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: $(HUSK_BUNDLE_IDENTIFIER)
+        # Set your team here rather than in Xcode's UI: this file is the source of
+        # truth, and `xcodegen generate` overwrites Husk.xcodeproj.
+        # DEVELOPMENT_TEAM: XXXXXXXXXX
+        # The icon lives in Assets.xcassets/AppIcon.appiconset. Without this
+        # the catalog is compiled and the icon is never referenced.
+        ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
+        # Alternates, so the icon can be chosen in Settings. iOS can only switch
+        # between NAMED icons, which is why each appearance variant is its own
+        # appiconset rather than appearances inside one.
+        ASSETCATALOG_COMPILER_ALTERNATE_APPICON_NAMES: AppIconClearLight AppIconClearDark AppIconTintedLight AppIconTintedDark
+        ASSETCATALOG_COMPILER_INCLUDE_ALL_APPICON_ASSETS: YES
+        CODE_SIGN_STYLE: Automatic
+        INFOPLIST_FILE: Husk/Info.plist
+        CODE_SIGN_ENTITLEMENTS: "$(HUSK_ENTITLEMENTS)"
+        SWIFT_OBJC_BRIDGING_HEADER: Husk/HuskBridge.h
+        # libqemu-aarch64-softmmu.dylib has install_name @rpath/...
+        LD_RUNPATH_SEARCH_PATHS:
+          - "$(inherited)"
+          - "@executable_path/Frameworks"
+        # Husk targets iPhones and iPads (iPadOS).
+        TARGETED_DEVICE_FAMILY: "1,2"
+        # XcodeGen links the dylib by -l, so the linker needs a library search
+        # path (not just the framework search path it infers from the file).
+        LIBRARY_SEARCH_PATHS:
+          - "$(inherited)"
+          - "$(SRCROOT)/../../build/ios-arm64/lib"
+          - "$(SRCROOT)/Frameworks"
+        # zlib, for the translation layer's APK reader. Part of the iOS SDK. AudioToolbox is the sound a
+        # cocos2d-x game's mixer plays through; CoreText and CoreGraphics draw its text labels.
+        OTHER_LDFLAGS:
+          - "$(inherited)"
+          - "-lz"
+          # libresolv: the phone's DNS servers, for games that resolve names themselves (Geode's c-ares).
+          - "-lresolv"
+          # SQLite for Java apps' android.database.sqlite (the system's own library).
+          - "-lsqlite3"
+          - "-framework"
+          - "AudioToolbox"
+          - "-framework"
+          - "CoreText"
+          - "-framework"
+          - "CoreGraphics"
+          # ImageIO decodes and encodes images for Java apps' BitmapFactory and Bitmap.compress.
+          - "-framework"
+          - "ImageIO"
+          # WebKit draws Java apps' android.webkit.WebView (WKWebView under the app's screen).
+          - "-framework"
+          - "WebKit"
+          # VideoToolbox (with CoreMedia and CoreVideo) decodes H.264/HEVC for Java apps' MediaCodec; Accelerate converts the frames.
+          - "-framework"
+          - "VideoToolbox"
+          - "-framework"
+          - "CoreMedia"
+          - "-framework"
+          - "CoreVideo"
+          - "-framework"
+          - "Accelerate"
+          # Security verifies the licence signature Minecraft's UI engine checks through Java's Signature class.
+          - "-framework"
+          - "Security"
+          # On-device pairing for Built-in StikJIT, built by scripts/build_rppairing_ios.sh.
+          - "-lhusk_rppairing"
+    dependencies:
+      # Built-in StikJIT's debugger process. Embedded into PlugIns/.
+      - target: HuskJITHelper
+      # The download Live Activity (Lock Screen and Dynamic Island). Embedded into PlugIns/.
+      - target: HuskDownloadsWidget
+      # Built by scripts/build_ios.sh. Embedded and signed into the bundle.
+      - framework: ../../build/ios-arm64/lib/libqemu-aarch64-softmmu.dylib
+        embed: true
+        codeSign: true
+      # The file picker's Open button does nothing on certificate-signed installs; this tweak (from issue #60) hooks
+      # UIDocumentPickerViewController so the picker hands over copies. Linked so it loads at launch.
+      - framework: Frameworks/libFilePickerFix.dylib
+        embed: true
+        codeSign: true
+      # ANGLE, which the QEMU dylib dlopens by @rpath at GL start-up. Embedded
+      # but NOT linked: nothing in the app references its symbols directly, and
+      # the only thing that would notice its absence is the dynamic loader.
+      #
+      # This was in the checked-in .pbxproj and missing here, which nobody could
+      # see while the project was never regenerated. The first regeneration
+      # dropped it, and the app died at qemu_egl_init_dpy_cocoa with
+      # "Couldn't open @rpath/libANGLE-shared.dylib".
+      - framework: ../../build/ios-arm64/sysroot/lib/libANGLE-shared.dylib
+        embed: true
+        codeSign: true
+        link: false
+      # MoltenVK, which Unreal Engine's Vulkan renderer runs on (Minecraft Dungeons). Built from
+      # KhronosGroup/MoltenVK v1.4.2 with `make ios` (third_party/build/MoltenVK-1.4.2) and copied to
+      # build/ios-arm64/lib. Embedded, not linked: the native runtime opens it by path when an Unreal game starts.
+      - framework: ../../build/ios-arm64/lib/MoltenVK.xcframework
+        embed: true
+        codeSign: true
+        link: false
+    preBuildScripts:
+      - name: Stage guest image
+        # The Phase 0 guest is far too large for git, so it is fetched rather than
+        # vendored, and copied into the bundle at build time.
+        script: |
+          set -e
+          GUEST="$SRCROOT/../../guests/phase0"
+          if [ ! -f "$GUEST/vmlinuz-virt" ]; then
+            echo "error: guest missing. Run ./scripts/fetch_phase0_guest.sh" >&2
+            exit 1
+          fi
+          mkdir -p "$BUILT_PRODUCTS_DIR/$UNLOCALIZED_RESOURCES_FOLDER_PATH"
+          cp "$GUEST/vmlinuz-virt" "$GUEST/initramfs-virt" \
+             "$BUILT_PRODUCTS_DIR/$UNLOCALIZED_RESOURCES_FOLDER_PATH/"
+
+          # QEMU loads option ROMs by name from its data directory (-L). The full
+          # pc-bios tree is 24 MB and almost entirely firmware for architectures
+          # we will never boot (sparc64, riscv, loongarch, x86, ppc), so ship only
+          # the network boot ROMs -- 1.6 MB, and the only ones -M virt asks for.
+          BIOS="$SRCROOT/../../third_party/build/qemu-10.0.12-utm/pc-bios"
+          DEST="$BUILT_PRODUCTS_DIR/$UNLOCALIZED_RESOURCES_FOLDER_PATH/pc-bios"
+          mkdir -p "$DEST"
+          cp "$BIOS"/efi-*.rom "$BIOS"/pxe-*.rom "$DEST/" 2>/dev/null || true
+
+          # UEFI firmware for the Phase 1 guest: Debian's cloud image boots through
+          # GRUB under UEFI, so this is required. It is 64 MiB but almost all zeros,
+          # so the IPA's own zip squeezes it to about a megabyte -- cheaper than
+          # carrying a decompressor to unpack it at runtime.
+          FW="$BUILT_PRODUCTS_DIR/$UNLOCALIZED_RESOURCES_FOLDER_PATH/edk2-aarch64-code.fd"
+          if [ ! -f "$FW" ]; then
+            bunzip2 -c "$BIOS/edk2-aarch64-code.fd.bz2" > "$FW"
+          fi
+
+          # These two qcow2 files are tiny sparse seeds (64 MiB and 16 GiB
+          # virtual). The app copies them into Documents on first launch; the
+          # pre-booted snapshot later replaces the userdata seed in place.
+          QEMU_IMG="$(command -v qemu-img || true)"
+          if [ -z "$QEMU_IMG" ]; then
+            echo "error: qemu-img is required to generate the firmware and userdata seeds" >&2
+            exit 1
+          fi
+          VARS_SEED="$BUILT_PRODUCTS_DIR/$UNLOCALIZED_RESOURCES_FOLDER_PATH/lineage-efi-vars-seed.fd"
+          VDB_SEED="$BUILT_PRODUCTS_DIR/$UNLOCALIZED_RESOURCES_FOLDER_PATH/lineage-vdb-seed.qcow2"
+          rm -f "$VARS_SEED" "$VDB_SEED"
+          "$QEMU_IMG" create -f qcow2 "$VARS_SEED" 64M
+          "$QEMU_IMG" create -f qcow2 "$VDB_SEED" 16G
+
+          # The parts of Android's /system that apps on the translation layer read directly: CA certificates and the system
+          # fonts (scripts/build_android_system.sh makes them from the Lineage image). Flutter apps need both.
+          SYS="$SRCROOT/../../build/android-system"
+          if [ -d "$SYS/fonts" ]; then
+            rsync -a --delete "$SYS/" "$BUILT_PRODUCTS_DIR/$UNLOCALIZED_RESOURCES_FOLDER_PATH/android-system/"
+          else
+            echo "warning: build/android-system missing (scripts/build_android_system.sh): Flutter apps will have no system fonts" >&2
+          fi
+
+          # Husk's Dalvik runtime for Java apps (libGDX games and the like): libcore, ICU and Husk's Java framework
+          # (scripts/build_java_runtime.sh). ELF libraries and jars, so resources, not code the app links.
+          JRT="$SRCROOT/../../build/java-runtime"
+          if [ -f "$JRT/husk-framework.dex" ]; then
+            rsync -a --delete "$JRT/" "$BUILT_PRODUCTS_DIR/$UNLOCALIZED_RESOURCES_FOLDER_PATH/java-runtime/"
+          else
+            echo "warning: build/java-runtime missing (scripts/build_java_runtime.sh): Java apps will not start" >&2
+          fi
+        # Every build: the Java runtime it copies changes without Xcode knowing (it has outputs and no inputs, so dependency
+        # analysis skipped it once they existed, and IPAs shipped a day-old runtime).
+        basedOnDependencyAnalysis: false
+        outputFiles:
+          - "$(BUILT_PRODUCTS_DIR)/$(UNLOCALIZED_RESOURCES_FOLDER_PATH)/vmlinuz-virt"
+          - "$(BUILT_PRODUCTS_DIR)/$(UNLOCALIZED_RESOURCES_FOLDER_PATH)/initramfs-virt"
+          - "$(BUILT_PRODUCTS_DIR)/$(UNLOCALIZED_RESOURCES_FOLDER_PATH)/edk2-aarch64-code.fd"
+          - "$(BUILT_PRODUCTS_DIR)/$(UNLOCALIZED_RESOURCES_FOLDER_PATH)/lineage-efi-vars-seed.fd"
+          - "$(BUILT_PRODUCTS_DIR)/$(UNLOCALIZED_RESOURCES_FOLDER_PATH)/lineage-vdb-seed.qcow2"
+
+    postBuildScripts:
+      - name: Embed StikJIT
+        # The helper links StikJIT; it lives here, in the app's Frameworks,
+        # because sideloaders re-sign frameworks there and left one inside the
+        # helper unsigned. Upstream's framework has no Info.plist, and installd
+        # refuses an embedded framework without one. Copy it in with a minimal
+        # plist rather than editing the vendored bundle, then sign it as the
+        # copy phase would.
+        script: |
+          set -e
+          SRC="$SRCROOT/Frameworks/StikJIT.xcframework/ios-arm64/StikJIT.framework"
+          DST="$TARGET_BUILD_DIR/$FRAMEWORKS_FOLDER_PATH/StikJIT.framework"
+          rm -rf "$DST"
+          mkdir -p "$(dirname "$DST")"
+          ditto "$SRC" "$DST"
+          rm -rf "$DST/Headers" "$DST/Modules"
+          PLIST="$DST/Info.plist"
+          if [ ! -f "$PLIST" ]; then
+            plutil -create xml1 "$PLIST"
+            plutil -insert CFBundleIdentifier -string "$PRODUCT_BUNDLE_IDENTIFIER.StikJIT" "$PLIST"
+            plutil -insert CFBundleExecutable -string StikJIT "$PLIST"
+            plutil -insert CFBundleName -string StikJIT "$PLIST"
+            plutil -insert CFBundlePackageType -string FMWK "$PLIST"
+            plutil -insert CFBundleInfoDictionaryVersion -string 6.0 "$PLIST"
+            plutil -insert CFBundleShortVersionString -string 1.9.0 "$PLIST"
+            plutil -insert CFBundleVersion -string 1.9.0 "$PLIST"
+            plutil -insert MinimumOSVersion -string 17.4 "$PLIST"
+            plutil -insert CFBundleSupportedPlatforms -array "$PLIST"
+            plutil -insert CFBundleSupportedPlatforms.0 -string iPhoneOS "$PLIST"
+          fi
+          if [ -n "$EXPANDED_CODE_SIGN_IDENTITY" ] && [ "$CODE_SIGNING_ALLOWED" != "NO" ]; then
+            codesign --force --sign "$EXPANDED_CODE_SIGN_IDENTITY" --timestamp=none "$DST"
+          fi
+        basedOnDependencyAnalysis: false
+
+  # Built-in StikJIT's debugger (docs/06-built-in-jit.md). A process cannot
+  # synchronously debug itself, so StikJIT runs here and attaches to the app.
+  # iOS 26 only: the app falls back to StikDebug below that.
+  HuskJITHelper:
+    type: app-extension
+    platform: iOS
+    deploymentTarget: "26.0"
+    sources:
+      - path: HuskJITHelper
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: $(HUSK_BUNDLE_IDENTIFIER).JITHelper
+        INFOPLIST_FILE: HuskJITHelper/Info.plist
+        GENERATE_INFOPLIST_FILE: NO
+        APPLICATION_EXTENSION_API_ONLY: YES
+        CODE_SIGN_STYLE: Automatic
+        TARGETED_DEVICE_FAMILY: "1,2"
+        # StikJIT.framework, in the app's Frameworks (the app target's Embed StikJIT).
+        LD_RUNPATH_SEARCH_PATHS:
+          - "$(inherited)"
+          - "@executable_path/../../Frameworks"
+    dependencies:
+      # StikJIT 1.9.0 (MPL-2.0, with idevice under MIT), from
+      # github.com/StikDebug/StikJIT/releases/tag/1.9.0, unmodified. Linked
+      # here and embedded by the app target's Embed StikJIT.
+      - framework: Frameworks/StikJIT.xcframework
+        embed: false
+
+  # Draws the Live Activity a download shows (Downloads.swift starts and updates it). Live Activities are iOS 16.1.
+  HuskDownloadsWidget:
+    type: app-extension
+    platform: iOS
+    deploymentTarget: "16.1"
+    sources:
+      - path: HuskDownloadsWidget
+      - path: Shared
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: $(HUSK_BUNDLE_IDENTIFIER).Downloads
+        INFOPLIST_FILE: HuskDownloadsWidget/Info.plist
+        GENERATE_INFOPLIST_FILE: NO
+        APPLICATION_EXTENSION_API_ONLY: YES
+        CODE_SIGN_STYLE: Automatic
+        TARGETED_DEVICE_FAMILY: "1"

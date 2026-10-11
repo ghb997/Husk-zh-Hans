@@ -1,0 +1,5 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Installing Husk and turning on JIT
+    url: https://github.com/Leviidev/Husk#installing
+    about: How to install Husk (SideStore, AltStore, TrollStore) and get JIT working. Read this before reporting an install or JIT problem.

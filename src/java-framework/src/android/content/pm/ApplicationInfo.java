@@ -1,0 +1,281 @@
+package android.content.pm;
+public class ApplicationInfo extends PackageItemInfo implements android.os.Parcelable {
+    public static final int FLAG_SYSTEM = 1, FLAG_DEBUGGABLE = 2, FLAG_HAS_CODE = 4, FLAG_PERSISTENT = 8, FLAG_FACTORY_TEST = 16, FLAG_ALLOW_TASK_REPARENTING = 32,
+        FLAG_ALLOW_CLEAR_USER_DATA = 64, FLAG_UPDATED_SYSTEM_APP = 128, FLAG_TEST_ONLY = 256, FLAG_SUPPORTS_SMALL_SCREENS = 512, FLAG_SUPPORTS_NORMAL_SCREENS = 1024,
+        FLAG_SUPPORTS_LARGE_SCREENS = 2048, FLAG_RESIZEABLE_FOR_SCREENS = 4096, FLAG_SUPPORTS_SCREEN_DENSITIES = 8192, FLAG_VM_SAFE_MODE = 16384, FLAG_ALLOW_BACKUP = 32768,
+        FLAG_KILL_AFTER_RESTORE = 65536, FLAG_RESTORE_ANY_VERSION = 131072, FLAG_EXTERNAL_STORAGE = 262144, FLAG_SUPPORTS_XLARGE_SCREENS = 524288, FLAG_LARGE_HEAP = 1048576,
+        FLAG_STOPPED = 2097152, FLAG_SUPPORTS_RTL = 4194304, FLAG_INSTALLED = 8388608, FLAG_IS_DATA_ONLY = 16777216, FLAG_IS_GAME = 33554432, FLAG_FULL_BACKUP_ONLY = 67108864,
+        FLAG_USES_CLEARTEXT_TRAFFIC = 134217728, FLAG_EXTRACT_NATIVE_LIBS = 268435456, FLAG_HARDWARE_ACCELERATED = 536870912, FLAG_SUSPENDED = 1073741824, FLAG_MULTIARCH = 0x80000000;
+    public static final int CATEGORY_UNDEFINED = -1, CATEGORY_GAME = 0, CATEGORY_AUDIO = 1, CATEGORY_VIDEO = 2, CATEGORY_IMAGE = 3, CATEGORY_SOCIAL = 4, CATEGORY_NEWS = 5,
+        CATEGORY_MAPS = 6, CATEGORY_PRODUCTIVITY = 7, CATEGORY_ACCESSIBILITY = 8;
+    private static ApplicationInfo sSelf;
+    public String taskAffinity, permission, processName, className, sourceDir, publicSourceDir, dataDir, nativeLibraryDir, deviceProtectedDataDir, manageSpaceActivityName,
+        backupAgentName, appComponentFactory, nativeLibraryRootDir, primaryCpuAbi;
+    public String[] splitSourceDirs, splitPublicSourceDirs, splitNames, sharedLibraryFiles, resourceDirs;
+    public int theme, descriptionRes, uiOptions, flags, uid = 10100, targetSdkVersion = 34, minSdkVersion = 21, compileSdkVersion = 34, category = CATEGORY_UNDEFINED, largestWidthLimitDp,
+        requiresSmallestWidthDp, compatibleWidthLimitDp;
+    public boolean enabled = true;
+    public java.util.UUID storageUuid;
+    public ApplicationInfo() {}
+    public ApplicationInfo(ApplicationInfo o) { super(o); taskAffinity = o.taskAffinity; processName = o.processName; className = o.className; sourceDir = o.sourceDir; publicSourceDir = o.publicSourceDir; dataDir = o.dataDir; nativeLibraryDir = o.nativeLibraryDir; theme = o.theme; flags = o.flags; uid = o.uid; targetSdkVersion = o.targetSdkVersion; minSdkVersion = o.minSdkVersion; enabled = o.enabled; }
+    /** A split under the name Android installs it as (split_config.arm64_v8a.apk): SoLoader picks the split holding native code
+     *  by that name. A link to the file Husk has, in the app's data folder; the file itself when a link cannot be made. */
+    private static String androidSplitPath(String dataDir, String real, String name) {
+        try {
+            java.io.File dir = new java.io.File(dataDir, ".husk-splits"); dir.mkdirs();
+            java.io.File link = new java.io.File(dir, "split_" + name + ".apk");
+            java.nio.file.Path target = java.nio.file.Paths.get(real);
+            if (java.nio.file.Files.isSymbolicLink(link.toPath())) {
+                if (java.nio.file.Files.readSymbolicLink(link.toPath()).equals(target)) return link.getPath();
+                link.delete();
+            }
+            java.nio.file.Files.createSymbolicLink(link.toPath(), target);
+            return link.getPath();
+        } catch (Throwable t) { return real; }
+    }
+    public static synchronized ApplicationInfo self() {
+        if (sSelf == null) {
+            husk.Manifest.read();
+            ApplicationInfo a = new ApplicationInfo();
+            a.packageName = a.processName = husk.Native.packageName();
+            a.dataDir = a.deviceProtectedDataDir = husk.Native.dataDir();
+            a.sourceDir = a.publicSourceDir = husk.Native.apkPath();
+            // the splits, as Android lists them: SoLoader and Play's libraries look for native code and assets in them
+            String[] sp = husk.Native.splitPaths();
+            if (sp != null && sp.length > 0) {
+                a.splitSourceDirs = new String[sp.length];
+                a.splitNames = new String[sp.length];
+                for (int i = 0; i < sp.length; i++) {
+                    String n = new java.io.File(sp[i]).getName(); if (n.endsWith(".apk")) n = n.substring(0, n.length() - 4);
+                    if (n.startsWith(a.packageName + ".")) n = n.substring(a.packageName.length() + 1);
+                    if (n.startsWith("split_")) n = n.substring(6);
+                    a.splitNames[i] = n;
+                    a.splitSourceDirs[i] = androidSplitPath(a.dataDir, sp[i], n);
+                }
+                // sorted by name, as Android keeps them (apps binary-search splitNames)
+                Integer[] order = new Integer[sp.length]; for (int i = 0; i < order.length; i++) order[i] = i;
+                final String[] names = a.splitNames;
+                java.util.Arrays.sort(order, (x, y) -> names[x].compareTo(names[y]));
+                String[] n2 = new String[sp.length], d2 = new String[sp.length];
+                for (int i = 0; i < order.length; i++) { n2[i] = names[order[i]]; d2[i] = a.splitSourceDirs[order[i]]; }
+                a.splitNames = n2; a.splitSourceDirs = d2;
+                a.splitPublicSourceDirs = a.splitSourceDirs.clone();
+            }
+            a.nativeLibraryDir = a.dataDir + "/lib";
+            a.className = husk.Manifest.applicationClass;
+            a.name = husk.Manifest.applicationClass;
+            a.theme = husk.Manifest.appTheme; a.labelRes = husk.Manifest.appLabel; a.icon = husk.Manifest.appIcon;
+            a.targetSdkVersion = husk.Manifest.targetSdk; a.minSdkVersion = husk.Manifest.minSdk;
+            a.flags = FLAG_HAS_CODE | FLAG_INSTALLED | FLAG_ALLOW_BACKUP | FLAG_SUPPORTS_RTL | FLAG_HARDWARE_ACCELERATED | (husk.Manifest.debuggable ? FLAG_DEBUGGABLE : 0) | (husk.Manifest.largeHeap ? FLAG_LARGE_HEAP : 0)
+                | (husk.Manifest.extractNativeLibs ? FLAG_EXTRACT_NATIVE_LIBS : 0);   /* Qt looks for its plugins in nativeLibraryDir then */
+            a.metaData = husk.Manifest.appMetaData;
+            a.appComponentFactory = husk.Manifest.appComponentFactory;
+            a.uid = android.os.Process.myUid();
+            sSelf = a;
+        }
+        return sSelf;
+    }
+    public boolean isProfileableByShell() { return false; }
+    public boolean isResourceOverlay() { return false; }
+    public boolean isVirtualPreload() { return false; }
+    public int getGwpAsanMode() { return -1; }
+    public int describeContents() { return 0; }
+    public static CharSequence getCategoryTitle(android.content.Context c, int cat) { return null; }
+    // ---- generated by tools/compat/fillmembers.py: the platform's members this class does not write (signatures only)
+    private final java.util.HashMap<String, Object> huskFill = new java.util.HashMap<>();
+    public static final int AUTO_REVOKE_ALLOWED = 0;
+    public static final int AUTO_REVOKE_DISALLOWED = 2;
+    public static final int AUTO_REVOKE_DISCOURAGED = 1;
+    public static android.os.Parcelable.Creator CREATOR;
+    public static final int GWP_ASAN_ALWAYS = 1;
+    public static final int GWP_ASAN_DEFAULT = -1;
+    public static final int GWP_ASAN_NEVER = 0;
+    public static final int HIDDEN_API_ENFORCEMENT_DEFAULT = -1;
+    public static final int HIDDEN_API_ENFORCEMENT_DISABLED = 0;
+    public static final int HIDDEN_API_ENFORCEMENT_ENABLED = 2;
+    public static final int HIDDEN_API_ENFORCEMENT_JUST_WARN = 1;
+    public static final int MEMTAG_ASYNC = 1;
+    public static final int MEMTAG_DEFAULT = -1;
+    public static final int MEMTAG_OFF = 0;
+    public static final int MEMTAG_SYNC = 2;
+    public static final java.lang.String METADATA_PRELOADED_FONTS = "preloaded_fonts";
+    public static final int PAGE_SIZE_APP_COMPAT_FLAG_ELF_NOT_ALIGNED = 4;
+    public static final int PAGE_SIZE_APP_COMPAT_FLAG_ERROR = -1;
+    public static final int PAGE_SIZE_APP_COMPAT_FLAG_MANIFEST_OVERRIDE_DISABLED = 64;
+    public static final int PAGE_SIZE_APP_COMPAT_FLAG_MANIFEST_OVERRIDE_ENABLED = 32;
+    public static final int PAGE_SIZE_APP_COMPAT_FLAG_MAX = 128;
+    public static final int PAGE_SIZE_APP_COMPAT_FLAG_SETTINGS_OVERRIDE_DISABLED = 16;
+    public static final int PAGE_SIZE_APP_COMPAT_FLAG_SETTINGS_OVERRIDE_ENABLED = 8;
+    public static final int PAGE_SIZE_APP_COMPAT_FLAG_UNCOMPRESSED_LIBS_NOT_ALIGNED = 2;
+    public static final int PAGE_SIZE_APP_COMPAT_FLAG_UNDEFINED = 0;
+    public static final int PRIVATE_FLAG_ACTIVITIES_RESIZE_MODE_RESIZEABLE = 1024;
+    public static final int PRIVATE_FLAG_ACTIVITIES_RESIZE_MODE_RESIZEABLE_VIA_SDK_VERSION = 4096;
+    public static final int PRIVATE_FLAG_ACTIVITIES_RESIZE_MODE_UNRESIZEABLE = 2048;
+    public static final int PRIVATE_FLAG_ALLOW_AUDIO_PLAYBACK_CAPTURE = 134217728;
+    public static final int PRIVATE_FLAG_ALLOW_CLEAR_USER_DATA_ON_FAILED_RESTORE = 67108864;
+    public static final int PRIVATE_FLAG_ALLOW_NATIVE_HEAP_POINTER_TAGGING = -2147483648;
+    public static final int PRIVATE_FLAG_BACKUP_IN_FOREGROUND = 8192;
+    public static final int PRIVATE_FLAG_CANT_SAVE_STATE = 2;
+    public static final int PRIVATE_FLAG_DEFAULT_TO_DEVICE_PROTECTED_STORAGE = 32;
+    public static final int PRIVATE_FLAG_DIRECT_BOOT_AWARE = 64;
+    public static final int PRIVATE_FLAG_EXT_ALLOWLISTED_FOR_HIDDEN_APIS = 16;
+    public static final int PRIVATE_FLAG_EXT_ATTRIBUTIONS_ARE_USER_VISIBLE = 4;
+    public static final int PRIVATE_FLAG_EXT_CPU_OVERRIDE = 32;
+    public static final int PRIVATE_FLAG_EXT_ENABLE_ON_BACK_INVOKED_CALLBACK = 8;
+    public static final int PRIVATE_FLAG_EXT_NOT_LAUNCHED = 64;
+    public static final int PRIVATE_FLAG_EXT_PROFILEABLE = 1;
+    public static final int PRIVATE_FLAG_EXT_REQUEST_FOREGROUND_SERVICE_EXEMPTION = 2;
+    public static final int PRIVATE_FLAG_EXT_RUN_IN_PCC_SANDBOX = 128;
+    public static final int PRIVATE_FLAG_HAS_DOMAIN_URLS = 16;
+    public static final int PRIVATE_FLAG_HAS_FRAGILE_USER_DATA = 16777216;
+    public static final int PRIVATE_FLAG_HIDDEN = 1;
+    public static final int PRIVATE_FLAG_INSTANT = 128;
+    public static final int PRIVATE_FLAG_ISOLATED_SPLIT_LOADING = 32768;
+    public static final int PRIVATE_FLAG_IS_RESOURCE_OVERLAY = 268435456;
+    public static final int PRIVATE_FLAG_ODM = 1073741824;
+    public static final int PRIVATE_FLAG_OEM = 131072;
+    public static final int PRIVATE_FLAG_PARTIALLY_DIRECT_BOOT_AWARE = 256;
+    public static final int PRIVATE_FLAG_PRIVILEGED = 8;
+    public static final int PRIVATE_FLAG_PRODUCT = 524288;
+    public static final int PRIVATE_FLAG_PROFILEABLE_BY_SHELL = 8388608;
+    public static final int PRIVATE_FLAG_REQUEST_LEGACY_EXTERNAL_STORAGE = 536870912;
+    public static final int PRIVATE_FLAG_REQUIRED_FOR_SYSTEM_USER = 512;
+    public static final int PRIVATE_FLAG_SIGNED_WITH_PLATFORM_KEY = 1048576;
+    public static final int PRIVATE_FLAG_STATIC_SHARED_LIBRARY = 16384;
+    public static final int PRIVATE_FLAG_SYSTEM_EXT = 2097152;
+    public static final int PRIVATE_FLAG_USES_NON_SDK_API = 4194304;
+    public static final int PRIVATE_FLAG_USE_EMBEDDED_DEX = 33554432;
+    public static final int PRIVATE_FLAG_VENDOR = 262144;
+    public static final int PRIVATE_FLAG_VIRTUAL_PRELOAD = 65536;
+    public static final int RAW_EXTERNAL_STORAGE_ACCESS_DEFAULT = 0;
+    public static final int RAW_EXTERNAL_STORAGE_ACCESS_NOT_REQUESTED = 2;
+    public static final int RAW_EXTERNAL_STORAGE_ACCESS_REQUESTED = 1;
+    public static final int ZEROINIT_DEFAULT = -1;
+    public static final int ZEROINIT_DISABLED = 0;
+    public static final int ZEROINIT_ENABLED = 1;
+    public boolean allowCrossUidActivitySwitchFromBelow;
+    public java.lang.String classLoaderName;
+    public java.lang.String compileSdkVersionCodename;
+    public long createTimestamp;
+    public java.lang.String credentialProtectedDataDir;
+    public boolean crossProfile;
+    public int dataExtractionRulesRes;
+    public int enabledSetting;
+    public int fullBackupContent;
+    public boolean hiddenUntilInstalled;
+    public int iconRes;
+    public int installLocation;
+    public long longVersionCode;
+    public float maxAspectRatio;
+    public float minAspectRatio;
+    public boolean nativeLibraryRootRequiresIsa;
+    public int networkSecurityConfigRes;
+    public java.util.List optionalSharedLibraryInfos;
+    public java.lang.String[] overlayPaths;
+    public int privateFlags;
+    public int privateFlagsExt;
+    public int roundIconRes;
+    public java.lang.String scanPublicSourceDir;
+    public java.lang.String scanSourceDir;
+    public java.lang.String seInfo;
+    public java.lang.String seInfoUser;
+    public java.lang.String secondaryCpuAbi;
+    public java.lang.String secondaryNativeLibraryDir;
+    public java.util.List sharedLibraryInfos;
+    public java.lang.String[] splitClassLoaderNames;
+    public android.util.SparseArray splitDependencies;
+    public int targetSandboxVersion;
+    public int versionCode;
+    public java.lang.String volumeUuid;
+    public java.lang.String zygotePreloadName;
+    public static boolean isValidHiddenApiEnforcementPolicy(int p0) { return false; }
+    public boolean allowsNativeHeapPointerTagging() { return false; }
+    public boolean areAttributionsUserVisible() { return false; }
+    public void disableCompatibilityMode() {}
+    public void dump(android.util.Printer p0, java.lang.String p1) {}
+    public void dump(android.util.Printer p0, java.lang.String p1, int p2) {}
+    public void dumpDebug(android.util.proto.ProtoOutputStream p0, long p1, int p2) {}
+    public java.lang.String[] getAllApkPaths() { return null; }
+    public android.content.pm.ApplicationInfo getApplicationInfo() { return this; }
+    public java.lang.String getBaseCodePath() { return (java.lang.String) huskFill.get("BaseCodePath"); }
+    public java.lang.String getBaseResourcePath() { return (java.lang.String) huskFill.get("BaseResourcePath"); }
+    public java.lang.String getCodePath() { return (java.lang.String) huskFill.get("CodePath"); }
+    public java.lang.String getCustomApplicationClassNameForProcess(java.lang.String p0) { return null; }
+    public int getHiddenApiEnforcementPolicy() { return (huskFill.get("HiddenApiEnforcementPolicy") instanceof Integer ? (Integer) huskFill.get("HiddenApiEnforcementPolicy") : 0); }
+    public java.util.Set getKnownActivityEmbeddingCerts() { return (huskFill.get("KnownActivityEmbeddingCerts") != null ? (java.util.Set) huskFill.get("KnownActivityEmbeddingCerts") : new java.util.HashSet()); }
+    public int getLocaleConfigRes() { return (huskFill.get("LocaleConfigRes") instanceof Integer ? (Integer) huskFill.get("LocaleConfigRes") : 0); }
+    public int getMemtagMode() { return (huskFill.get("MemtagMode") instanceof Integer ? (Integer) huskFill.get("MemtagMode") : 0); }
+    public int getNativeHeapZeroInitialized() { return (huskFill.get("NativeHeapZeroInitialized") instanceof Integer ? (Integer) huskFill.get("NativeHeapZeroInitialized") : 0); }
+    public int getNetworkSecurityConfigResourceId() { return 0; }
+    public java.util.List getOptionalSharedLibraryInfos() { return new java.util.ArrayList(); }
+    public int getRequestRawExternalStorageAccess() { return (huskFill.get("RequestRawExternalStorageAccess") instanceof Integer ? (Integer) huskFill.get("RequestRawExternalStorageAccess") : 0); }
+    public java.lang.String getResourcePath() { return (java.lang.String) huskFill.get("ResourcePath"); }
+    public java.util.List getSharedLibraryInfos() { return new java.util.ArrayList(); }
+    public java.lang.String[] getSplitCodePaths() { return (java.lang.String[]) huskFill.get("SplitCodePaths"); }
+    public java.lang.String[] getSplitResourcePaths() { return (java.lang.String[]) huskFill.get("SplitResourcePaths"); }
+    public boolean hasCode() { return false; }
+    public boolean hasFragileUserData() { return false; }
+    public boolean hasRequestForegroundServiceExemption() { return false; }
+    public boolean hasRequestedLegacyExternalStorage() { return false; }
+    public boolean hasRtlSupport() { return false; }
+    public void initForUser(int p0) {}
+    public boolean isAudioPlaybackCaptureAllowed() { return false; }
+    public boolean isChangeEnabled(long p0) { return false; }
+    public boolean isDefaultToDeviceProtectedStorage() { return false; }
+    public boolean isDirectBootAware() { return false; }
+    public boolean isEmbeddedDexUsed() { return false; }
+    public boolean isEncryptionAware() { return false; }
+    public boolean isExternal() { return false; }
+    public boolean isInstantApp() { return false; }
+    public boolean isInternal() { return false; }
+    public boolean isNotLaunched() { return false; }
+    public boolean isOdm() { return false; }
+    public boolean isOem() { return false; }
+    public boolean isOnBackInvokedCallbackEnabled() { return false; }
+    public boolean isPartiallyDirectBootAware() { return false; }
+    public boolean isPrivilegedApp() { return false; }
+    public boolean isProduct() { return false; }
+    public boolean isProfileable() { return false; }
+    public boolean isRequiredForSystemUser() { return false; }
+    public boolean isSignedWithPlatformKey() { return false; }
+    public boolean isStaticSharedLibrary() { return false; }
+    public boolean isStopped() { return false; }
+    public boolean isSystemApp() { return false; }
+    public boolean isSystemExt() { return false; }
+    public boolean isUpdatedSystemApp() { return false; }
+    public boolean isVendor() { return false; }
+    public android.graphics.drawable.Drawable loadDefaultIcon(android.content.pm.PackageManager p0) { return null; }
+    public java.lang.CharSequence loadDescription(android.content.pm.PackageManager p0) { return null; }
+    public void maybeUpdateHiddenApiEnforcementPolicy(int p0) {}
+    public boolean requestsIsolatedSplitLoading() { return false; }
+    public void setAppClassNamesByProcess(android.util.ArrayMap p0) {}
+    public void setBaseCodePath(java.lang.String p0) { huskFill.put("BaseCodePath", p0); }
+    public void setBaseResourcePath(java.lang.String p0) { huskFill.put("BaseResourcePath", p0); }
+    public void setCodePath(java.lang.String p0) { huskFill.put("CodePath", p0); }
+    public void setEnableOnBackInvokedCallback(boolean p0) {}
+    public void setGwpAsanMode(int p0) {}
+    public void setHiddenApiEnforcementPolicy(int p0) { huskFill.put("HiddenApiEnforcementPolicy", Integer.valueOf(p0)); }
+    public void setKnownActivityEmbeddingCerts(java.util.Set p0) { huskFill.put("KnownActivityEmbeddingCerts", p0); }
+    public void setLocaleConfigRes(int p0) { huskFill.put("LocaleConfigRes", Integer.valueOf(p0)); }
+    public void setMemtagMode(int p0) { huskFill.put("MemtagMode", Integer.valueOf(p0)); }
+    public void setNativeHeapZeroInitialized(int p0) { huskFill.put("NativeHeapZeroInitialized", Integer.valueOf(p0)); }
+    public void setPageSizeAppCompatFlags(int p0) {}
+    public void setRequestRawExternalStorageAccess(java.lang.Boolean p0) { huskFill.put("RequestRawExternalStorageAccess", p0); }
+    public void setResourcePath(java.lang.String p0) { huskFill.put("ResourcePath", p0); }
+    public void setSplitCodePaths(java.lang.String[] p0) { huskFill.put("SplitCodePaths", p0); }
+    public void setSplitResourcePaths(java.lang.String[] p0) { huskFill.put("SplitResourcePaths", p0); }
+    public void setVersionCode(long p0) {}
+    public boolean shouldRunInPccSandbox() { return false; }
+    public boolean usesCompatibilityMode() { return false; }
+    public boolean usesNonSdkApi() { return false; }
+    // ---- end of generated members
+    // ---- generated by tools/compat/genstubs.py: the platform's nested classes this class does not write
+    public static class DisplayNameComparator implements java.util.Comparator {
+        private final java.util.HashMap<String, Object> huskProps = new java.util.HashMap<>();
+        public DisplayNameComparator(android.content.pm.PackageManager p0) {}
+        public int compare(android.content.pm.ApplicationInfo p0, android.content.pm.ApplicationInfo p1) { return 0; }
+        public int compare(java.lang.Object p0, java.lang.Object p1) { return 0; }
+        DisplayNameComparator() { this((android.content.pm.PackageManager) null); }
+    }
+    // ---- end of generated nested classes
+}

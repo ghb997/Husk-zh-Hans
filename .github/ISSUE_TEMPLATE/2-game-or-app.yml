@@ -1,0 +1,117 @@
+name: Game or app doesn't work
+description: An Android game or app crashes, won't start, looks wrong, has no sound, or doesn't respond to controls in Husk.
+title: "[Game] "
+labels: ["bug", "compatibility"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        This form is for a **game or app running in Husk**. If Husk itself is the problem, use the "Problem with Husk itself" form.
+
+        Issues without logs or the details below will be closed. **Logs are how games get fixed.**
+  - type: dropdown
+    id: method
+    attributes:
+      label: How are you running it?
+      description: |
+        **Translation Layer (native):** added to Husk's library and started from its page, without Android booting.
+        **Android (emulated):** installed inside the Android system Husk boots.
+      options:
+        - Translation Layer (native)
+        - Android (emulated)
+    validations:
+      required: true
+  - type: input
+    id: name
+    attributes:
+      label: Game or app
+      description: Its name and, if you know it, its package name and version.
+      placeholder: Geometry Dash (com.robtopx.geometryjump) 2.207
+    validations:
+      required: true
+  - type: input
+    id: source
+    attributes:
+      label: Where is the APK from?
+      description: Husk's Store tab, Google Play on another device, APKMirror, the developer's site, F-Droid, ...
+      placeholder: Husk's Store tab
+    validations:
+      required: true
+  - type: dropdown
+    id: problem
+    attributes:
+      label: What goes wrong?
+      options:
+        - It won't start, or stops on a loading or black screen
+        - It crashes (Husk closes)
+        - It shows "Did not start" or "Crashed" in the library
+        - Graphics are wrong or missing
+        - No sound, or broken sound
+        - Touch, keyboard or controller doesn't work
+        - It is too slow
+        - Other
+    validations:
+      required: true
+  - type: textarea
+    id: what
+    attributes:
+      label: What happened?
+      description: What you did, how far it got, and what you saw. A screenshot or screen recording helps a lot.
+      placeholder: |
+        Added the APK, tapped Play, the loading screen showed for 10 seconds, then Husk closed.
+    validations:
+      required: true
+  - type: textarea
+    id: logs
+    attributes:
+      label: Logs
+      description: |
+        **Required.** Attach `husk.log` and `husk-native.log` from right after the problem (drag the files into this box). They are in the **Files** app › **On My iPhone** › **Husk**.
+        If Husk crashed, open it again: it offers a crash report you can share. For the Translation Layer, the game's page › **Technical Details** has its report too.
+      placeholder: Drag husk.log and husk-native.log here.
+    validations:
+      required: true
+  - type: input
+    id: husk-version
+    attributes:
+      label: Husk version
+      description: The top of Settings shows it, for example "Version 1.0.1 · 6bee247". Copy the whole line.
+      placeholder: Version 1.0.1 · 6bee247
+    validations:
+      required: true
+  - type: input
+    id: device
+    attributes:
+      label: Device
+      placeholder: iPhone 15 Pro
+    validations:
+      required: true
+  - type: input
+    id: ios
+    attributes:
+      label: iOS version
+      placeholder: "18.6.2"
+    validations:
+      required: true
+  - type: dropdown
+    id: jit
+    attributes:
+      label: How do you turn on JIT?
+      options:
+        - StikDebug
+        - Built-in StikJIT
+        - TrollStore
+        - Jailbreak (Dopamine or other)
+        - I don't have JIT
+        - Other
+    validations:
+      required: true
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: Before you send it
+      options:
+        - label: I am on the newest Husk release.
+          required: true
+        - label: I searched the existing issues and this game is not already reported.
+          required: true

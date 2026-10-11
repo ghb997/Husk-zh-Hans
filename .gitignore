@@ -1,0 +1,24 @@
+# Build outputs
+build/
+# On-device pairing crate (scripts/build_rppairing_ios.sh)
+src/rppairing-ios/target/
+third_party/build/
+third_party/sources/
+third_party/qemu-upstream/
+third_party/utm/
+third_party/utm-qemu/
+
+# Guest images (large, redistributable only from upstream)
+guests/
+
+# Xcode
+*.xcuserdatad
+DerivedData/
+.DS_Store
+
+# stray ar(1) extraction artifact
+__.SYMDEF*
+third_party/gpu/
+.build/
+*.ipa
+.freebuff/

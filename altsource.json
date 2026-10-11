@@ -1,0 +1,127 @@
+{
+  "name": "Husk",
+  "identifier": "com.leviidev.husk.source",
+  "subtitle": "Android apps and games on your iPhone.",
+  "description": "The official source for Husk. Add it to SideStore, AltStore or another sideloader to install Husk and get its updates.",
+  "iconURL": "https://raw.githubusercontent.com/Leviidev/Husk/main/src/app/Husk/Assets.xcassets/AppIcon.appiconset/Icon-Default.png",
+  "website": "https://github.com/Leviidev/Husk",
+  "tintColor": "#5865F2",
+  "featuredApps": [
+    "com.husk.app"
+  ],
+  "apps": [
+    {
+      "name": "Husk",
+      "bundleIdentifier": "com.husk.app",
+      "developerName": "Leviidev",
+      "subtitle": "Android apps and games on your iPhone.",
+      "localizedDescription": "Husk runs Android apps and games on iPhone. Its Translation Layer runs games made with Unity, Unreal, Godot, cocos2d-x, SDL and more natively, and a full Android system is there for everything else. Husk needs JIT: StikDebug, its built-in StikJIT, TrollStore or a jailbreak.",
+      "iconURL": "https://raw.githubusercontent.com/Leviidev/Husk/main/src/app/Husk/Assets.xcassets/AppIcon.appiconset/Icon-Default.png",
+      "tintColor": "#5865F2",
+      "category": "games",
+      "screenshots": [
+        "https://raw.githubusercontent.com/Leviidev/Husk/main/Screenshots/beach-buggy-racing-2.jpeg",
+        "https://raw.githubusercontent.com/Leviidev/Husk/main/Screenshots/game-settings.png",
+        "https://raw.githubusercontent.com/Leviidev/Husk/main/Screenshots/geometry-dash.jpeg",
+        "https://raw.githubusercontent.com/Leviidev/Husk/main/Screenshots/gta-san-andreas.jpeg",
+        "https://raw.githubusercontent.com/Leviidev/Husk/main/Screenshots/library.png",
+        "https://raw.githubusercontent.com/Leviidev/Husk/main/Screenshots/minecraft-dungeons.jpeg",
+        "https://raw.githubusercontent.com/Leviidev/Husk/main/Screenshots/settings.png"
+      ],
+      "versions": [
+        {
+          "version": "1.0.1",
+          "date": "2026-10-09T01:17:20Z",
+          "localizedDescription": "## What's new?\r\n- Fixes a failure on logging into Google Accounts, (MissingDroidGuard)\r\n\r\n## Notes:\r\nCheck out Husk 1.0.0 release notes for all new features.\r\n\r\n## Links:\r\nDiscord Server: https://discord.gg/xApMHWAzkh\r\nX: https://x.com/leviidev01\r\nDiscord: @leviidev",
+          "downloadURL": "https://github.com/Leviidev/Husk/releases/download/1.0.1/Husk.ipa",
+          "size": 55925239,
+          "minOSVersion": "16.0"
+        },
+        {
+          "version": "1.0.0",
+          "date": "2026-10-08T22:48:20Z",
+          "localizedDescription": "## What's new?\r\n- GoDot Engine\r\n- Google Play Store\r\n- Google Play Services\r\n- Fix File Picker (certificate sideloaded)\r\n- Customize Virtual Pad\r\n- Geode Mod Support (Geometry Dash)\r\n- Save Backup / Restore\r\n- Crash Screen (report issues easily)\r\n- Issue Template for GitHub\r\n- Switching Games w/o restart with Translation Layer\r\n- What's new UI on first startup\r\n- Typing in Minecraft\r\n- Compatibility Labels for games\r\n- JIT on startup (toggle)\r\n- TrollStore/Dopamine JIT support\r\n- Stop asking for android image, (toggle)\r\n- Having dev logs open then closing it has the screen perm locked to that bad position until restart\r\n- iOS 16+ support (used to be like 17.4+ or sum idk)\r\n- Other stuff I forgot\r\n\r\n## Notes:\r\nThis is Husk's first, actual stable release. This is the best release so far, and you will most definitely enjoy it.\r\nI really wanted to delay the release, because I had something big coming with it, but I just didn't want to. Husk 1.0 is the first stable release, and thats the spotlight. I hope you like it <3\r\n\r\n## Links:\r\nDiscord Server: https://discord.gg/xApMHWAzkh\r\nX: https://x.com/leviidev01\r\nDiscord: @leviidev",
+          "downloadURL": "https://github.com/Leviidev/Husk/releases/download/1.0.0/Husk.ipa",
+          "size": 47559993,
+          "minOSVersion": "16.0"
+        },
+        {
+          "version": "0.9.0",
+          "date": "2026-10-07T22:40:28Z",
+          "localizedDescription": "## What's new?\r\n- Sound for Unity and Java games\r\n- Turn on JIT at launch with a setting (StikJIT)\r\n- Share apps to Husk and import it (skips the file picker bugs)\r\n- New App User Interface\r\n- Game details for each game (screenshots, etc).\r\n\r\n## Info\r\nHusk's first stable release (1.0.0), is right around the corner. It will probably be the best release, fixing issues for almost all devices, but it is not out yet. This IPA may not work, and that is ok. It will be fixed soon, just open a GitHub issue",
+          "downloadURL": "https://github.com/Leviidev/Husk/releases/download/0.9.0/Husk.ipa",
+          "size": 46958334,
+          "minOSVersion": "16.4"
+        },
+        {
+          "version": "0.8.1",
+          "date": "2026-10-07T11:26:52Z",
+          "localizedDescription": "## What\u2019s new?\r\n- TrollStore/Dopamine JIT support (beta)\r\n- Per-app settings for Translation Layer Games\r\n- UI Revamp\r\n- Bug fixes\r\n## Notes:\r\nIf a game is failing to launch now, but it ran in the previous release, clear the data for the app in app settings. Your GlobalSave file may have nothing in it.",
+          "downloadURL": "https://github.com/Leviidev/Husk/releases/download/0.8.1/Husk.ipa",
+          "size": 46728037,
+          "minOSVersion": "16.4"
+        },
+        {
+          "version": "0.8.0",
+          "date": "2026-10-06T21:57:43Z",
+          "localizedDescription": "## What's new?\r\n- Touch Screen Gamepad for all games\r\n## New game support\r\n### Major:\r\n- Minecraft: Dungeons\r\n- GTA: San Andreas\r\n- Super Tux Kart\r\n### Minor\r\n- Rocks'n'Diamonds\r\n- Brogue CE\r\n- Infra Arcana\r\n- Dungeon Crawl Stone Soup\r\n- Anarch RE\r\n- Pekka Kana 2\r\n- Cat a shooter\r\n- Principia\r\n- Open Golf\r\n- Li-Ri\r\n- RTTT\r\n- Box Smasher\r\n- Alex vs Bus",
+          "downloadURL": "https://github.com/Leviidev/Husk/releases/download/0.8.0/Husk.ipa",
+          "size": 46478895,
+          "minOSVersion": "16.4"
+        },
+        {
+          "version": "0.7.0",
+          "date": "2026-10-06T03:36:02Z",
+          "localizedDescription": "## What\u2019s new?\r\n* Built-in StikJIT: pair on the device and enable JIT without a second app by @danperks in https://github.com/Leviidev/Husk/pull/37\r\n* Wi-Fi support for all games\r\n* UI Revamp: Now fully built with Swift\r\n* Moved Translation layer to the main 4 tabs, replacing the Discover tab\r\n## New game support\r\n* Beach Buggy Racing 2 - 60 FPS\r\n## New Contributors\r\n* @danperks made their first contribution in https://github.com/Leviidev/Husk/pull/37\r\n**Full Changelog**: https://github.com/Leviidev/Husk/compare/0.6.1...0.7.0\r\nDiscord server: https://discord.gg/xApMHWAzkh",
+          "downloadURL": "https://github.com/Leviidev/Husk/releases/download/0.7.0/Husk.ipa",
+          "size": 44993209,
+          "minOSVersion": "16.4"
+        },
+        {
+          "version": "0.6.1",
+          "date": "2026-10-05T11:16:32Z",
+          "localizedDescription": "## What\u2019s new?\r\n- WiFi support for Unity Games\r\n- Geometry Dash support\r\n- Minecraft Support\r\n## Notes\r\nThis release only edits the Android Translation Layer. The fully emulated android OS has not been changed this build.",
+          "downloadURL": "https://github.com/Leviidev/Husk/releases/download/0.6.1/Husk.ipa",
+          "size": 40885768,
+          "minOSVersion": "16.4"
+        },
+        {
+          "version": "0.6.0",
+          "date": "2026-10-04T23:36:46Z",
+          "localizedDescription": "## What's new?\r\n- Implementation for the experimental Android Translation Layer\r\n    - You can test it by going to: Settings -> Android Translation Layer -> Add APK -> Chosen APK -> Run Translation Layer Attempt\r\n    - It currently can 100% emulate Flappy Bird and Subway 60 FPS\r\n## Credits\r\nOriginal Android Translation Layer: https://gitlab.com/android_translation_layer/android_translation_layer",
+          "downloadURL": "https://github.com/Leviidev/Husk/releases/download/0.6.0/Husk.ipa",
+          "size": 40778819,
+          "minOSVersion": "16.4"
+        },
+        {
+          "version": "0.5.1",
+          "date": "2026-10-04T02:00:07Z",
+          "localizedDescription": "## What's new?\r\n- Fixed iOS26 JIT crashes\r\n- Fixed a fatal pipe2 crash, (added fallback)\r\n## Credits\r\n@Yaryk007 - made the HuskPatch repo where I got the iOS26 JIT fixes :)\r\n\r\n**Full Changelog**: https://github.com/Leviidev/Husk/compare/0.5.0...0.5.1",
+          "downloadURL": "https://github.com/Leviidev/Husk/releases/download/0.5.1/Husk.ipa",
+          "size": 40386325,
+          "minOSVersion": "16.4"
+        },
+        {
+          "version": "0.5.0",
+          "date": "2026-10-01T23:46:10Z",
+          "localizedDescription": "## What's Changed\r\n* Fix guest seed packaging and snapshot preservation by @creeper4004 in https://github.com/Leviidev/Husk/pull/29\r\n* Add a light mode (Settings \u203a Appearance) by @hernan0078 in https://github.com/Leviidev/Husk/pull/30\r\n* Fixed UI bugs by @Leviidev \r\n\r\n## New Contributors\r\n* @creeper4004 made their first contribution in https://github.com/Leviidev/Husk/pull/29\r\n* @hernan0078 made their first contribution in https://github.com/Leviidev/Husk/pull/30\r\n\r\n**Full Changelog**: https://github.com/Leviidev/Husk/compare/0.4.1...0.5.0",
+          "downloadURL": "https://github.com/Leviidev/Husk/releases/download/0.5.0/Husk.ipa",
+          "size": 40279923,
+          "minOSVersion": "16.4"
+        }
+      ],
+      "appPermissions": {
+        "entitlements": [
+          "get-task-allow",
+          "dynamic-codesigning",
+          "com.apple.developer.kernel.increased-memory-limit",
+          "com.apple.developer.kernel.extended-virtual-addressing"
+        ],
+        "privacy": {
+          "NSLocalNetworkUsageDescription": "Husk uses the local network to pair with this iPhone for JIT, without a computer."
+        }
+      }
+    }
+  ],
+  "news": []
+}

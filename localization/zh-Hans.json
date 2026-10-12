@@ -5739,7 +5739,7 @@
     "file": "src/app/Husk/WhatsNew.swift",
     "line": 62,
     "en": "The first full release.",
-    "zh-Hans": "首个完整版本。"
+    "zh-Hans": "简体中文版本，包含以下功能。"
   },
   {
     "file": "src/app/Husk/WhatsNew.swift",
@@ -8794,5 +8794,59 @@
     "line": 241,
     "en": "Compatibility",
     "zh-Hans": "兼容性"
+  },
+  {
+    "file": "src/app/Husk/TLUnityView.swift",
+    "line": 675,
+    "en": "starting",
+    "zh-Hans": "正在启动"
+  },
+  {
+    "file": "src/app/Husk/WhatsNew.swift",
+    "line": 18,
+    "en": "Simplified Chinese Interface",
+    "zh-Hans": "简体中文界面"
+  },
+  {
+    "file": "src/app/Husk/WhatsNew.swift",
+    "line": 19,
+    "en": "Localized interface, JIT setup, settings, downloads, errors and Live Activities.",
+    "zh-Hans": "主界面、JIT 引导、设置、下载、错误提示和实时活动均已汉化。"
+  },
+  {
+    "file": "src/app/Husk/WhatsNew.swift",
+    "line": 20,
+    "en": "Frequently Asked Questions",
+    "zh-Hans": "常见问题"
+  },
+  {
+    "file": "src/app/Husk/WhatsNew.swift",
+    "line": 21,
+    "en": "Search for help with JIT, apps, saves and Android inside Husk.",
+    "zh-Hans": "可在应用内搜索 JIT、应用运行、存档和 Android 系统的常见问题及解决方法。"
+  },
+  {
+    "file": "src/app/Husk/WhatsNew.swift",
+    "line": 22,
+    "en": "Community Compatibility Reports",
+    "zh-Hans": "社区兼容性反馈"
+  },
+  {
+    "file": "src/app/Husk/WhatsNew.swift",
+    "line": 23,
+    "en": "View app compatibility and choose to send your results to the community list.",
+    "zh-Hans": "查看应用的运行情况，并在选择发送后将你的测试结果提交到社区列表。"
+  },
+  {
+    "file": "src/app/Husk/WhatsNew.swift",
+    "line": 24,
+    "en": "Multiple Windows",
+    "zh-Hans": "多窗口运行"
+  },
+  {
+    "file": "src/app/Husk/WhatsNew.swift",
+    "line": 25,
+    "en": "Move, resize and minimize apps in window mode while browsing Husk.",
+    "zh-Hans": "开启窗口模式后，可移动、缩放或最小化应用窗口，同时继续浏览 Husk。"
   }
 ]

@@ -13,8 +13,16 @@ enum WhatsNew {
     }
 
     /// The version whose notes these are. A build of the same version shows nothing again.
-    static let version = "1.0.1"
+    static let version = "2.0.0"
     static let items: [Item] = [
+        Item(symbol: "character.bubble", title: "简体中文界面",
+             detail: "主界面、JIT 引导、设置、下载、错误提示和实时活动均已汉化。"),
+        Item(symbol: "questionmark.circle.fill", title: "常见问题",
+             detail: "可在应用内搜索 JIT、应用运行、存档和 Android 系统的常见问题及解决方法。"),
+        Item(symbol: "list.bullet.clipboard", title: "社区兼容性反馈",
+             detail: "查看应用的运行情况，并在选择发送后将你的测试结果提交到社区列表。"),
+        Item(symbol: "macwindow.on.rectangle", title: "多窗口运行",
+             detail: "开启窗口模式后，可移动、缩放或最小化应用窗口，同时继续浏览 Husk。"),
         Item(symbol: "bag.fill", title: "Google Play",
              detail: "从“商店”获取游戏。Play 商店下载的应用，包括拆分 APK 和资源包，均可交由转译层运行。"),
         Item(symbol: "checkmark.seal.fill", title: "Google Play 服务",
@@ -59,7 +67,7 @@ struct WhatsNewSheet: View {
                 VStack(alignment: .leading, spacing: 26) {
                     VStack(alignment: .leading, spacing: 6) {
                         Text("Husk \(WhatsNew.version) 更新内容").font(.largeTitle.weight(.bold))
-                        Text("首个完整版本。").foregroundStyle(.secondary)
+                        Text("简体中文版本，包含以下功能。").foregroundStyle(.secondary)
                     }
                     .padding(.top, 36)
                     ForEach(WhatsNew.items) { item in

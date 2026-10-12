@@ -672,7 +672,7 @@ struct TLCocosAttemptView: View {
     @State private var stoppedWhy: AppDiagnosis?
     @AppStorage("husk.tl.unity.showLog") private var showLogSetting = false
     @AppStorage(TranslationLayer.devInfoKey) private var devInfo = false
-    @State private var stats = "starting"
+    @State private var stats = "正在启动"
     @ObservedObject private var pads = HuskGamepads.shared
     @StateObject private var virtualPad = VirtualPad()
     /// Where the player has put the pad's controls in this game, and whether they are moving them now.

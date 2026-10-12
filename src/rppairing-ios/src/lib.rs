@@ -75,13 +75,13 @@ fn set_error(out: *mut *mut c_char, message: impl Into<Vec<u8>>) {
 #[unsafe(no_mangle)]
 pub unsafe extern "C" fn husk_rppairing_new(name: *const c_char, error: *mut *mut c_char) -> *mut HuskRPPairing {
     if name.is_null() {
-        set_error(error, "missing host name");
+        set_error(error, "缺少主机名称");
         return ptr::null_mut();
     }
     let name = match unsafe { CStr::from_ptr(name) }.to_str() {
         Ok(name) if !name.is_empty() => name.to_string(),
         _ => {
-            set_error(error, "invalid host name");
+            set_error(error, "主机名称无效");
             return ptr::null_mut();
         }
     };
@@ -89,14 +89,14 @@ pub unsafe extern "C" fn husk_rppairing_new(name: *const c_char, error: *mut *mu
     let listener = match TcpListener::bind((Ipv4Addr::UNSPECIFIED, 0)) {
         Ok(listener) => listener,
         Err(e) => {
-            set_error(error, format!("could not open the pairing port: {e}"));
+            set_error(error, format!("无法打开配对端口：{e}"));
             return ptr::null_mut();
         }
     };
     let port = match listener.local_addr().and_then(|addr| listener.set_nonblocking(true).map(|_| addr.port())) {
         Ok(port) => port,
         Err(e) => {
-            set_error(error, format!("could not open the pairing port: {e}"));
+            set_error(error, format!("无法打开配对端口：{e}"));
             return ptr::null_mut();
         }
     };
@@ -189,14 +189,14 @@ pub unsafe extern "C" fn husk_rppairing_accept(
     let listener = session.listener.lock().ok().and_then(|mut l| l.take());
     let identity = session.identity.lock().ok().and_then(|mut i| i.take());
     let (Some(listener), Some((pairing_file, host_info))) = (listener, identity) else {
-        set_error(error, "this pairing session has already been used");
+        set_error(error, "此配对会话已使用，请重新开始配对");
         return 1;
     };
 
     let runtime = match tokio::runtime::Builder::new_current_thread().enable_all().build() {
         Ok(runtime) => runtime,
         Err(e) => {
-            set_error(error, format!("could not start the pairing runtime: {e}"));
+            set_error(error, format!("无法启动配对服务：{e}"));
             return 1;
         }
     };
@@ -250,7 +250,7 @@ async fn accept(
     target: PinTarget,
 ) -> Result<(RpPairingFile, String), Failure> {
     let listener = tokio::net::TcpListener::from_std(listener)
-        .map_err(|e| Failure::Error(format!("could not listen for the device: {e}")))?;
+        .map_err(|e| Failure::Error(format!("无法监听设备连接：{e}")))?;
     let pin_shown = Arc::new(AtomicBool::new(false));
 
     // Every connection is served at once, so one that stays open without
@@ -261,7 +261,7 @@ async fn accept(
             tokio::select! {
                 connection = listener.accept() => {
                     let (stream, _) = connection
-                        .map_err(|e| Failure::Error(format!("could not accept the device's connection: {e}")))?;
+                        .map_err(|e| Failure::Error(format!("无法接受设备连接：{e}")))?;
                     attempts.spawn(attempt(stream, pairing_file.clone(), host_info.clone(), target, pin_shown.clone()));
                 }
                 Some(done) = attempts.join_next() => match done {
@@ -269,8 +269,8 @@ async fn accept(
                     // Failing before the PIN step means it was not the
                     // device's pairing attempt; keep listening.
                     _ if !pin_shown.load(Ordering::SeqCst) => continue,
-                    Ok(Err(e)) => return Err(Failure::Error(format!("pairing failed: {e}"))),
-                    Err(e) => return Err(Failure::Error(format!("pairing failed: {e}"))),
+                    Ok(Err(e)) => return Err(Failure::Error(format!("配对失败：{e}"))),
+                    Err(e) => return Err(Failure::Error(format!("配对失败：{e}"))),
                 },
             }
         }

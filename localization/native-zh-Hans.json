@@ -826,5 +826,53 @@
     "line": 642,
     "en": "not an ELF file",
     "zh-Hans": "不是 ELF 文件"
+  },
+  {
+    "file": "src/rppairing-ios/src/lib.rs",
+    "line": 78,
+    "en": "missing host name",
+    "zh-Hans": "缺少主机名称"
+  },
+  {
+    "file": "src/rppairing-ios/src/lib.rs",
+    "line": 84,
+    "en": "invalid host name",
+    "zh-Hans": "主机名称无效"
+  },
+  {
+    "file": "src/rppairing-ios/src/lib.rs",
+    "line": 92,
+    "en": "could not open the pairing port: {e}",
+    "zh-Hans": "无法打开配对端口：{e}"
+  },
+  {
+    "file": "src/rppairing-ios/src/lib.rs",
+    "line": 192,
+    "en": "this pairing session has already been used",
+    "zh-Hans": "此配对会话已使用，请重新开始配对"
+  },
+  {
+    "file": "src/rppairing-ios/src/lib.rs",
+    "line": 199,
+    "en": "could not start the pairing runtime: {e}",
+    "zh-Hans": "无法启动配对服务：{e}"
+  },
+  {
+    "file": "src/rppairing-ios/src/lib.rs",
+    "line": 253,
+    "en": "could not listen for the device: {e}",
+    "zh-Hans": "无法监听设备连接：{e}"
+  },
+  {
+    "file": "src/rppairing-ios/src/lib.rs",
+    "line": 264,
+    "en": "could not accept the device's connection: {e}",
+    "zh-Hans": "无法接受设备连接：{e}"
+  },
+  {
+    "file": "src/rppairing-ios/src/lib.rs",
+    "line": 272,
+    "en": "pairing failed: {e}",
+    "zh-Hans": "配对失败：{e}"
   }
 ]

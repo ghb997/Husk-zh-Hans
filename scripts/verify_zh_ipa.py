@@ -29,12 +29,14 @@ def verify(path):
         assert "本地网络" in info["NSLocalNetworkUsageDescription"], info
         required(info["CFBundleExecutable"])
         executable = z.read(root + info["CFBundleExecutable"])
-        assert "添加游戏或应用".encode("utf-8") in executable, "Chinese UI text missing in executable"
+        for label in ("添加游戏或应用", "常见问题", "兼容性", "分享报告", "简体中文界面"):
+            assert label.encode("utf-8") in executable, f"Chinese UI text missing: {label}"
         for name in (
             "Frameworks/libqemu-aarch64-softmmu.dylib",
             "Frameworks/libANGLE-shared.dylib",
             "Frameworks/libFilePickerFix.dylib",
             "Frameworks/StikJIT.framework/StikJIT",
+            "Frameworks/MoltenVK.framework/MoltenVK",
             "vmlinuz-virt", "initramfs-virt", "husk-jit.js",
             "edk2-aarch64-code.fd", "lineage-efi-vars-seed.fd", "lineage-vdb-seed.qcow2",
             "java-runtime/husk-framework.dex", "java-runtime/framework-res.apk",
@@ -58,6 +60,7 @@ def verify(path):
             required(base + target)
             extension = plist(base + "Info.plist")
             assert extension["CFBundleShortVersionString"] == info["CFBundleShortVersionString"], target
+            assert extension["CFBundleVersion"] == info["CFBundleVersion"], target
             assert extension["CFBundleDevelopmentRegion"] == "zh-Hans", target
             assert "zh-Hans" in extension["CFBundleLocalizations"], target
     digest = hashlib.sha256()

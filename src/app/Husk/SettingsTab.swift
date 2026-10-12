@@ -59,7 +59,9 @@ struct SettingsTab: View {
                         Label {
                             VStack(alignment: .leading, spacing: 1) {
                                 Text("询问游戏运行情况")
-                                Text("游戏结束后询问，每次更新后每个游戏仅询问一次").font(.caption).foregroundStyle(.secondary).lineLimit(1)
+                                Text("游戏结束后询问，每次更新后每个游戏仅询问一次")
+                                    .font(.caption).foregroundStyle(.secondary)
+                                    .fixedSize(horizontal: false, vertical: true)
                             }
                         } icon: {
                             RoundedRectangle(cornerRadius: 7, style: .continuous)

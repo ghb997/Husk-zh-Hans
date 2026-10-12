@@ -21,13 +21,20 @@ def main():
             )
             if name.startswith("native-"):
                 assert PRINTF.findall(entry["en"]) == PRINTF.findall(entry["zh-Hans"]), entry
+                if entry["file"].endswith(".rs"):
+                    assert re.findall(r"\{[^{}]+\}", entry["en"]) == re.findall(r"\{[^{}]+\}", entry["zh-Hans"]), entry
         rows.extend(catalog)
+    versions = []
     for target in ("Husk", "HuskJITHelper", "HuskDownloadsWidget"):
         with open(ROOT / "src/app" / target / "Info.plist", "rb") as f:
             info = plistlib.load(f)
         assert info["CFBundleDevelopmentRegion"] == "zh-Hans", target
         assert "zh-Hans" in info["CFBundleLocalizations"], target
         assert info["CFBundleShortVersionString"] == "2.0.0", target
+        versions.append(info["CFBundleVersion"])
+    assert len(set(versions)) == 1, ("app/extension build mismatch", versions)
+    for path in (ROOT / "src/app").rglob("*.swift"):
+        assert not re.search(r"^(<<<<<<<|=======|>>>>>>>)", path.read_text(encoding="utf-8"), re.M), path
     print(f"PASS: {len(rows)} catalog entries in {len({r['file'] for r in rows})} files; three Chinese bundle plists.")
 
 

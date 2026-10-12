@@ -29,6 +29,9 @@ IPA 采用上游的临时签名打包方式，常规侧载工具需要使用安�
 本地构建需要 macOS、支持 iOS 26 SDK 的 Xcode、Homebrew、Rust 和 Java 17。准备构建工具后：
 
     brew install meson ninja pkg-config xcodegen qemu autoconf automake libtool cmake bison flex e2fsprogs
+    python3 -m venv .venv
+    source .venv/bin/activate
+    python -m pip install PyYAML==6.0.3 Mako==1.3.10 packaging==25.0
     rustup target add aarch64-apple-ios
     export JAVA_HOME=$(/usr/libexec/java_home -v 17)
     python3 scripts/check_localization.py

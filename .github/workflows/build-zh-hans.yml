@@ -32,6 +32,11 @@ jobs:
       - name: Install build tools
         run: |
           brew install meson ninja pkg-config xcodegen qemu autoconf automake libtool cmake bison flex e2fsprogs
+          # virglrenderer generates format tables with PyYAML; keep these
+          # modules in a virtual environment instead of modifying Homebrew.
+          python3 -m venv "$RUNNER_TEMP/husk-python"
+          "$RUNNER_TEMP/husk-python/bin/python" -m pip install PyYAML==6.0.3 Mako==1.3.10 packaging==25.0
+          echo "$RUNNER_TEMP/husk-python/bin" >> "$GITHUB_PATH"
           rustup target add aarch64-apple-ios
           xcodebuild -version
       - name: Restore dependencies

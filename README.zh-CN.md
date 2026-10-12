@@ -20,6 +20,16 @@ Husk 用于在 iPhone / iPad 上通过转译层或完整 Android 模拟环境运
 
 ## 构建和下载
 
+已发布 **2.0.0（112）简体中文**，使用 Xcode 27.0 / Swift 6.4 构建：
+
+- [下载 IPA（普通侧载）](https://github.com/ghb997/Husk-zh-Hans/releases/download/v2.0.0/Husk-2.0.0-zh-Hans.ipa)
+- [下载 TIPA（TrollStore）](https://github.com/ghb997/Husk-zh-Hans/releases/download/v2.0.0/Husk-2.0.0-zh-Hans.tipa)
+- [发布说明、SHA-256 与验证报告](https://github.com/ghb997/Husk-zh-Hans/releases/tag/v2.0.0)
+- [成功构建记录](https://github.com/ghb997/Husk-zh-Hans/actions/runs/38203249391)
+- [SideStore / AltStore 侧载源](https://raw.githubusercontent.com/ghb997/Husk-zh-Hans/main/altsource.json)
+
+本次构建的源码提交为 `ed7bb1a5f115de08879e027cfc1ed2154f2e3811`。安装包声明最低 iOS 16.0；下载实时活动需要 iOS 16.1，内置 JIT 辅助扩展需要 iOS 26，其他系统使用受支持的 JIT 方式。
+
 打开 [GitHub Actions](https://github.com/ghb997/Husk-zh-Hans/actions/workflows/build-zh-hans.yml)，选择 Run workflow，并保持 dependencies_only 为 false。成功后下载 Husk-2.0.0-zh-Hans 构建产物。
 
 工作流在 macOS 上编译原生依赖及应用，从上游公开的 Lineage 镜像提取 Java / Flutter 运行资源，并校验镜像 SHA-256。保留中日韩字库，避免 Android 应用中的中文缺字。
@@ -28,6 +38,7 @@ IPA 采用上游的临时签名打包方式，常规侧载工具需要使用安�
 
 本地构建需要 macOS、Xcode 27.0（内置 StikJIT 框架需要 Swift 6.4）、Homebrew、Rust 和 Java 17。CI 使用 GitHub 的 xcode-27 构建环境，并将依赖缓存与旧版 Xcode 隔离。准备构建工具后：
 
+    xcodebuild -downloadComponent MetalToolchain
     brew install meson ninja pkg-config xcodegen qemu autoconf automake libtool cmake bison flex e2fsprogs
     python3 -m venv .venv
     source .venv/bin/activate
@@ -39,7 +50,7 @@ IPA 采用上游的临时签名打包方式，常规侧载工具需要使用安�
     ./scripts/ci_build.sh "$PWD/build/Husk-2.0.0-zh-Hans.ipa"
     python3 scripts/verify_zh_ipa.py build/Husk-2.0.0-zh-Hans.ipa build/Husk-2.0.0-zh-Hans.tipa
 
-构建会验证 Swift 语法、翻译条目、格式占位符、包内中文元数据、必要运行资源和 ZIP 完整性，并生成带 SHA-256 的验证报告。静态校验不等于真机验证；本仓库未声明已完成 iPhone / iPad 安装、界面或游戏运行测试。
+CI 会在编译原生依赖前检查三个 iOS 目标的 Swift 语法与类型，随后验证翻译条目、格式占位符、包内中文元数据、必要运行资源和 ZIP 完整性，并生成带 SHA-256 的验证报告。静态校验不等于真机验证；本仓库未声明已完成 iPhone / iPad 安装、界面或游戏运行测试。
 
 ## 来源和许可
 

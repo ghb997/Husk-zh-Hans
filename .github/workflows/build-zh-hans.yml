@@ -32,6 +32,7 @@ jobs:
           xcode-version: "27.0"
       - name: Install build tools
         run: |
+          xcodebuild -downloadComponent MetalToolchain
           brew install meson ninja pkg-config xcodegen qemu autoconf automake libtool cmake bison flex e2fsprogs
           # virglrenderer generates format tables with PyYAML; keep these
           # modules in a virtual environment instead of modifying Homebrew.
@@ -53,11 +54,12 @@ jobs:
             src/rppairing-ios/target
           key: husk-xcode27-deps-v1-${{ github.run_id }}
           restore-keys: husk-xcode27-deps-v1-
-      - name: Check Swift syntax
+      - name: Check Swift sources
         if: ${{ !inputs.dependencies_only }}
         run: |
           python3 scripts/check_localization.py
           find src/app -name '*.swift' -print0 | xargs -0 xcrun swiftc -frontend -parse
+          python3 scripts/check_swift_sources.py
       - uses: actions/setup-java@v4
         if: ${{ !inputs.dependencies_only }}
         with:

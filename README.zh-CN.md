@@ -26,7 +26,7 @@ Husk 用于在 iPhone / iPad 上通过转译层或完整 Android 模拟环境运
 
 IPA 采用上游的临时签名打包方式，常规侧载工具需要使用安装者的签名重新签署。TIPA 使用上游的 TrollStore 打包配置；是否能安装、启用 JIT 和运行应用，取决于设备及系统支持情况。
 
-本地构建需要 macOS、支持 iOS 26 SDK 的 Xcode、Homebrew、Rust 和 Java 17。准备构建工具后：
+本地构建需要 macOS、Xcode 27.0（内置 StikJIT 框架需要 Swift 6.4）、Homebrew、Rust 和 Java 17。CI 使用 GitHub 的 xcode-27 构建环境，并将依赖缓存与旧版 Xcode 隔离。准备构建工具后：
 
     brew install meson ninja pkg-config xcodegen qemu autoconf automake libtool cmake bison flex e2fsprogs
     python3 -m venv .venv

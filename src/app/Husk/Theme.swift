@@ -89,6 +89,7 @@ extension View {
     @ViewBuilder
     func huskCard<S: Shape>(_ shape: S, high: Bool = false) -> some View {
         self.background(high ? Theme.surfaceHigh : Theme.surface, in: shape)
+            .snowCap()
     }
 
     func huskCard(high: Bool = false) -> some View {

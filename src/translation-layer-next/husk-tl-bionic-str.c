@@ -638,6 +638,31 @@ static locale_t b_newlocale(int mask, const char *name, locale_t base)
     return l;
 }
 
+/* setenv: python-for-android's launcher reads its folders from ANDROID_* and PYTHON* variables and refuses a script path over
+ * 128 characters; the app's real folder on a phone is longer than that by itself. In those variables the folder is written by
+ * its Android name, /data/user/0/app, which the path resolver maps back. */
+const char *tl_data_dir(void);
+static int b_setenv(const char *k, const char *v, int overwrite)
+{
+    if (k && v && (!strncmp(k, "ANDROID_", 8) || !strncmp(k, "PYTHON", 6))) {
+        const char *dd = tl_data_dir();
+        size_t dl = dd ? strlen(dd) : 0;
+        if (dl > 1 && strstr(v, dd)) {
+            static const char vroot[] = "/data/user/0/app";
+            size_t cap = strlen(v) * 2 + 64; char *out = malloc(cap), *o = out;
+            for (const char *p = v; *p; ) {
+                if (!strncmp(p, dd, dl)) { memcpy(o, vroot, sizeof(vroot) - 1); o += sizeof(vroot) - 1; p += dl; }
+                else *o++ = *p++;
+            }
+            *o = 0;
+            int r = setenv(k, out, overwrite);
+            free(out);
+            return r;
+        }
+    }
+    return setenv(k, v, overwrite);
+}
+
 /* time zone variables bionic exports */
 static int g_daylight;
 static long g_timezone;
@@ -694,7 +719,7 @@ const tl_bionic_entry tl_tab_str[] = {
     TL_WRAP("strtol", b_strtol), TL_WRAP("strtoll", b_strtoll), TL_WRAP("strtoul", b_strtoul), TL_WRAP("strtoull", b_strtoull),
     TL_WRAP("strtoll_l", b_strtoll_l), TL_WRAP("strtoull_l", b_strtoull_l), TL_WRAP("strtod", b_strtod), TL_WRAP("strtof", b_strtof),
     TL_WRAP("strtold", b_strtold), TL_WRAP("strtold_l", b_strtold_l),
-    TL_DIRECT(getenv), TL_DIRECT(setenv), TL_DIRECT(unsetenv), TL_DIRECT(putenv), TL_DATA("environ", &g_environ_var),
+    TL_DIRECT(getenv), TL_WRAP("setenv", b_setenv), TL_DIRECT(unsetenv), TL_DIRECT(putenv), TL_DATA("environ", &g_environ_var),
     TL_DIRECT(setjmp), TL_DIRECT(longjmp), TL_DIRECT(_setjmp), TL_DIRECT(_longjmp), TL_DIRECT(fnmatch), TL_DIRECT(getopt_long),
     TL_DATA("optarg", &optarg), TL_DATA("optind", &optind),
     /* math.h */

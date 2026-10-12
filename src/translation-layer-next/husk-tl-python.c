@@ -139,14 +139,18 @@ bool tl_python_prepare(const char *apk, const char *data_dir)
     char entry[1200];
     snprintf(entry, sizeof(entry), "%s/main.pyc", app);
     if (access(entry, F_OK) != 0) snprintf(entry, sizeof(entry), "%s/main.py", app);
+    /* what the launcher and Python are told is the folder's Android name (the path resolver maps it back): p4a's start.c refuses
+       a script path over 128 characters, and the real folder on a phone is longer than that by itself */
+    const char *vfiles = "/data/user/0/app/files", *vapp = "/data/user/0/app/files/app";
+    snprintf(entry, sizeof(entry), "%s/%s", vapp, strrchr(entry, '/') + 1);
     char path[2300];
-    snprintf(path, sizeof(path), "%s:%s/lib", app, app);
+    snprintf(path, sizeof(path), "%s:%s/lib", vapp, vapp);
     setenv("ANDROID_ENTRYPOINT", entry, 1);
-    setenv("ANDROID_ARGUMENT", app, 1);
-    setenv("ANDROID_APP_PATH", app, 1);
-    setenv("ANDROID_PRIVATE", files, 1);
-    setenv("ANDROID_UNPACK", app, 1);
-    setenv("PYTHONHOME", app, 1);
+    setenv("ANDROID_ARGUMENT", vapp, 1);
+    setenv("ANDROID_APP_PATH", vapp, 1);
+    setenv("ANDROID_PRIVATE", vfiles, 1);
+    setenv("ANDROID_UNPACK", vapp, 1);
+    setenv("PYTHONHOME", vapp, 1);
     setenv("PYTHONPATH", path, 1);
     setenv("PYTHONOPTIMIZE", "2", 1);
     setenv("P4A_BOOTSTRAP", "SDL2", 1);

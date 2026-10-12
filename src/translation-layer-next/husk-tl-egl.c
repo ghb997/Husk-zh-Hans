@@ -453,6 +453,11 @@ static EGLBoolean w_eglSwapBuffers(EGLDisplay d, EGLSurface s)
     return E.frame_dir[0] ? EGL_TRUE : a_eglSwapBuffers(d, s);
 }
 
+/* The damage-region swaps (Flutter's engine, HWUI): the same as a whole swap here -- through the wrapper, so a frame reaches the
+ * compositor, the frame dump, or the screen as a plain swap would. */
+static EGLBoolean w_eglSwapBuffersWithDamage(EGLDisplay d, EGLSurface s, const EGLint *rects, EGLint n) { (void)rects; (void)n; return w_eglSwapBuffers(d, s); }
+static EGLBoolean w_eglSetDamageRegion(EGLDisplay d, EGLSurface s, EGLint *rects, EGLint n) { (void)d; (void)s; (void)rects; (void)n; return EGL_TRUE; }
+
 /* Android extensions this ANGLE does not have: Swappy and Unity probe for them. */
 static EGLBoolean w_eglPresentationTimeANDROID(EGLDisplay d, EGLSurface s, int64_t t) { (void)d; (void)s; (void)t; return EGL_TRUE; }
 static EGLBoolean w_eglGetNextFrameIdANDROID(EGLDisplay d, EGLSurface s, uint64_t *id) { (void)d; (void)s; if (id) *id = 0; return EGL_FALSE; }
@@ -636,6 +641,8 @@ static const struct { const char *name; void *fn; } k_egl[] = {
     { "eglCreatePbufferSurface", w_eglCreatePbufferSurface }, { "eglDestroySurface", w_eglDestroySurface },
     { "eglQuerySurface", w_eglQuerySurface }, { "eglSurfaceAttrib", w_eglSurfaceAttrib }, { "eglMakeCurrent", w_eglMakeCurrent },
     { "eglSwapBuffers", w_eglSwapBuffers }, { "eglSwapInterval", w_eglSwapInterval },
+    { "eglSwapBuffersWithDamageKHR", w_eglSwapBuffersWithDamage }, { "eglSwapBuffersWithDamageEXT", w_eglSwapBuffersWithDamage },
+    { "eglSetDamageRegionKHR", w_eglSetDamageRegion },
     { "eglGetCurrentContext", w_eglGetCurrentContext }, { "eglGetCurrentSurface", w_eglGetCurrentSurface },
     { "eglGetCurrentDisplay", w_eglGetCurrentDisplay }, { "eglBindAPI", w_eglBindAPI }, { "eglQueryAPI", w_eglQueryAPI },
     { "eglGetError", w_eglGetError }, { "eglWaitGL", w_eglWaitGL }, { "eglWaitNative", w_eglWaitNative },
@@ -804,6 +811,8 @@ const tl_bionic_entry tl_tab_egl[] = {
     { "eglCreatePbufferSurface", w_eglCreatePbufferSurface }, { "eglDestroySurface", w_eglDestroySurface },
     { "eglQuerySurface", w_eglQuerySurface }, { "eglSurfaceAttrib", w_eglSurfaceAttrib }, { "eglMakeCurrent", w_eglMakeCurrent },
     { "eglSwapBuffers", w_eglSwapBuffers }, { "eglSwapInterval", w_eglSwapInterval },
+    { "eglSwapBuffersWithDamageKHR", w_eglSwapBuffersWithDamage }, { "eglSwapBuffersWithDamageEXT", w_eglSwapBuffersWithDamage },
+    { "eglSetDamageRegionKHR", w_eglSetDamageRegion },
     { "eglGetCurrentContext", w_eglGetCurrentContext }, { "eglGetCurrentSurface", w_eglGetCurrentSurface },
     { "eglGetCurrentDisplay", w_eglGetCurrentDisplay }, { "eglBindAPI", w_eglBindAPI }, { "eglQueryAPI", w_eglQueryAPI },
     { "eglGetError", w_eglGetError }, { "eglWaitGL", w_eglWaitGL }, { "eglWaitNative", w_eglWaitNative },

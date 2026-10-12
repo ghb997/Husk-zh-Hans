@@ -34,6 +34,7 @@ public final class KeyStoreProvider extends Provider {
         if (sInstalled) return;
         sInstalled = true;
         try { Security.addProvider(new KeyStoreProvider()); } catch (Throwable t) { android.util.Log.w("Husk", "AndroidKeyStore not installed: " + t); }
+        try { Security.addProvider(new BCWorkaround()); } catch (Throwable t) { android.util.Log.w("Husk", "AndroidKeyStoreBCWorkaround not installed: " + t); }
     }
 
     // ---- the keys: alias -> key (and for a pair, its public key), kept in a file of the app's
@@ -172,5 +173,68 @@ public final class KeyStoreProvider extends Provider {
         }
         public static final class RSA extends PairGen { public RSA() { super("RSA"); } }
         public static final class EC extends PairGen { public EC() { super("EC"); } }
+    }
+
+    /**
+     * "AndroidKeyStoreBCWorkaround": the provider Android pairs with AndroidKeyStore for using its keys (Cipher.getInstance(t,
+     * "AndroidKeyStoreBCWorkaround"), as flutter_secure_storage and others ask for by name). The keys are ordinary ones here, so each
+     * cipher is the default providers' own, PKCS7Padding spelled as they spell it.
+     */
+    public static final class BCWorkaround extends Provider {
+        static final String[] CIPHERS = { "AES/GCM/NoPadding", "AES/CBC/NoPadding", "AES/CBC/PKCS7Padding", "AES/CTR/NoPadding", "AES/ECB/NoPadding",
+            "AES/ECB/PKCS7Padding", "RSA/ECB/NoPadding", "RSA/ECB/PKCS1Padding", "RSA/ECB/OAEPPadding", "RSA/ECB/OAEPWithSHA-1AndMGF1Padding",
+            "RSA/ECB/OAEPWithSHA-224AndMGF1Padding", "RSA/ECB/OAEPWithSHA-256AndMGF1Padding", "RSA/ECB/OAEPWithSHA-384AndMGF1Padding",
+            "RSA/ECB/OAEPWithSHA-512AndMGF1Padding", "DESede/CBC/NoPadding", "DESede/CBC/PKCS7Padding", "DESede/ECB/NoPadding", "DESede/ECB/PKCS7Padding" };
+        public BCWorkaround() {
+            super("AndroidKeyStoreBCWorkaround", 1.0, "Husk's AndroidKeyStore ciphers");
+            for (int i = 0; i < CIPHERS.length; i++) put("Cipher." + CIPHERS[i], Delegate.class.getName() + "$C" + i);
+        }
+    }
+    /** A cipher of the default providers, for a transformation fixed by the subclass. */
+    public static class Delegate extends javax.crypto.CipherSpi {
+        private final String mTransformation;
+        private javax.crypto.Cipher mCipher;
+        Delegate(int i) { mTransformation = BCWorkaround.CIPHERS[i].replace("PKCS7Padding", "PKCS5Padding"); }
+        private javax.crypto.Cipher c() {
+            if (mCipher == null) {
+                try { mCipher = javax.crypto.Cipher.getInstance(mTransformation); }
+                catch (GeneralSecurityException e) { throw new ProviderException("no " + mTransformation + ": " + e); }
+            }
+            return mCipher;
+        }
+        @Override protected void engineSetMode(String m) {}
+        @Override protected void engineSetPadding(String p) {}
+        @Override protected int engineGetBlockSize() { return c().getBlockSize(); }
+        @Override protected int engineGetOutputSize(int n) { return c().getOutputSize(n); }
+        @Override protected byte[] engineGetIV() { return c().getIV(); }
+        @Override protected AlgorithmParameters engineGetParameters() { return c().getParameters(); }
+        @Override protected void engineInit(int op, Key k, SecureRandom r) throws InvalidKeyException { c().init(op, k, r); }
+        @Override protected void engineInit(int op, Key k, AlgorithmParameterSpec p, SecureRandom r) throws InvalidKeyException, InvalidAlgorithmParameterException { c().init(op, k, p, r); }
+        @Override protected void engineInit(int op, Key k, AlgorithmParameters p, SecureRandom r) throws InvalidKeyException, InvalidAlgorithmParameterException { c().init(op, k, p, r); }
+        @Override protected byte[] engineUpdate(byte[] in, int off, int len) { return c().update(in, off, len); }
+        @Override protected int engineUpdate(byte[] in, int off, int len, byte[] out, int outOff) throws javax.crypto.ShortBufferException { return c().update(in, off, len, out, outOff); }
+        @Override protected void engineUpdateAAD(byte[] src, int off, int len) { c().updateAAD(src, off, len); }
+        @Override protected byte[] engineDoFinal(byte[] in, int off, int len) throws javax.crypto.IllegalBlockSizeException, javax.crypto.BadPaddingException { return c().doFinal(in, off, len); }
+        @Override protected int engineDoFinal(byte[] in, int off, int len, byte[] out, int outOff) throws javax.crypto.ShortBufferException, javax.crypto.IllegalBlockSizeException, javax.crypto.BadPaddingException { return c().doFinal(in, off, len, out, outOff); }
+        @Override protected byte[] engineWrap(Key k) throws javax.crypto.IllegalBlockSizeException, InvalidKeyException { return c().wrap(k); }
+        @Override protected Key engineUnwrap(byte[] w, String alg, int type) throws InvalidKeyException, NoSuchAlgorithmException { return c().unwrap(w, alg, type); }
+        public static final class C0 extends Delegate { public C0() { super(0); } }
+        public static final class C1 extends Delegate { public C1() { super(1); } }
+        public static final class C2 extends Delegate { public C2() { super(2); } }
+        public static final class C3 extends Delegate { public C3() { super(3); } }
+        public static final class C4 extends Delegate { public C4() { super(4); } }
+        public static final class C5 extends Delegate { public C5() { super(5); } }
+        public static final class C6 extends Delegate { public C6() { super(6); } }
+        public static final class C7 extends Delegate { public C7() { super(7); } }
+        public static final class C8 extends Delegate { public C8() { super(8); } }
+        public static final class C9 extends Delegate { public C9() { super(9); } }
+        public static final class C10 extends Delegate { public C10() { super(10); } }
+        public static final class C11 extends Delegate { public C11() { super(11); } }
+        public static final class C12 extends Delegate { public C12() { super(12); } }
+        public static final class C13 extends Delegate { public C13() { super(13); } }
+        public static final class C14 extends Delegate { public C14() { super(14); } }
+        public static final class C15 extends Delegate { public C15() { super(15); } }
+        public static final class C16 extends Delegate { public C16() { super(16); } }
+        public static final class C17 extends Delegate { public C17() { super(17); } }
     }
 }

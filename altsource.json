@@ -30,6 +30,15 @@
       ],
       "versions": [
         {
+          "version": "2.0.0",
+          "buildVersion": "109",
+          "date": "2026-10-11T22:41:49Z",
+          "localizedDescription": "## Welcome to Husk 2.0.\r\nI\u2019ve been working hard over the past few days, and I\u2019m glad to say, Husk 2.0 is out! You\u2019ll enjoy it, a lot.\r\n## What\u2019s new?\r\n- Christmas Decoration\r\n- In-app help feature\r\n- Window manager\r\n- New UI\r\n- Removed downloads tab\r\n## New App Support\r\n- Over 150+ games and apps, now running on Husk.\r\n## Notes:\r\nThank you all for the continuous support, It\u2019s been a good few months, and I\u2019m just amazed at how big Husk got. Thank you so much, and enjoy Husk 2.0. There is more to come.\r\n## Links:\r\n- Discord: https://discord.gg/xApMHWAzkh\r\n- X Profile: https://x.com/leviidev01\r\n- Discord User: @leviidev",
+          "downloadURL": "https://github.com/Leviidev/Husk/releases/download/2.0/Husk.ipa",
+          "size": 110921859,
+          "minOSVersion": "16.0"
+        },
+        {
           "version": "1.0.1",
           "date": "2026-10-09T01:17:20Z",
           "localizedDescription": "## What's new?\r\n- Fixes a failure on logging into Google Accounts, (MissingDroidGuard)\r\n\r\n## Notes:\r\nCheck out Husk 1.0.0 release notes for all new features.\r\n\r\n## Links:\r\nDiscord Server: https://discord.gg/xApMHWAzkh\r\nX: https://x.com/leviidev01\r\nDiscord: @leviidev",

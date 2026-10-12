@@ -64,7 +64,7 @@ angle_build () {
 
     env -i PATH="$PATH" HOME="$HOME" xcodebuild archive \
         -archivePath "ANGLE" -scheme "ANGLE" \
-        -sdk iphoneos -arch arm64 -destination 'generic/platform=iOS' -configuration Release \
+        -sdk iphoneos -destination 'generic/platform=iOS' -configuration Release ARCHS=arm64 \
         WEBCORE_LIBRARY_DIR="/usr/local/lib" NORMAL_UMBRELLA_FRAMEWORKS_DIR="" \
         CODE_SIGNING_ALLOWED=NO CODE_SIGNING_REQUIRED=NO \
         WK_AVAILABILITY_OVERLAY_FLAGS="" WK_AVAILABILITY_OVERLAY_SWIFT_FLAGS="" \

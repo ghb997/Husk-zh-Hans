@@ -16,6 +16,8 @@
 #include <ctype.h>
 #include <dirent.h>
 #include <errno.h>
+#include <execinfo.h>
+#include <TargetConditionals.h>
 #include <stdbool.h>
 #include <fcntl.h>
 #include <limits.h>
@@ -208,6 +210,18 @@ const char *tl_path_resolve(const char *path, char *buf, size_t n)
             }
         }
     }
+    /* /data/user/0/<package> and /data/data/<package>: the app's own folder, as Android names it -- short, where the real one on a
+       phone is ~150 characters (p4a's launcher allows its script path 128) */
+    {
+        static const char *const roots[] = { "/data/user/0/", "/data/data/" };
+        for (int i = 0; i < 2; i++) {
+            size_t l = strlen(roots[i]);
+            if (strncmp(path, roots[i], l) || !path[l] || path[l] == '/') continue;
+            const char *rest = strchr(path + l, '/');
+            snprintf(buf, n, "%s%s", tl_data_dir(), rest ? rest : "");
+            return buf;
+        }
+    }
     /* /data/local/tmp: the world-writable scratch folder (JNA unpacks itself there): a folder of the app's own */
     if (!strncmp(path, "/data/local/tmp", 15) && (path[15] == 0 || path[15] == '/')) {
         snprintf(buf, n, "%s/cache/local-tmp", tl_data_dir());
@@ -303,6 +317,9 @@ static bool jar_lookup(const char *p, jar_entry *out);
 static bool lib_standin(const char *p, jar_entry *out)
 {
     const char *dd = tl_data_dir();
+    /* iOS names the app's container both /var/mobile/... and /private/var/mobile/... (realpath, Qt's plugin scan): either is it */
+    if (dd && !strncmp(p, "/private/var/", 13) && !strncmp(dd, "/var/", 5)) p += 8;
+    else if (dd && !strncmp(p, "/var/", 5) && !strncmp(dd, "/private/var/", 13)) dd += 8;
     size_t dl = dd ? strlen(dd) : 0;
     if (!dl || strncmp(p, dd, dl) || strncmp(p + dl, "/lib/", 5) || strchr(p + dl + 5, '/')) return false;
     const char *name = p + dl + 5;
@@ -995,11 +1012,21 @@ static void anon_zap(uintptr_t addr, size_t len)
     pthread_mutex_unlock(&g_anon_lock);
 }
 
+const char *tl_ld_symbol_at(const void *addr, const char **lib_name, const void **sym_addr);
 static int g_mm_trace = -1;
 static void mm_trace(const char *what, void *a, size_t l, long x, long y)
 {
     if (g_mm_trace < 0) g_mm_trace = getenv("TL_MM_TRACE") ? 1 : 0;
-    if (g_mm_trace) tl_log_line("mm: %s addr=%p len=%#zx %#lx %#lx", what, a, l, x, y);
+    if (!g_mm_trace) return;
+    /* a big one says who asked (the guest's code that called mmap, mprotect or madvise) */
+    if (l >= (64u << 20)) {
+        void *ra[8]; int n = backtrace(ra, 8);
+        const char *who = "?", *lib = NULL; const void *sa = NULL;
+        for (int i = 1; i < n; i++) { const char *sym = tl_ld_symbol_at(ra[i], &lib, &sa); if (lib) { who = sym ? sym : "?"; break; } }
+        tl_log_line("mm: %s addr=%p len=%#zx %#lx %#lx  <- %s %s", what, a, l, x, y, lib ? lib : "?", who);
+        return;
+    }
+    tl_log_line("mm: %s addr=%p len=%#zx %#lx %#lx", what, a, l, x, y);
 }
 
 /*
@@ -1058,6 +1085,17 @@ static size_t phantom_clamp(uintptr_t a, size_t l)
     return l;
 }
 
+/* Whether only the JIT region can execute here: the phone (iOS), or a Mac told to behave like one (TL_PHONE_JIT=1). */
+static bool phone_jit(void)
+{
+#if defined(__APPLE__) && TARGET_OS_IPHONE
+    return true;
+#else
+    static int on = -1;
+    if (on < 0) on = getenv("TL_PHONE_JIT") ? 1 : 0;
+    return on;
+#endif
+}
 static void *b_mmap(void *addr, size_t len, int prot, int flags, int fd, long off)
 {
     /* A hooking library's trampolines (Geode): executable memory is a piece of the JIT region, written through the other view. */
@@ -1067,6 +1105,21 @@ static void *b_mmap(void *addr, size_t len, int prot, int flags, int fd, long of
         if (tl_xmem_alloc(n, &rx, &rw)) {
             memset(rw, 0, n);
             tl_log_line("mm: %#zx bytes of executable memory for the guest at %p", n, (void *)rx);
+            return rx;
+        }
+    }
+    /* A JIT's code memory where only the JIT region can execute (a phone: iOS 26+ lets nothing else run): LuaJIT maps it near its
+     * own code with a hint, writes the machine code, then makes it executable with mprotect -- which on a phone "succeeds" and
+     * then faults. An anonymous, code-sized, writable mapping hinted near the region comes from the region instead: its stores
+     * go through the writable view (code-write emulation), and mprotect there is a yes. TL_PHONE_JIT=1 does this on a Mac too. */
+    if (addr && !(prot & PROT_EXEC) && (prot & PROT_WRITE) && (flags & 0x20) && !(flags & 0x10) && len <= (32u << 20)
+        && tl_codewrite_enabled() && phone_jit() && tl_xmem_near(addr, 256u << 20)) {
+        uint8_t *rx, *rw;
+        size_t n = (len + TL_XMEM_PAGE - 1) & ~(size_t)(TL_XMEM_PAGE - 1);
+        if (tl_xmem_alloc(n, &rx, &rw)) {
+            memset(rw, 0, n);
+            tl_note_once("a JIT's code memory (mmap hinted near the code) comes from the JIT region");
+            mm_trace("mmap-jit", rx, len, prot, flags);
             return rx;
         }
     }
@@ -1484,7 +1537,38 @@ static long linux_syscall_impl(long a0, long a1, long a2, long a3, long a4, long
     case 226: { int r = b_mprotect((void *)a0, (size_t)a1, (int)a2); return r < 0 ? -*tl_guest_errno_ptr() : 0; }
     case 79:  { int r = b_fstatat((int)a0, (const char *)a1, (guest_stat *)a2, (int)a3); return r < 0 ? -*tl_guest_errno_ptr() : 0; }
     case 80:  { int r = b_fstat((int)a0, (guest_stat *)a1); return r < 0 ? -*tl_guest_errno_ptr() : 0; }
+    case 96: { uint64_t t = 0; pthread_threadid_np(NULL, &t); return (long)t; }        /* set_tid_address */
+    case 99: return 0;                                                                  /* set_robust_list */
+    case 117: return -1;                                                                /* ptrace: EPERM */
     default: break;
+    }
+    /* the rest, by the libc function bionic would have made the call through: called as the guest calls it (arguments in
+       registers), -1 and errno turned into -errno as the kernel answers */
+    {
+        static const struct { short nr; const char *fn; } calls[] = {
+            { 19, "eventfd" }, { 20, "epoll_create1" }, { 21, "epoll_ctl" }, { 22, "epoll_pwait" }, { 23, "dup" }, { 24, "dup3" },
+            { 25, "fcntl" }, { 29, "ioctl" }, { 32, "flock" }, { 34, "mkdirat" }, { 35, "unlinkat" }, { 37, "linkat" }, { 38, "renameat" },
+            { 43, "fstatfs" }, { 46, "ftruncate" }, { 49, "chdir" }, { 50, "fchdir" }, { 52, "fchmod" }, { 53, "fchmodat" }, { 55, "fchown" },
+            { 59, "pipe2" }, { 61, "getdents64" }, { 65, "readv" }, { 66, "writev" }, { 67, "pread64" }, { 68, "pwrite64" },
+            { 71, "sendfile" }, { 73, "ppoll" }, { 78, "readlinkat" }, { 82, "fsync" }, { 83, "fdatasync" },
+            { 85, "timerfd_create" }, { 86, "timerfd_settime" }, { 87, "timerfd_gettime" }, { 88, "utimensat" },
+            { 114, "clock_getres" }, { 115, "clock_nanosleep" }, { 163, "getrlimit" }, { 164, "setrlimit" }, { 165, "getrusage" },
+            { 166, "umask" }, { 179, "sysinfo" }, { 198, "socket" }, { 199, "socketpair" }, { 200, "bind" }, { 201, "listen" },
+            { 202, "accept" }, { 203, "connect" }, { 204, "getsockname" }, { 205, "getpeername" }, { 206, "sendto" }, { 207, "recvfrom" },
+            { 208, "setsockopt" }, { 209, "getsockopt" }, { 210, "shutdown" }, { 211, "sendmsg" }, { 212, "recvmsg" }, { 242, "accept4" },
+            { 261, "prlimit64" }, { 281, "execveat" },
+        };
+        for (size_t i = 0; i < sizeof(calls) / sizeof(calls[0]); i++) {
+            if (calls[i].nr != nr) continue;
+            void *tl_bionic_find(const char *name);
+            long (*f)(long, long, long, long, long, long) = (long (*)(long, long, long, long, long, long))tl_bionic_find(calls[i].fn);
+            if (!f && nr == 261) f = (long (*)(long, long, long, long, long, long))tl_bionic_find("prlimit");
+            if (!f) break;
+            *tl_guest_errno_ptr() = 0;
+            long r = f(a0, a1, a2, a3, a4, a5);
+            if (nr == 166) return r;                                                    /* umask's answer is never an error */
+            return r == -1 ? -(*tl_guest_errno_ptr() ? *tl_guest_errno_ptr() : 38) : r;
+        }
     }
     char what[96];
     snprintf(what, sizeof(what), "raw system call %ld is not provided (ENOSYS)", nr);

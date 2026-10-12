@@ -25,6 +25,7 @@
 		0FA2BBF68B30B5630789922B /* husk-tl-json.c in Sources */ = {isa = PBXBuildFile; fileRef = 242DD6EEB7DA97455CD76826 /* husk-tl-json.c */; };
 		12F633F698047D7DED62A51D /* husk-tl-gameactivity.c in Sources */ = {isa = PBXBuildFile; fileRef = CFAB9C41A483CA08C1037AAC /* husk-tl-gameactivity.c */; };
 		13E70642DCB1EB118EB6B9CF /* husk-tl-egl.c in Sources */ = {isa = PBXBuildFile; fileRef = 6990DECA802D2C4493C28A4A /* husk-tl-egl.c */; };
+		13EEBA67589844DCF50836CF /* Compatibility.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3BDB1E8EEE64E1BBF7D72E2B /* Compatibility.swift */; };
 		14F4718B87230D502748C4D3 /* StoreView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 685DEBAD91D2650A85E7BA19 /* StoreView.swift */; };
 		161096C4354197AC83569ECB /* HuskAppIcon.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5236C5746D2CDE06C5D438BB /* HuskAppIcon.swift */; };
 		1624D7BE5D25504F10E6D705 /* Shaders.metal in Sources */ = {isa = PBXBuildFile; fileRef = A523DB1FEA5BC026771035C7 /* Shaders.metal */; };
@@ -44,8 +45,10 @@
 		240D4917EC7FC510B753EB4E /* husk-tl-jni-cocos.c in Sources */ = {isa = PBXBuildFile; fileRef = B76CE6F39722749AA0027959 /* husk-tl-jni-cocos.c */; };
 		2472A0B862A3BC5106DBAEBC /* husk-tl-load.c in Sources */ = {isa = PBXBuildFile; fileRef = 5BE31DC5ACA28C0133F828FA /* husk-tl-load.c */; };
 		29B4497EDC1E890D82BDF969 /* GuestManifest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4A0490485F9BA884A0554EAD /* GuestManifest.swift */; };
+		29CF21D2D0395FE19CC8D95D /* Holiday.swift in Sources */ = {isa = PBXBuildFile; fileRef = CB613D9704124AC887763433 /* Holiday.swift */; };
 		2A3E4ED499EAA7EDDFCB3EE2 /* husk-tl-bionic-ldbl.c in Sources */ = {isa = PBXBuildFile; fileRef = 39B1A738A583D4E01CB15C60 /* husk-tl-bionic-ldbl.c */; };
 		2A70738EC7BE5ABEA7509E8B /* husk-tl-blit.c in Sources */ = {isa = PBXBuildFile; fileRef = CB3F6E9B90C81C37AAABE363 /* husk-tl-blit.c */; };
+		2B545A13904F3C3CA391F5E5 /* FAQTab.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0BF5756DFAA31BA30063664B /* FAQTab.swift */; };
 		2BB97B7AE3D1994ABB4A67A0 /* MassTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2470C9D4EBE84F890D35A354 /* MassTest.swift */; };
 		305642B7B63D6DC85E36D091 /* husk-tl-nativeactivity.c in Sources */ = {isa = PBXBuildFile; fileRef = 3B72237F810FCE0EE433FA3D /* husk-tl-nativeactivity.c */; };
 		308AC941024A28652B15B3F4 /* husk-tl-res.c in Sources */ = {isa = PBXBuildFile; fileRef = 7FD8DC66414547110F0E0B0E /* husk-tl-res.c */; };
@@ -241,6 +244,7 @@
 		036699CBF5693E75237EF112 /* PlayDevice.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlayDevice.swift; sourceTree = "<group>"; };
 		0384223FE1CD6D8C7C3A22A0 /* PlayStoreManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlayStoreManager.swift; sourceTree = "<group>"; };
 		08B65F9A6BAA4E2376A0CBD8 /* husk-tl-shim.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = "husk-tl-shim.c"; sourceTree = "<group>"; };
+		0BF5756DFAA31BA30063664B /* FAQTab.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FAQTab.swift; sourceTree = "<group>"; };
 		0C8178C469873F2DA90BB728 /* husk-tl-gameactivity.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "husk-tl-gameactivity.h"; sourceTree = "<group>"; };
 		0F570EB6EAB321272B32955C /* VirtualPad.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VirtualPad.swift; sourceTree = "<group>"; };
 		0FCF57D3D74B527852EC0327 /* AppIcon.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppIcon.swift; sourceTree = "<group>"; };
@@ -289,6 +293,7 @@
 		3B4754DCDA6CFFE02F854C6A /* husk-tl-dvm-graphics.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = "husk-tl-dvm-graphics.c"; sourceTree = "<group>"; };
 		3B72237F810FCE0EE433FA3D /* husk-tl-nativeactivity.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = "husk-tl-nativeactivity.c"; sourceTree = "<group>"; };
 		3B9FC5A63D4CAA7FBDA016EB /* fishhook.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = fishhook.h; sourceTree = "<group>"; };
+		3BDB1E8EEE64E1BBF7D72E2B /* Compatibility.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Compatibility.swift; sourceTree = "<group>"; };
 		3F25C8D085028063DE39D3F2 /* husk-tl-jni-audiotrack.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = "husk-tl-jni-audiotrack.c"; sourceTree = "<group>"; };
 		3F5C62F392C6EE9D6F1B9407 /* AppClip.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppClip.swift; sourceTree = "<group>"; };
 		40BF573E8CED9B238E762BA6 /* FilesTab.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FilesTab.swift; sourceTree = "<group>"; };
@@ -410,6 +415,7 @@
 		C575FDA8867C3A75AB2392E3 /* husk-tl-jni-fmod.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = "husk-tl-jni-fmod.c"; sourceTree = "<group>"; };
 		C6541CC4432CA2CE74901320 /* HuskLog.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HuskLog.swift; sourceTree = "<group>"; };
 		CB3F6E9B90C81C37AAABE363 /* husk-tl-blit.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = "husk-tl-blit.c"; sourceTree = "<group>"; };
+		CB613D9704124AC887763433 /* Holiday.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Holiday.swift; sourceTree = "<group>"; };
 		CC60CF82D64B2CBA61196F88 /* husk-tl-gamepad.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "husk-tl-gamepad.h"; sourceTree = "<group>"; };
 		CC860BD7A5AF9DC83B015219 /* fishhook.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = fishhook.c; sourceTree = "<group>"; };
 		CD10D68F646D92E86A28E5A6 /* husk-tl-dvm-android.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = "husk-tl-dvm-android.c"; sourceTree = "<group>"; };
@@ -496,11 +502,13 @@
 				28D3E1CEE343707BE986FA6E /* Assets.xcassets */,
 				6F40192B3EDAD27D2CBFFC2F /* BootScreen.swift */,
 				E37298010F80517A3057579E /* BundleUnpacker.swift */,
+				3BDB1E8EEE64E1BBF7D72E2B /* Compatibility.swift */,
 				6CAD18BA88F03D63EF1F5DF2 /* ContentView.swift */,
 				BD3B1227581E9D6E7C9DCC3E /* CrashReport.swift */,
 				48DA17A30AE793049F358717 /* DiscoverTab.swift */,
 				AAE77760F5BCF4EFAEFE146D /* Downloads.swift */,
 				F3FEAD390092357A2CCDCB7E /* DownloadsTab.swift */,
+				0BF5756DFAA31BA30063664B /* FAQTab.swift */,
 				40BF573E8CED9B238E762BA6 /* FilesTab.swift */,
 				CC860BD7A5AF9DC83B015219 /* fishhook.c */,
 				3B9FC5A63D4CAA7FBDA016EB /* fishhook.h */,
@@ -508,6 +516,7 @@
 				9736391C1BCE43667293DB7B /* Geode.swift */,
 				771B4FD56CABC214FEED6DFE /* GuestImage.swift */,
 				4A0490485F9BA884A0554EAD /* GuestManifest.swift */,
+				CB613D9704124AC887763433 /* Holiday.swift */,
 				619394B1069242D8750E7F33 /* Husk.entitlements */,
 				85AAFB3E92FE2AE4A2FA4DD8 /* HuskApp.swift */,
 				5236C5746D2CDE06C5D438BB /* HuskAppIcon.swift */,
@@ -1015,17 +1024,20 @@
 				6CA4A4E301BCB015E19AF7A8 /* AppWindows.swift in Sources */,
 				853E83FF7FF5B9A7FDE5E638 /* BootScreen.swift in Sources */,
 				7FA5D73DC2780CACC7399534 /* BundleUnpacker.swift in Sources */,
+				13EEBA67589844DCF50836CF /* Compatibility.swift in Sources */,
 				4E1329C07A116B3BE1FDFA7A /* ContentView.swift in Sources */,
 				BE7E302D6F02165C04588DA1 /* CrashReport.swift in Sources */,
 				EBDBC46EF4E65E1DA2342F6B /* DiscoverTab.swift in Sources */,
 				37D68AD43170DA2827B71179 /* Downloads.swift in Sources */,
 				9E74CA82D210C2EE9E6CB09B /* DownloadsTab.swift in Sources */,
+				2B545A13904F3C3CA391F5E5 /* FAQTab.swift in Sources */,
 				48E699E0016694F530355275 /* FilesTab.swift in Sources */,
 				01C829DC8D87A407F2CF98A2 /* GameStatus.swift in Sources */,
 				6EE0DCCC80014D645AC6E23A /* Geode.swift in Sources */,
 				E71E7F636CCD7BBC696B4619 /* GoogleSignInSheet.swift in Sources */,
 				79606C9B3D5AF0CEADE3482D /* GuestImage.swift in Sources */,
 				29B4497EDC1E890D82BDF969 /* GuestManifest.swift in Sources */,
+				29CF21D2D0395FE19CC8D95D /* Holiday.swift in Sources */,
 				581DC803F723FFB10DDA759F /* HuskApp.swift in Sources */,
 				161096C4354197AC83569ECB /* HuskAppIcon.swift in Sources */,
 				BBA9636793435EF7679E62F1 /* HuskAudio.swift in Sources */,

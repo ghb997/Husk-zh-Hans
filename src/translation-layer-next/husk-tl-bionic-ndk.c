@@ -865,6 +865,9 @@ static int b_ASensor_getMinDelay(void *s) { (void)s; return 0; }
 static void *b_media_null(void) { tl_note_once("libmediandk: media decoding is not provided (returning NULL)"); return NULL; }
 static int b_media_err(void) { return MEDIA_ERR; }
 static int b_media_zero(void) { return 0; }
+/* a media format to fill in (players and encoders build one before configuring a codec, which then fails as no codec is here) */
+static void *b_AMediaFormat_new(void) { return calloc(1, 64); }
+static void b_media_noop(void) {}
 
 #define KEY(sym, text) static const char *g_##sym = text;
 KEY(AMEDIAFORMAT_KEY_CHANNEL_COUNT, "channel-count") KEY(AMEDIAFORMAT_KEY_COLOR_FORMAT, "color-format")
@@ -875,6 +878,12 @@ KEY(AMEDIAFORMAT_KEY_LANGUAGE, "language") KEY(AMEDIAFORMAT_KEY_MIME, "mime")
 KEY(AMEDIAFORMAT_KEY_ROTATION, "rotation-degrees") KEY(AMEDIAFORMAT_KEY_SAMPLE_RATE, "sample-rate")
 KEY(AMEDIAFORMAT_KEY_SLICE_HEIGHT, "slice-height") KEY(AMEDIAFORMAT_KEY_STRIDE, "stride")
 KEY(AMEDIAFORMAT_KEY_WIDTH, "width")
+KEY(AMEDIAFORMAT_KEY_BIT_RATE, "bitrate")
+KEY(AMEDIAFORMAT_KEY_I_FRAME_INTERVAL, "i-frame-interval")
+KEY(AMEDIAFORMAT_KEY_MAX_INPUT_SIZE, "max-input-size")
+KEY(AMEDIAFORMAT_KEY_PROFILE, "profile")
+KEY(AMEDIAFORMAT_KEY_LEVEL, "level")
+KEY(AMEDIAFORMAT_KEY_BITRATE_MODE, "bitrate-mode")
 
 #define MEDIA_NULL(n)  TL_WRAP(n, b_media_null)
 #define MEDIA_ERRF(n)  TL_WRAP(n, b_media_err)
@@ -1002,7 +1011,7 @@ const tl_bionic_entry tl_tab_ndk[] = {
     TL_WRAP("ANativeActivity_finish", b_ANativeActivity_noop), TL_WRAP("ANativeActivity_setWindowFormat", b_ANativeActivity_input), TL_WRAP("ANativeActivity_setWindowFlags", b_ANativeActivity_flags),
     TL_WRAP("ANativeActivity_showSoftInput", b_ANativeActivity_input), TL_WRAP("ANativeActivity_hideSoftInput", b_ANativeActivity_input),
     /* sensors */
-    TL_WRAP("ASensorManager_getInstance", b_ASensorManager_getInstance), TL_WRAP("ASensorManager_getDefaultSensor", b_ASensorManager_getDefaultSensor),
+    TL_WRAP("ASensorManager_getInstance", b_ASensorManager_getInstance), TL_WRAP("ASensorManager_getInstanceForPackage", b_ASensorManager_getInstance), TL_WRAP("ASensorManager_getDefaultSensor", b_ASensorManager_getDefaultSensor),
     TL_WRAP("ASensorManager_getSensorList", b_ASensorManager_getSensorList), TL_WRAP("ASensorManager_createEventQueue", b_ASensorManager_createEventQueue),
     TL_WRAP("ASensorManager_destroyEventQueue", b_ASensorManager_destroyEventQueue), TL_WRAP("ASensorEventQueue_enableSensor", b_ASensorEventQueue_enableSensor),
     TL_WRAP("ASensorEventQueue_disableSensor", b_ASensorEventQueue_disableSensor), TL_WRAP("ASensorEventQueue_setEventRate", b_ASensorEventQueue_setEventRate),
@@ -1020,7 +1029,11 @@ const tl_bionic_entry tl_tab_ndk[] = {
     MEDIA_ERRF("AMediaExtractor_readSampleData"), MEDIA_ERRF("AMediaExtractor_getSampleTime"), MEDIA_ERRF("AMediaExtractor_getSampleTrackIndex"),
     TL_WRAP("AMediaExtractor_getTrackCount", b_media_zero), MEDIA_ERRF("AMediaFormat_delete"), MEDIA_ERRF("AMediaFormat_getFloat"),
     MEDIA_ERRF("AMediaFormat_getInt32"), MEDIA_ERRF("AMediaFormat_getInt64"), MEDIA_ERRF("AMediaFormat_getString"),
-    MEDIA_ERRF("AMediaFormat_setInt32"),
+    MEDIA_ERRF("AMediaFormat_setInt32"), TL_WRAP("AMediaFormat_new", b_AMediaFormat_new), TL_WRAP("AMediaFormat_setInt64", b_media_noop),
+    TL_WRAP("AMediaFormat_setFloat", b_media_noop), TL_WRAP("AMediaFormat_setDouble", b_media_noop), TL_WRAP("AMediaFormat_setString", b_media_noop),
+    TL_WRAP("AMediaFormat_setBuffer", b_media_noop), TL_WRAP("AMediaFormat_setSize", b_media_noop),
+    MEDIA_DATA(AMEDIAFORMAT_KEY_BIT_RATE), MEDIA_DATA(AMEDIAFORMAT_KEY_I_FRAME_INTERVAL), MEDIA_DATA(AMEDIAFORMAT_KEY_MAX_INPUT_SIZE),
+    MEDIA_DATA(AMEDIAFORMAT_KEY_PROFILE), MEDIA_DATA(AMEDIAFORMAT_KEY_LEVEL), MEDIA_DATA(AMEDIAFORMAT_KEY_BITRATE_MODE),
     MEDIA_DATA(AMEDIAFORMAT_KEY_CHANNEL_COUNT), MEDIA_DATA(AMEDIAFORMAT_KEY_COLOR_FORMAT), MEDIA_DATA(AMEDIAFORMAT_KEY_COLOR_RANGE),
     MEDIA_DATA(AMEDIAFORMAT_KEY_COLOR_STANDARD), MEDIA_DATA(AMEDIAFORMAT_KEY_DURATION), MEDIA_DATA(AMEDIAFORMAT_KEY_ENCODER_DELAY),
     MEDIA_DATA(AMEDIAFORMAT_KEY_FRAME_RATE), MEDIA_DATA(AMEDIAFORMAT_KEY_HEIGHT), MEDIA_DATA(AMEDIAFORMAT_KEY_LANGUAGE),

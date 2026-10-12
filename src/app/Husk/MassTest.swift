@@ -85,6 +85,27 @@ final class MassTest: ObservableObject {
         runCurrent()
     }
 
+    /// The apps the last test found not running (anything but "Runs…", and "Runs, but drew nothing"), still in the folder.
+    var failures: [String] {
+        guard let s = state else { return [] }
+        let present = Set(Self.apks() ?? [])
+        return s.results.filter { !$0.outcome.hasPrefix("可以运行") || $0.outcome.hasPrefix("可以运行，但未绘制画面") }
+                        .map(\.file).filter { present.contains($0) }
+    }
+
+    /// A new test of only those.
+    func retestFailures() {
+        let files = failures
+        guard !files.isEmpty else { status = "没有需要重新测试的失败项目。"; return }
+        guard !ranThisProcess, husk_native_loaded_apk() == nil else { status = "本次运行已加载游戏。请关闭并重新打开 Husk，再开始测试。"; return }
+        ranThisProcess = true
+        let ids = state?.appIDs ?? [:]
+        state = State(queue: files, index: 0, results: [], appIDs: ids, launched: false, startedAt: Date())
+        save()
+        HuskLog.log("masstest", "retesting \(files.count) failures")
+        runCurrent()
+    }
+
     func stop() {
         HuskLog.log("masstest", "stopped by the user")
         if var s = state { s.queue = Array(s.queue.prefix(s.index)); s.launched = false; state = s; save() }
@@ -102,13 +123,14 @@ final class MassTest: ObservableObject {
             let file = s.queue[s.index]
             var outcome = "Husk 未留下记录便已关闭（可能达到 iOS 内存限制，或被手动关闭）"
             var diagnosis = ""
-            var lines = Self.tail(of: CrashReport.previousLogURL, 80)
+            var lines = Self.crashBlock(of: CrashReport.previousLogURL) + ["--- 此次运行日志末尾 ---"] + Self.tail(of: CrashReport.previousLogURL, 60)
             if let r = crash.pending {
                 outcome = "Husk 已崩溃：\(r.cause.title)"
                 diagnosis = r.cause.detail
                 if !r.excerpt.isEmpty { lines = r.excerpt }
             }
-            lines += ["--- 原生运行日志 ---"] + Self.tail(of: Self.docs.appendingPathComponent("husk-native-prev.log"), 120)
+            let native = Self.docs.appendingPathComponent("husk-native-prev.log")
+            lines += ["--- 原生运行日志 ---"] + Self.crashBlock(of: native) + ["--- 原生运行日志末尾 ---"] + Self.tail(of: native, 80)
             let app = s.appIDs[file].flatMap { id in TranslationLayerStore.shared.apps.first { $0.id == id } }
             s.results.append(Result(file: file, label: app?.label ?? file, package: app?.packageName ?? "", engine: Self.engineName(app),
                                     outcome: outcome, frames: 0, seconds: 0, diagnosis: diagnosis, log: lines))
@@ -230,6 +252,14 @@ final class MassTest: ObservableObject {
         return app.report?.nativeEngine.map { "\($0)" } ?? "classic"
     }
 
+    /// The crash report in a log: from the fatal signal line, its backtrace and registers (the tail alone cut them off).
+    private static func crashBlock(of url: URL) -> [String] {
+        guard let text = try? String(contentsOf: url, encoding: .utf8) else { return [] }
+        let lines = text.components(separatedBy: "\n")
+        guard let i = lines.lastIndex(where: { $0.contains("FATAL SIGNAL") || $0.contains("=== FATAL") || $0.contains("=== CRASH") }) else { return [] }
+        return lines[max(0, i - 10)..<min(lines.count, i + 70)].map { String($0) }
+    }
+
     private static func tail(of url: URL, _ n: Int) -> [String] {
         guard let text = try? String(contentsOf: url, encoding: .utf8) else { return [] }
         return text.components(separatedBy: "\n").suffix(n).map { String($0) }
@@ -290,6 +320,9 @@ struct MassTestView: View {
                     Button("停止", role: .destructive) { test.stop() }
                 } else {
                     Button("开始批量测试") { test.start() }.disabled((files ?? []).isEmpty)
+                    if !test.failures.isEmpty {
+                        Button("重新测试 \(test.failures.count) 个失败项目") { test.retestFailures() }
+                    }
                 }
                 if FileManager.default.fileExists(atPath: MassTest.resultsURL.path) {
                     Button("分享结果") { test.writeReport(); share = true }

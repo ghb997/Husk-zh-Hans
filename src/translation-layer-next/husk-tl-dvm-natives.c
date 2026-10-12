@@ -182,6 +182,9 @@ NAT(String_intern)
     pthread_mutex_unlock(&g_intern_lock);
     return true;
 }
+/* The canonical copy of a string (String.intern): every string literal goes through here, so equal literals are one object across
+ * classes and dex files, as Java promises -- code compares them with == (p4a's AssetExtract: method == "private"). */
+jobj *dvm_intern(jobj *s) { jvalue r; if (!s || !String_intern(s, NULL, &r) || !r.l) return s; return r.l; }
 NAT(String_toCharArray)
 {
     (void)a;

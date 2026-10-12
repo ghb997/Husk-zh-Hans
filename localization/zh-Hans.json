@@ -8026,5 +8026,773 @@
     "line": 212,
     "en": "timed out \\(m)",
     "zh-Hans": "操作超时：\\(m)"
+  },
+  {
+    "file": "src/app/Husk/Compatibility.swift",
+    "line": 304,
+    "en": "Send",
+    "zh-Hans": "发送"
+  },
+  {
+    "file": "src/app/Husk/Compatibility.swift",
+    "line": 297,
+    "en": "Cancel",
+    "zh-Hans": "取消"
+  },
+  {
+    "file": "src/app/Husk/Compatibility.swift",
+    "line": 297,
+    "en": "Not Now",
+    "zh-Hans": "暂不"
+  },
+  {
+    "file": "src/app/Husk/Compatibility.swift",
+    "line": 293,
+    "en": "Report",
+    "zh-Hans": "运行反馈"
+  },
+  {
+    "file": "src/app/Husk/Compatibility.swift",
+    "line": 293,
+    "en": "Thanks!",
+    "zh-Hans": "感谢反馈！"
+  },
+  {
+    "file": "src/app/Husk/Compatibility.swift",
+    "line": 287,
+    "en": "Sent with it: \\(CompatibilityStore.device), iOS \\(UIDevice.current.systemVersion), Husk build \\(CompatibilityStore.build), JIT from \\(CompatibilityStore.jitMethod). It shows on antiweb.lol for everyone.",
+    "zh-Hans": "反馈将包含：\\(CompatibilityStore.device)、iOS \\(UIDevice.current.systemVersion)、Husk 构建 \\(CompatibilityStore.build)、JIT 方式 \\(CompatibilityStore.jitMethodLabel)。这些信息会在 antiweb.lol 上公开显示。"
+  },
+  {
+    "file": "src/app/Husk/Compatibility.swift",
+    "line": 285,
+    "en": "Your Name",
+    "zh-Hans": "你的名字"
+  },
+  {
+    "file": "src/app/Husk/Compatibility.swift",
+    "line": 281,
+    "en": "Anonymous",
+    "zh-Hans": "匿名"
+  },
+  {
+    "file": "src/app/Husk/Compatibility.swift",
+    "line": 277,
+    "en": "What worked, what didn\\u{2019}t, how far you got",
+    "zh-Hans": "哪些功能正常、遇到了什么问题、运行到哪个步骤"
+  },
+  {
+    "file": "src/app/Husk/Compatibility.swift",
+    "line": 276,
+    "en": "Notes",
+    "zh-Hans": "补充说明"
+  },
+  {
+    "file": "src/app/Husk/Compatibility.swift",
+    "line": 274,
+    "en": "How does \\(subject.name) run?",
+    "zh-Hans": "\\(subject.name) 的运行情况如何？"
+  },
+  {
+    "file": "src/app/Husk/Compatibility.swift",
+    "line": 274,
+    "en": "How did \\(subject.name) run?",
+    "zh-Hans": "\\(subject.name) 这次运行情况如何？"
+  },
+  {
+    "file": "src/app/Husk/Compatibility.swift",
+    "line": 266,
+    "en": "Opens, but Has Problems",
+    "zh-Hans": "可以打开，但存在问题"
+  },
+  {
+    "file": "src/app/Husk/Compatibility.swift",
+    "line": 243,
+    "en": "Tested by the Husk team on an iPhone.",
+    "zh-Hans": "已由 Husk 团队在 iPhone 上测试。"
+  },
+  {
+    "file": "src/app/Husk/Compatibility.swift",
+    "line": 239,
+    "en": "Open on antiweb.lol",
+    "zh-Hans": "在 antiweb.lol 中查看"
+  },
+  {
+    "file": "src/app/Husk/Compatibility.swift",
+    "line": 238,
+    "en": "Report How It Ran",
+    "zh-Hans": "反馈运行情况"
+  },
+  {
+    "file": "src/app/Husk/Compatibility.swift",
+    "line": 235,
+    "en": "Not on the list yet. Be the first to say how it runs.",
+    "zh-Hans": "此应用尚未收录，欢迎率先反馈运行情况。"
+  },
+  {
+    "file": "src/app/Husk/Compatibility.swift",
+    "line": 232,
+    "en": "Player Reports",
+    "zh-Hans": "玩家反馈数"
+  },
+  {
+    "file": "src/app/Husk/Compatibility.swift",
+    "line": 180,
+    "en": "The compatibility list could not be reached.",
+    "zh-Hans": "无法连接兼容性列表服务。"
+  },
+  {
+    "file": "src/app/Husk/Compatibility.swift",
+    "line": 76,
+    "en": "Refuses to run outside a real Android phone (anti-cheat, anti-tamper or DRM). Husk does not get around that.",
+    "zh-Hans": "由于反作弊、防篡改或 DRM 保护，该应用只能在真实的 Android 手机上运行。Husk 无法绕过这些限制。"
+  },
+  {
+    "file": "src/app/Husk/Compatibility.swift",
+    "line": 75,
+    "en": "Crashes or closes while starting.",
+    "zh-Hans": "启动时崩溃或退出。"
+  },
+  {
+    "file": "src/app/Husk/Compatibility.swift",
+    "line": 74,
+    "en": "Starts and shows its screens, but has not been fully tested or has problems.",
+    "zh-Hans": "能够启动并显示界面，但尚未充分测试或存在问题。"
+  },
+  {
+    "file": "src/app/Husk/Compatibility.swift",
+    "line": 73,
+    "en": "Runs and plays or works normally.",
+    "zh-Hans": "可以正常运行和使用。"
+  },
+  {
+    "file": "src/app/Husk/Compatibility.swift",
+    "line": 52,
+    "en": "Protected",
+    "zh-Hans": "受保护"
+  },
+  {
+    "file": "src/app/Husk/Compatibility.swift",
+    "line": 51,
+    "en": "Doesn\\u{2019}t Work",
+    "zh-Hans": "无法运行"
+  },
+  {
+    "file": "src/app/Husk/Compatibility.swift",
+    "line": 50,
+    "en": "Opens",
+    "zh-Hans": "可以打开"
+  },
+  {
+    "file": "src/app/Husk/Compatibility.swift",
+    "line": 49,
+    "en": "Works",
+    "zh-Hans": "正常运行"
+  },
+  {
+    "file": "src/app/Husk/ContentView.swift",
+    "line": 65,
+    "en": "FAQ",
+    "zh-Hans": "常见问题"
+  },
+  {
+    "file": "src/app/Husk/CrashReport.swift",
+    "line": 212,
+    "en": "Report to the Compatibility List",
+    "zh-Hans": "提交兼容性反馈"
+  },
+  {
+    "file": "src/app/Husk/MassTest.swift",
+    "line": 324,
+    "en": "Retest \\(test.failures.count) Failures",
+    "zh-Hans": "重新测试 \\(test.failures.count) 个失败项目"
+  },
+  {
+    "file": "src/app/Husk/MassTest.swift",
+    "line": 133,
+    "en": "--- end of the native log ---",
+    "zh-Hans": "--- 原生运行日志末尾 ---"
+  },
+  {
+    "file": "src/app/Husk/MassTest.swift",
+    "line": 126,
+    "en": "--- end of that run's log ---",
+    "zh-Hans": "--- 此次运行日志末尾 ---"
+  },
+  {
+    "file": "src/app/Husk/MassTest.swift",
+    "line": 99,
+    "en": "No failures to retest.",
+    "zh-Hans": "没有需要重新测试的失败项目。"
+  },
+  {
+    "file": "src/app/Husk/SettingsTab.swift",
+    "line": 714,
+    "en": "Holiday Decorations",
+    "zh-Hans": "节日装饰"
+  },
+  {
+    "file": "src/app/Husk/SettingsTab.swift",
+    "line": 82,
+    "en": "with your device, iOS version, Husk build and JIT method.",
+    "zh-Hans": "并附带设备型号、iOS 版本、Husk 构建版本和 JIT 开启方式。"
+  },
+  {
+    "file": "src/app/Husk/SettingsTab.swift",
+    "line": 81,
+    "en": "Game pages and the Store show how each app runs for everyone, from antiweb.lol. Your reports go there ",
+    "zh-Hans": "游戏页面和商店会显示 antiweb.lol 上汇总的运行情况。你的反馈也会提交到该网站，"
+  },
+  {
+    "file": "src/app/Husk/SettingsTab.swift",
+    "line": 79,
+    "en": "Compatibility",
+    "zh-Hans": "兼容性"
+  },
+  {
+    "file": "src/app/Husk/SettingsTab.swift",
+    "line": 76,
+    "en": "Compatibility List",
+    "zh-Hans": "兼容性列表"
+  },
+  {
+    "file": "src/app/Husk/SettingsTab.swift",
+    "line": 62,
+    "en": "After playing, once per game per update",
+    "zh-Hans": "游戏结束后询问，每次更新后每个游戏仅询问一次"
+  },
+  {
+    "file": "src/app/Husk/SettingsTab.swift",
+    "line": 61,
+    "en": "Ask How Games Ran",
+    "zh-Hans": "询问游戏运行情况"
+  },
+  {
+    "file": "src/app/Husk/FAQTab.swift",
+    "line": 151,
+    "en": "After that Husk restores a saved machine, which is much faster.",
+    "zh-Hans": "之后 Husk 会从系统快照恢复，启动速度会快得多。"
+  },
+  {
+    "file": "src/app/Husk/FAQTab.swift",
+    "line": 150,
+    "en": "The first start downloads the Android image and boots it from cold, which takes a few minutes. ",
+    "zh-Hans": "首次启动需要下载 Android 镜像并进行冷启动，可能需要几分钟。"
+  },
+  {
+    "file": "src/app/Husk/FAQTab.swift",
+    "line": 149,
+    "en": "Android takes a long time to start",
+    "zh-Hans": "Android 启动很慢"
+  },
+  {
+    "file": "src/app/Husk/FAQTab.swift",
+    "line": 148,
+    "en": "slower option for anything that only runs inside real Android.",
+    "zh-Hans": "速度较慢，用于那些只能在完整 Android 环境中运行的应用。"
+  },
+  {
+    "file": "src/app/Husk/FAQTab.swift",
+    "line": 147,
+    "en": "Most apps and games run directly on your iPhone, the way native apps do. The full Android system is a separate, ",
+    "zh-Hans": "大部分应用和游戏可以像原生应用一样直接在 iPhone 上运行。完整 Android 系统是独立的运行方式，"
+  },
+  {
+    "file": "src/app/Husk/FAQTab.swift",
+    "line": 146,
+    "en": "What is the difference between apps and Android?",
+    "zh-Hans": "直接运行应用与启动 Android 有什么区别？"
+  },
+  {
+    "file": "src/app/Husk/FAQTab.swift",
+    "line": 143,
+    "en": "The full Android system download is about 2 GB more and is only needed for Android itself.",
+    "zh-Hans": "完整 Android 系统还需要下载约 2 GB 数据，只有运行 Android 系统时才需要。"
+  },
+  {
+    "file": "src/app/Husk/FAQTab.swift",
+    "line": 142,
+    "en": "Imported apps and their data live in Husk's folder. Remove games you no longer play from their page. ",
+    "zh-Hans": "导入的应用及其数据都保存在 Husk 文件夹中。可在游戏页面删除不再游玩的游戏。"
+  },
+  {
+    "file": "src/app/Husk/FAQTab.swift",
+    "line": 141,
+    "en": "Husk is using a lot of storage",
+    "zh-Hans": "Husk 占用了大量存储空间"
+  },
+  {
+    "file": "src/app/Husk/FAQTab.swift",
+    "line": 140,
+    "en": "including onto another iPhone.",
+    "zh-Hans": "也可以导入到另一台 iPhone。"
+  },
+  {
+    "file": "src/app/Husk/FAQTab.swift",
+    "line": 139,
+    "en": "Each app keeps its data inside Husk. On an app's page, **Back Up Saves** exports them and **Restore Saves** brings them back, ",
+    "zh-Hans": "每个应用的数据都保存在 Husk 内。在应用页面中，**备份存档**可导出数据，**恢复存档**可将其导入，"
+  },
+  {
+    "file": "src/app/Husk/FAQTab.swift",
+    "line": 138,
+    "en": "Where are my saves?",
+    "zh-Hans": "存档保存在哪里？"
+  },
+  {
+    "file": "src/app/Husk/FAQTab.swift",
+    "line": 137,
+    "en": "Saves and Storage",
+    "zh-Hans": "存档和存储空间"
+  },
+  {
+    "file": "src/app/Husk/FAQTab.swift",
+    "line": 135,
+    "en": "Husk has no Google Play services, so “Sign in with Google” buttons can fail. Use email or another sign-in if the app offers one.",
+    "zh-Hans": "Husk 不提供完整的 Google Play 服务，因此“使用 Google 登录”可能失败。如果应用支持，请尝试邮箱或其他登录方式。"
+  },
+  {
+    "file": "src/app/Husk/FAQTab.swift",
+    "line": 134,
+    "en": "Sign-in with Google does not work",
+    "zh-Hans": "无法使用 Google 登录"
+  },
+  {
+    "file": "src/app/Husk/FAQTab.swift",
+    "line": 133,
+    "en": "Turn on **Open Apps in Windows** in Settings. Apps then open in a window you can move, resize and minimise.",
+    "zh-Hans": "在设置中开启**在窗口中打开应用**。之后应用会在可移动、调整大小和最小化的窗口中打开。"
+  },
+  {
+    "file": "src/app/Husk/FAQTab.swift",
+    "line": 132,
+    "en": "Can I use Husk while a game runs?",
+    "zh-Hans": "游戏运行时还能使用 Husk 吗？"
+  },
+  {
+    "file": "src/app/Husk/FAQTab.swift",
+    "line": 131,
+    "en": "Yes. Connect it to your iPhone in Bluetooth settings, and games that support controllers see it.",
+    "zh-Hans": "可以。在 iPhone 的蓝牙设置中连接手柄，支持手柄的游戏即可识别。"
+  },
+  {
+    "file": "src/app/Husk/FAQTab.swift",
+    "line": 130,
+    "en": "Can I use a controller?",
+    "zh-Hans": "可以使用手柄吗？"
+  },
+  {
+    "file": "src/app/Husk/FAQTab.swift",
+    "line": 129,
+    "en": "Low Power Mode slows Husk down too.",
+    "zh-Hans": "低电量模式也会降低 Husk 的运行速度。"
+  },
+  {
+    "file": "src/app/Husk/FAQTab.swift",
+    "line": 128,
+    "en": "Close other apps and let the phone cool. Games run natively, but some do work on the CPU that a real Android phone does on hardware. ",
+    "zh-Hans": "请关闭其他应用并让手机降温。虽然游戏采用原生方式运行，但某些原本由 Android 硬件处理的任务需要由 CPU 完成。"
+  },
+  {
+    "file": "src/app/Husk/FAQTab.swift",
+    "line": 127,
+    "en": "A game runs slowly or the phone gets hot",
+    "zh-Hans": "游戏运行缓慢或手机发热"
+  },
+  {
+    "file": "src/app/Husk/FAQTab.swift",
+    "line": 126,
+    "en": ".apk, and split bundles as .apks, .xapk or .apkm. Share them to Husk, open them from Files, or tap + in the Library.",
+    "zh-Hans": "支持 .apk，以及 .apks、.xapk、.apkm 格式的拆分安装包。可将文件分享到 Husk、从“文件”中打开，或点按应用库中的“+”。"
+  },
+  {
+    "file": "src/app/Husk/FAQTab.swift",
+    "line": 125,
+    "en": "Which files can I import?",
+    "zh-Hans": "可以导入哪些文件？"
+  },
+  {
+    "file": "src/app/Husk/FAQTab.swift",
+    "line": 124,
+    "en": "and these break more often. Try the original APK from the developer or from APKMirror.",
+    "zh-Hans": "因此更容易出现兼容性问题。请尝试开发者或 APKMirror 提供的原始 APK。"
+  },
+  {
+    "file": "src/app/Husk/FAQTab.swift",
+    "line": 123,
+    "en": "Repacks from sites like APKVISION often turn the app's code into their own library or add tamper checks, ",
+    "zh-Hans": "APKVISION 等网站重新打包的应用可能将原代码封装到自定义库中，或加入防篡改检查，"
+  },
+  {
+    "file": "src/app/Husk/FAQTab.swift",
+    "line": 122,
+    "en": "A modded or repacked APK crashes",
+    "zh-Hans": "修改版或重新打包的 APK 发生崩溃"
+  },
+  {
+    "file": "src/app/Husk/FAQTab.swift",
+    "line": 121,
+    "en": "If it is still black after that, close it, open it once more and share the report if nothing changes.",
+    "zh-Hans": "如果之后仍然黑屏，请关闭并重新打开一次；若问题依旧，可分享运行报告。"
+  },
+  {
+    "file": "src/app/Husk/FAQTab.swift",
+    "line": 120,
+    "en": "The first launch of a big game prepares its code and data, and can take up to a minute. ",
+    "zh-Hans": "大型游戏首次启动时需要准备代码和数据，可能需要一分钟。"
+  },
+  {
+    "file": "src/app/Husk/FAQTab.swift",
+    "line": 119,
+    "en": "The screen stays black",
+    "zh-Hans": "屏幕一直是黑的"
+  },
+  {
+    "file": "src/app/Husk/FAQTab.swift",
+    "line": 118,
+    "en": "• **Uses something Husk does not have yet:** share the report so it can be added.",
+    "zh-Hans": "• **使用了 Husk 尚未支持的功能：**请分享报告，帮助开发者补充支持。"
+  },
+  {
+    "file": "src/app/Husk/FAQTab.swift",
+    "line": 117,
+    "en": "• **Needs Google:** the app requires a Google account or Play services Husk cannot provide.\\n",
+    "zh-Hans": "• **需要 Google：**应用依赖 Google 账户或 Husk 无法提供的 Play 服务。\\n"
+  },
+  {
+    "file": "src/app/Husk/FAQTab.swift",
+    "line": 116,
+    "en": "• **Incomplete app or missing game data:** the APK needs its split files or an OBB. Import the full .apks, .xapk or .apkm.\\n",
+    "zh-Hans": "• **应用不完整或缺少游戏数据：**APK 还需要拆分文件或 OBB 数据包。请导入完整的 .apks、.xapk 或 .apkm 文件。\\n"
+  },
+  {
+    "file": "src/app/Husk/FAQTab.swift",
+    "line": 115,
+    "en": "• **Wrong kind of CPU code:** the APK only has 32-bit code. Find an arm64 (arm64-v8a) version.\\n",
+    "zh-Hans": "• **CPU 架构不匹配：**APK 仅包含 32 位代码。请寻找 arm64（arm64-v8a）版本。\\n"
+  },
+  {
+    "file": "src/app/Husk/FAQTab.swift",
+    "line": 114,
+    "en": "• **Protected app:** it checks that it is on a real Android phone, or uses anti-cheat or DRM. Husk does not get around these.\\n",
+    "zh-Hans": "• **受保护的应用：**应用会检测真实 Android 设备，或采用反作弊、DRM 保护。Husk 无法绕过这些限制。\\n"
+  },
+  {
+    "file": "src/app/Husk/FAQTab.swift",
+    "line": 113,
+    "en": "Open its page in the Library. Husk says why it stopped:\\n",
+    "zh-Hans": "在应用库中打开该应用的页面，Husk 会说明停止运行的原因：\\n"
+  },
+  {
+    "file": "src/app/Husk/FAQTab.swift",
+    "line": 112,
+    "en": "An app will not open",
+    "zh-Hans": "应用无法打开"
+  },
+  {
+    "file": "src/app/Husk/FAQTab.swift",
+    "line": 111,
+    "en": "Apps and Games",
+    "zh-Hans": "应用和游戏"
+  },
+  {
+    "file": "src/app/Husk/FAQTab.swift",
+    "line": 109,
+    "en": "Your library, apps and saves are kept.",
+    "zh-Hans": "即可保留应用库、应用和存档。"
+  },
+  {
+    "file": "src/app/Husk/FAQTab.swift",
+    "line": 108,
+    "en": "Husk tells you when a new version is out. Install the new IPA over the old one with the same sideloader. ",
+    "zh-Hans": "有新版本时 Husk 会提示。使用原来的侧载工具将新版 IPA 覆盖安装到旧版上，"
+  },
+  {
+    "file": "src/app/Husk/FAQTab.swift",
+    "line": 107,
+    "en": "How do I update Husk?",
+    "zh-Hans": "如何更新 Husk？"
+  },
+  {
+    "file": "src/app/Husk/FAQTab.swift",
+    "line": 106,
+    "en": "Settings › About › **Open Console**. Turning on **Developer Info** there adds more detail.",
+    "zh-Hans": "“设置 › 关于 › **打开控制台**”。开启**开发者信息**后可查看更详细的内容。"
+  },
+  {
+    "file": "src/app/Husk/FAQTab.swift",
+    "line": 105,
+    "en": "Open the app's page in your Library and tap **Share Report**. For Husk's own log, go to ",
+    "zh-Hans": "在应用库中打开对应应用的页面，点按**分享报告**。如需 Husk 自身的日志，请前往"
+  },
+  {
+    "file": "src/app/Husk/FAQTab.swift",
+    "line": 104,
+    "en": "How do I get logs to report a problem?",
+    "zh-Hans": "如何获取日志以反馈问题？"
+  },
+  {
+    "file": "src/app/Husk/FAQTab.swift",
+    "line": 103,
+    "en": "or hit something Husk does not support yet. Close other apps, and share the report if it keeps happening.",
+    "zh-Hans": "或使用了 Husk 尚不支持的功能。请关闭其他应用；如果问题持续出现，可分享报告以协助排查。"
+  },
+  {
+    "file": "src/app/Husk/FAQTab.swift",
+    "line": 102,
+    "en": "When Husk opens again it shows what happened, with a report you can share. Usually the game ran out of memory ",
+    "zh-Hans": "重新打开 Husk 后会显示出错原因，并提供可分享的报告。通常是游戏内存不足，"
+  },
+  {
+    "file": "src/app/Husk/FAQTab.swift",
+    "line": 101,
+    "en": "Husk closed while I was playing",
+    "zh-Hans": "游玩过程中 Husk 退出了"
+  },
+  {
+    "file": "src/app/Husk/FAQTab.swift",
+    "line": 100,
+    "en": "• **Asks for Developer Mode:** turn it on in Settings › Privacy & Security.",
+    "zh-Hans": "• **要求开启开发者模式：**前往“系统设置 › 隐私与安全性”开启。"
+  },
+  {
+    "file": "src/app/Husk/FAQTab.swift",
+    "line": 99,
+    "en": "• **“Untrusted Developer”:** go to Settings › General › VPN & Device Management and trust your certificate.\\n",
+    "zh-Hans": "• **提示“不受信任的开发者”：**前往“系统设置 › 通用 › VPN 与设备管理”，信任对应证书。\\n"
+  },
+  {
+    "file": "src/app/Husk/FAQTab.swift",
+    "line": 98,
+    "en": "Re-sign or reinstall Husk with your sideloader; your apps and saves stay.\\n",
+    "zh-Hans": "请使用侧载工具重新签名或覆盖安装 Husk，以保留应用和存档。\\n"
+  },
+  {
+    "file": "src/app/Husk/FAQTab.swift",
+    "line": 97,
+    "en": "• **Opens and closes instantly:** the signing certificate has probably expired. Free Apple accounts last 7 days. ",
+    "zh-Hans": "• **打开后立即退出：**签名证书可能已过期，免费 Apple 账户的签名有效期为 7 天。"
+  },
+  {
+    "file": "src/app/Husk/FAQTab.swift",
+    "line": 96,
+    "en": "Husk will not open at all",
+    "zh-Hans": "Husk 完全无法打开"
+  },
+  {
+    "file": "src/app/Husk/FAQTab.swift",
+    "line": 95,
+    "en": "Husk Itself",
+    "zh-Hans": "Husk 本身"
+  },
+  {
+    "file": "src/app/Husk/FAQTab.swift",
+    "line": 93,
+    "en": "You can browse and import apps, but nothing Android can run. Every game and app needs JIT.",
+    "zh-Hans": "可以浏览和导入应用，但无法运行 Android 应用。运行游戏和应用都需要 JIT。"
+  },
+  {
+    "file": "src/app/Husk/FAQTab.swift",
+    "line": 92,
+    "en": "Can I use Husk without JIT?",
+    "zh-Hans": "不开启 JIT 可以使用 Husk 吗？"
+  },
+  {
+    "file": "src/app/Husk/FAQTab.swift",
+    "line": 91,
+    "en": "the next launch needs JIT again. With Pair on this iPhone or a pairing file it is one tap.",
+    "zh-Hans": "下次启动时需要重新开启 JIT。完成本机配对或导入配对文件后，只需点按一次即可开启。"
+  },
+  {
+    "file": "src/app/Husk/FAQTab.swift",
+    "line": 90,
+    "en": "JIT lasts as long as Husk is running. When iOS closes Husk in the background, or you swipe it away, ",
+    "zh-Hans": "JIT 仅在 Husk 当前运行期间有效。iOS 在后台关闭 Husk，或你手动将它划掉后，"
+  },
+  {
+    "file": "src/app/Husk/FAQTab.swift",
+    "line": 89,
+    "en": "Why do I have to turn JIT on again?",
+    "zh-Hans": "为什么需要再次开启 JIT？"
+  },
+  {
+    "file": "src/app/Husk/FAQTab.swift",
+    "line": 88,
+    "en": "Update StikDebug to the latest release. Husk sends StikDebug its script itself, so nothing needs setting up for Husk inside StikDebug.",
+    "zh-Hans": "请将 StikDebug 更新至最新版。Husk 会自动将脚本发送给 StikDebug，无需在其中为 Husk 额外配置。"
+  },
+  {
+    "file": "src/app/Husk/FAQTab.swift",
+    "line": 87,
+    "en": "Open StikDebug on its own and check that it has your pairing file and that LocalDevVPN is connected. ",
+    "zh-Hans": "单独打开 StikDebug，确认已导入配对文件，并且 LocalDevVPN 已连接。"
+  },
+  {
+    "file": "src/app/Husk/FAQTab.swift",
+    "line": 86,
+    "en": "StikDebug opens but JIT stays off",
+    "zh-Hans": "StikDebug 已打开，但 JIT 仍未开启"
+  },
+  {
+    "file": "src/app/Husk/FAQTab.swift",
+    "line": 85,
+    "en": "Make a new one, or pair on the iPhone itself if you are on iOS 27, then import it again in Settings › JIT.",
+    "zh-Hans": "请重新生成并在“设置 › JIT”中导入配对文件；iOS 27 用户也可直接在 iPhone 上重新配对。"
+  },
+  {
+    "file": "src/app/Husk/FAQTab.swift",
+    "line": 84,
+    "en": "Pairing files stop working when the iPhone's trust settings are reset, and sometimes after an iOS update. ",
+    "zh-Hans": "重置 iPhone 的信任设置后，配对文件会失效；部分 iOS 更新也可能导致失效。"
+  },
+  {
+    "file": "src/app/Husk/FAQTab.swift",
+    "line": 83,
+    "en": "My pairing file stopped working",
+    "zh-Hans": "配对文件失效了"
+  },
+  {
+    "file": "src/app/Husk/FAQTab.swift",
+    "line": 82,
+    "en": "Developer Mode must already be enabled, which restarts the iPhone the first time.",
+    "zh-Hans": "需要提前开启开发者模式，首次开启时 iPhone 会重新启动。"
+  },
+  {
+    "file": "src/app/Husk/FAQTab.swift",
+    "line": 81,
+    "en": "turn it on in Settings › Privacy & Security › Local Network › Husk. Wi-Fi has to be on. ",
+    "zh-Hans": "请前往“系统设置 › 隐私与安全性 › 本地网络 › Husk”开启。Wi-Fi 也必须开启。"
+  },
+  {
+    "file": "src/app/Husk/FAQTab.swift",
+    "line": 80,
+    "en": "Tap **Start pairing** in Husk first and allow **Local Network** access when asked. If you said no earlier, ",
+    "zh-Hans": "先在 Husk 中点按**开始配对**，并在提示时允许访问**本地网络**。如果之前拒绝了此权限，"
+  },
+  {
+    "file": "src/app/Husk/FAQTab.swift",
+    "line": 79,
+    "en": "“Pair with Husk” does not appear in Developer Mode",
+    "zh-Hans": "开发者模式中没有显示“与 Husk 配对”"
+  },
+  {
+    "file": "src/app/Husk/FAQTab.swift",
+    "line": 78,
+    "en": "5. Still failing? Toggle LocalDevVPN off and on, then pair again.",
+    "zh-Hans": "5. 如果仍然失败，请断开并重新连接 LocalDevVPN，然后重新配对。"
+  },
+  {
+    "file": "src/app/Husk/FAQTab.swift",
+    "line": 77,
+    "en": "4. The first time, Husk downloads Apple's Developer Disk Image, which can take a minute. Let it finish.\\n",
+    "zh-Hans": "4. 首次使用时，Husk 会下载 Apple 开发者磁盘映像，可能需要一分钟，请等待完成。\\n"
+  },
+  {
+    "file": "src/app/Husk/FAQTab.swift",
+    "line": 76,
+    "en": "3. **Developer Mode** must be on (Settings › Privacy & Security › Developer Mode).\\n",
+    "zh-Hans": "3. 开启**开发者模式**（系统设置 › 隐私与安全性 › 开发者模式）。\\n"
+  },
+  {
+    "file": "src/app/Husk/FAQTab.swift",
+    "line": 75,
+    "en": "2. Wi-Fi must be on, even though nothing leaves your iPhone.\\n",
+    "zh-Hans": "2. 必须开启 Wi-Fi，配对通信仅在本机进行。\\n"
+  },
+  {
+    "file": "src/app/Husk/FAQTab.swift",
+    "line": 74,
+    "en": "1. Make sure **LocalDevVPN** is installed and connected. The VPN icon should be in the status bar.\\n",
+    "zh-Hans": "1. 确认已安装并连接 **LocalDevVPN**，状态栏应显示 VPN 图标。\\n"
+  },
+  {
+    "file": "src/app/Husk/FAQTab.swift",
+    "line": 73,
+    "en": "StikJIT says it cannot connect, or Enable JIT fails",
+    "zh-Hans": "StikJIT 提示无法连接，或开启 JIT 失败"
+  },
+  {
+    "file": "src/app/Husk/FAQTab.swift",
+    "line": 72,
+    "en": "• **Jailbroken with Dopamine:** turn on JIT for apps in the jailbreak's settings.",
+    "zh-Hans": "• **使用 Dopamine 越狱：**在越狱工具设置中为应用开启 JIT。"
+  },
+  {
+    "file": "src/app/Husk/FAQTab.swift",
+    "line": 71,
+    "en": "• **Installed with TrollStore:** TrollStore, with its URL Scheme setting on.\\n",
+    "zh-Hans": "• **通过 TrollStore 安装：**使用 TrollStore，并开启其 URL Scheme 设置。\\n"
+  },
+  {
+    "file": "src/app/Husk/FAQTab.swift",
+    "line": 70,
+    "en": "• **Older iOS, or Husk inside LiveContainer:** the StikDebug app.\\n",
+    "zh-Hans": "• **较早的 iOS，或在 LiveContainer 中运行 Husk：**使用 StikDebug 应用。\\n"
+  },
+  {
+    "file": "src/app/Husk/FAQTab.swift",
+    "line": 69,
+    "en": "• **iOS 26:** StikJIT (built in) with a pairing file made on a computer, plus LocalDevVPN.\\n",
+    "zh-Hans": "• **iOS 26：**使用内置 StikJIT，导入在电脑上生成的配对文件，并连接 LocalDevVPN。\\n"
+  },
+  {
+    "file": "src/app/Husk/FAQTab.swift",
+    "line": 68,
+    "en": "• **iOS 27 or later:** Settings › JIT › Pair on this iPhone. No computer needed.\\n",
+    "zh-Hans": "• **iOS 27 及更新版本：**前往“设置 › JIT › 在此 iPhone 上配对”，无需电脑。\\n"
+  },
+  {
+    "file": "src/app/Husk/FAQTab.swift",
+    "line": 67,
+    "en": "Which way of turning on JIT should I use?",
+    "zh-Hans": "应该选择哪种 JIT 开启方式？"
+  },
+  {
+    "file": "src/app/Husk/FAQTab.swift",
+    "line": 66,
+    "en": "Without it, Husk can show your library but cannot start Android or a game.",
+    "zh-Hans": "没有 JIT 时，你可以浏览应用库，但无法启动 Android 或游戏。"
+  },
+  {
+    "file": "src/app/Husk/FAQTab.swift",
+    "line": 65,
+    "en": "iOS only allows that while a debugger is attached to the app. Turning on JIT attaches one for a moment. ",
+    "zh-Hans": "iOS 通常只允许已附加调试器的应用使用这种内存。开启 JIT 时会短暂附加调试器。"
+  },
+  {
+    "file": "src/app/Husk/FAQTab.swift",
+    "line": 64,
+    "en": "Android apps and games are compiled while they run, which needs memory that can be written and then run. ",
+    "zh-Hans": "Android 应用和游戏需要在运行时编译代码，因此需要能够先写入、再执行的内存。"
+  },
+  {
+    "file": "src/app/Husk/FAQTab.swift",
+    "line": 63,
+    "en": "What is JIT, and why does Husk need it?",
+    "zh-Hans": "什么是 JIT？Husk 为什么需要它？"
+  },
+  {
+    "file": "src/app/Husk/FAQTab.swift",
+    "line": 34,
+    "en": "Search problems",
+    "zh-Hans": "搜索问题"
+  },
+  {
+    "file": "src/app/Husk/FAQTab.swift",
+    "line": 33,
+    "en": "FAQ",
+    "zh-Hans": "常见问题"
+  },
+  {
+    "file": "src/app/Husk/FAQTab.swift",
+    "line": 29,
+    "en": "Nothing matches “\\(query)”. Open Settings › About › Open Console to see what Husk is doing.",
+    "zh-Hans": "没有找到与“\\(query)”匹配的问题。可前往“设置 › 关于 › 打开控制台”查看 Husk 的运行日志。"
+  },
+  {
+    "file": "src/app/Husk/Compatibility.swift",
+    "line": 241,
+    "en": "Compatibility",
+    "zh-Hans": "兼容性"
   }
 ]

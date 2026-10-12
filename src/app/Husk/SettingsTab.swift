@@ -5,6 +5,7 @@ import SwiftUI
 /// push a page of their own. What belongs to the app, what belongs to the emulator, and what the thing is.
 struct SettingsTab: View {
     @AppStorage(AppWindows.defaultKey) private var multitask = false
+    @AppStorage(CompatibilityStore.askKey) private var askCompat = true
 
     var body: some View {
         NavigationStack {
@@ -51,6 +52,34 @@ struct SettingsTab: View {
                 } footer: {
                     Text("应用和游戏将在可移动、缩放及最小化到程序坞的窗口中打开，类似 LiveContainer 的多任务功能。"
                        + "也可在每个应用的设置中单独选择打开方式。")
+                }
+
+                Section {
+                    Toggle(isOn: $askCompat) {
+                        Label {
+                            VStack(alignment: .leading, spacing: 1) {
+                                Text("询问游戏运行情况")
+                                Text("游戏结束后询问，每次更新后每个游戏仅询问一次").font(.caption).foregroundStyle(.secondary).lineLimit(1)
+                            }
+                        } icon: {
+                            RoundedRectangle(cornerRadius: 7, style: .continuous)
+                                .fill(Color.green.gradient)
+                                .frame(width: 30, height: 30)
+                                .overlay {
+                                    Image(systemName: "list.bullet.clipboard")
+                                        .font(.system(size: 14, weight: .medium))
+                                        .foregroundStyle(.white)
+                                }
+                        }
+                    }
+                    Link(destination: CompatibilityStore.site) {
+                        Label("兼容性列表", systemImage: "safari")
+                    }
+                } header: {
+                    Text("兼容性")
+                } footer: {
+                    Text("游戏页面和商店会显示 antiweb.lol 上汇总的运行情况。你的反馈也会提交到该网站，"
+                       + "并附带设备型号、iOS 版本、Husk 构建版本和 JIT 开启方式。")
                 }
 
                 Section("模拟器") {
@@ -665,6 +694,7 @@ struct SavedMachineSettings: View {
 struct AppearanceSettings: View {
     @State private var appIcon = HuskAppIcon.current
     @AppStorage(Theme.Appearance.key) private var appearance = Theme.Appearance.system
+    @AppStorage(Holiday.key) private var holiday = true
     @ObservedObject private var theme = AppTheme.shared
     @Environment(\.colorScheme) private var scheme
     @State private var custom: Color = AppTheme.shared.accentColor
@@ -681,6 +711,7 @@ struct AppearanceSettings: View {
                 .onChange(of: appearance) { v in
                     HuskLog.log("ui", "appearance: \(v.rawValue)")
                 }
+                Toggle("节日装饰", isOn: $holiday)
             } header: {
                 Text("主题")
             } footer: {

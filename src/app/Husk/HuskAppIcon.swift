@@ -95,6 +95,7 @@ enum HuskTab: String, CaseIterable, Identifiable {
     case home
     case library
     case store
+    case help
     case settings
 
     var id: String { rawValue }

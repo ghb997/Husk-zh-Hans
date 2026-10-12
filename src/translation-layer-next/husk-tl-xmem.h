@@ -58,6 +58,9 @@ void tl_xmem_flush(const void *rx, size_t bytes);
 size_t tl_xmem_used(void);
 size_t tl_xmem_size(void);
 
+/* Whether p is within dist bytes of the executable region (a JIT asking for code memory near its own code). */
+bool tl_xmem_near(const void *p, size_t dist);
+
 #ifdef __cplusplus
 }
 #endif

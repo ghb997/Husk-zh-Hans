@@ -79,6 +79,17 @@ enum JITBootstrap {
             return false
         }
         if !isDebuggerAttached { selfGrantTried = true }
+        // Before iOS 26, unless StikDebug's script is what attached, no brk: TrollStore's enable-jit (and its Open with JIT)
+        // attaches for 100 ms and services nothing, and a brk in that window stops Husk for good (TrollStore then says
+        // "trollstorehelper returned 3"). A debugged process there makes its own executable memory anyway: QEMU maps its
+        // buffer with MAP_JIT and the translation layer makes its region itself.
+        if canGrantOwnJIT && !stikDebugMayServiceTraps {
+            selfGrantTried = true
+            let works = mapJITWorks
+            HuskLog.log("jit", "not trapping for a JIT region (no StikDebug); MAP_JIT \(works ? "executes" : "does not execute") here")
+            if works { lastFailure = nil }
+            return works
+        }
         HuskLog.log("jit", "claiming \(jitBytes / (1024 * 1024)) MiB of JIT memory now, "
                          + "before the guest download -- StikDebug does not stay attached")
         let ok = husk_ios_jit_prewarm(jitBytes)
@@ -118,6 +129,12 @@ enum JITBootstrap {
     static var keepDebuggerAttached: Bool {
         get { UserDefaults.standard.bool(forKey: "husk.keepDebuggerAttached") }
         set { UserDefaults.standard.set(newValue, forKey: "husk.keepDebuggerAttached") }
+    }
+
+    /// Whether StikDebug's script may be the debugger: the only one that answers a brk.
+    private static var stikDebugMayServiceTraps: Bool {
+        let method = UserDefaults.standard.string(forKey: "husk.jitMethod") ?? JITMethod.automatic.rawValue
+        return method == JITMethod.stikDebug.rawValue || (method == JITMethod.automatic.rawValue && isStikDebugInstalled)
     }
 
     /// The one try at making the region without a debugger has been made (it is not repeated: the answer will not change).

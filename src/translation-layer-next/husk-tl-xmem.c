@@ -154,15 +154,22 @@ static void near_alias(void)
         if (adopt_alias(a, rx, size, h ? "searched from below" : "searched from after", d)) return;
         tl_log_line("xmem: remap searching from %p landed at %p, too far", (void *)hints[h], (void *)a);
     }
-    /* 2. fixed addresses after, then before, in 16 MiB steps out to 2 GiB */
+    /* 2. fixed addresses after, then before, in 16 MiB steps out to 2 GiB; and when no gap near the region holds all of it (a
+     *    region placed low in the address space, between other mappings), the largest part of it that fits: the region is used
+     *    from its start, so a shorter alias of its first part is a shorter region. */
     kern_return_t first = KERN_SUCCESS;
-    for (uintptr_t off = 0; off <= reach; off += step) {
-        for (int side = 0; side < 2; side++) {
-            if (side == 1 && rx < size + off + step) continue;
-            vm_address_t want = side == 0 ? rx + size + off : rx - size - off;
-            kern_return_t kr = vm_remap(me, &want, size, 0, VM_FLAGS_FIXED, me, rx, FALSE, &cur, &max, VM_INHERIT_NONE);
-            if (kr != KERN_SUCCESS) { if (first == KERN_SUCCESS) first = kr; continue; }
-            if (adopt_alias(want, rx, size, "fixed", d)) return;
+    for (uintptr_t want_size = size; want_size >= (64u << 20); want_size -= (32u << 20)) {
+        for (uintptr_t off = 0; off <= reach; off += step) {
+            for (int side = 0; side < 2; side++) {
+                if (side == 1 && rx < want_size + off + step) continue;
+                vm_address_t want = side == 0 ? rx + size + off : rx - want_size - off;
+                kern_return_t kr = vm_remap(me, &want, want_size, 0, VM_FLAGS_FIXED, me, rx, FALSE, &cur, &max, VM_INHERIT_NONE);
+                if (kr != KERN_SUCCESS) { if (first == KERN_SUCCESS) first = kr; continue; }
+                if (adopt_alias(want, rx, want_size, want_size == size ? "fixed" : "fixed, shorter", d)) {
+                    if (want_size < size) { tl_log_line("xmem: the region is used as %zu MiB of its %zu", (size_t)(want_size >> 20), (size_t)(size >> 20)); g_x.size = want_size; }
+                    return;
+                }
+            }
         }
     }
     tl_log_line("xmem: fixed remaps near the region failed (first error %d)", first);
@@ -284,6 +291,12 @@ bool tl_xmem_alloc(size_t bytes, uint8_t **rx, uint8_t **rw)
 }
 
 ptrdiff_t tl_xmem_delta(void) { return g_x.rw - g_x.rx; }
+bool tl_xmem_near(const void *p, size_t dist)
+{
+    if (!g_x.open || !p) return false;
+    uintptr_t a = (uintptr_t)p, lo = (uintptr_t)g_x.rx, hi = lo + g_x.size;
+    return a + dist >= lo && a <= hi + dist;
+}
 
 bool tl_xmem_contains(const void *p)
 {

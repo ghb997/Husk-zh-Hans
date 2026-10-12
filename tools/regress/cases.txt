@@ -15,3 +15,6 @@ burgers    | godot-test | fdroid:org.xolatgames.burgers_7                       
 bytelife   | gamemaker-test | $HUSK_ENGINES/ByteLife.Simulator.apk                     | 10 | 1748 804 | | gamemaker: started
 kivy-ttt   | sdl-test   | $HUSK_ENGINES/TicTacToe-v1.0.0-Android.apk                   | 35 | 804 1748 | | Start application main loop
 rnd-java   | javaapp-test | fdroid:org.artsoft.rocksndiamonds_4020200                  | 50 | 1748 804 | TL_PACKAGE=org.artsoft.rocksndiamonds TL_FRAMEWORK=$R/build/java-runtime/husk-framework.dex | nativeRunMain
+mousepounce-java | javaapp-test | fdroid:com.dozingcatsoftware.mouse_pounce_10        | 30 | 804 1748 | TL_PACKAGE=com.dozingcatsoftware.mouse_pounce TL_FRAMEWORK=$R/build/java-runtime/husk-framework.dex |
+pysolfc-java | javaapp-test | fdroid:org.lufebe16.pysolfc_102130601                    | 45 | 1748 804 | TL_PACKAGE=org.lufebe16.pysolfc TL_FRAMEWORK=$R/build/java-runtime/husk-framework.dex |
+catashoot-jit | javaapp-test | fdroid:org.xolatgames.catashoot_6                        | 30 | 1748 804 | TL_PACKAGE=org.xolatgames.catashoot TL_PHONE_JIT=1 TL_FRAMEWORK=$R/build/java-runtime/husk-framework.dex |

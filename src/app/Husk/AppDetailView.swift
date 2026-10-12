@@ -183,7 +183,9 @@ struct AppDetailView: View {
                     .foregroundStyle(.secondary)
                     .lineLimit(1).truncationMode(.middle)
                 HStack(spacing: 6) {
-                    if let c = live.category { Tag(text: c) }
+                    if let c = live.category {
+                        Tag(text: ["Game": "游戏", "App": "应用", "Tool": "工具"][c] ?? c)
+                    }
                     if let b = live.bitness { Tag(text: b) }
                 }
                 .padding(.top, 2)

@@ -288,6 +288,7 @@ static jobj *const_string(dvm_dex *d, uint32_t idx)
     int32_t n; uint16_t *u = mutf8_to_u16(dex_str(d, idx), &n);
     s = tl_dvm_string_u16(u, n);
     free(u);
+    { jobj *dvm_intern(jobj *); s = dvm_intern(s); }
     __atomic_store_n(&d->scache[idx], s, __ATOMIC_RELEASE);
     return s;
 }

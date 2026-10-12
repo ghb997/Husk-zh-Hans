@@ -15,8 +15,7 @@ BIN = '/Volumes/GTAV/husk2/bin'
 JAVA = os.environ.get('HUSK_JAVAAPP', '/Volumes/GTAV/husk2/java/javaapp-test')
 SCAN = '/Volumes/GTAV/husk2/tl-scan'
 # the harness of the driver the app picks for each engine (TranslationLayer.swift's nativeEngine)
-NATIVE = {'Unity (IL2CPP)': 'unity-test', 'Unity': 'unity-test', 'Unity (Mono)': 'unity-test', 'Flutter': 'flutter-test',
-          'Cocos': 'cocos-test', 'Python': 'sdl-test', 'Godot': 'godot-test', 'GameMaker': 'gamemaker-test',
+NATIVE = {'Unity (IL2CPP)': 'unity-test', 'Unity': 'unity-test', 'Unity (Mono)': 'unity-test',           'Cocos': 'cocos-test', 'Godot': 'godot-test', 'GameMaker': 'gamemaker-test',
           'NativeActivity': 'ue-test', 'Unreal Engine': 'ue-test', 'Rockstar': 'gta-test', 'Minecraft': 'ga-test'}
 # harnesses that take a screenshot when told to (TL_CTL), rather than leaving frames in a folder
 

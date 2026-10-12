@@ -33,7 +33,7 @@ struct DiscoverView: View {
         .navigationBarTitleDisplayMode(.large)
         .searchable(text: $searchText, prompt: "搜索 \(totalAppCount) 个应用")
         .toolbar {
-            ToolbarItemGroup(placement: .topBarTrailing) {
+            ToolbarItemGroup(placement: .navigationBarTrailing) {
                 Button { Task { await manager.fetchSources() } } label: {
                     Label("刷新", systemImage: "arrow.clockwise")
                 }
@@ -203,10 +203,10 @@ struct DiscoverView: View {
             .navigationTitle("添加软件源")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
-                ToolbarItem(placement: .topBarLeading) {
+                ToolbarItem(placement: .navigationBarLeading) {
                     Button("取消") { newSourceURL = ""; showingAddSource = false }
                 }
-                ToolbarItem(placement: .topBarTrailing) {
+                ToolbarItem(placement: .navigationBarTrailing) {
                     Button("添加") {
                         let url = newSourceURL
                         newSourceURL = ""
@@ -243,10 +243,10 @@ struct DiscoverView: View {
             .navigationTitle("软件源")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
-                ToolbarItem(placement: .topBarLeading) {
+                ToolbarItem(placement: .navigationBarLeading) {
                     Button("完成") { showingSources = false }
                 }
-                ToolbarItem(placement: .topBarTrailing) {
+                ToolbarItem(placement: .navigationBarTrailing) {
                     Button { showingSources = false; showingAddSource = true } label: {
                         Image(systemName: "plus")
                     }

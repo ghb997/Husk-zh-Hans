@@ -74,6 +74,7 @@ jobs:
         run: python3 scripts/verify_zh_ipa.py build/Husk-2.0.0-zh-Hans.ipa build/Husk-2.0.0-zh-Hans.tipa
       - name: Save dependencies
         if: always()
+        continue-on-error: true
         uses: actions/cache/save@v4
         with:
           path: |
@@ -102,4 +103,5 @@ jobs:
           path: |
             build/ci.log
             build/logs
+            third_party/build/qemu-10.0.12-utm/_husk_build/meson-logs
             /tmp/husk_ipa/build.log

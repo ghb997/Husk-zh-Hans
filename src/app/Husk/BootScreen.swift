@@ -117,7 +117,7 @@ struct BootScreen: View {
                     Capsule().fill(Theme.surfaceHigh)
                     Capsule().fill(Theme.accent)
                         .frame(width: geo.size.width * fraction)
-                        .animation(.snappy(duration: 0.4), value: fraction)
+                        .animation(.huskSnappy(duration: 0.4), value: fraction)
                 }
             }
             .frame(height: 5)

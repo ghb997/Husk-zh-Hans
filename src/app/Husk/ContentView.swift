@@ -93,7 +93,7 @@ struct ContentView: View {
                 }
                 .task(id: toast.id) {
                     try? await Task.sleep(nanoseconds: 4_500_000_000)
-                    withAnimation(.snappy) {
+                    withAnimation(.huskSnappy) {
                         if host.toast?.id == toast.id { host.toast = nil }
                     }
                 }
@@ -124,8 +124,8 @@ struct ContentView: View {
         // window rather than with .preferredColorScheme — see Theme.apply.
         .onAppear { Theme.apply(appearance) }
         .onChange(of: appearance) { Theme.apply($0) }
-        .animation(.snappy(duration: 0.22), value: showGuestScreen)
-        .animation(.snappy(duration: 0.25), value: host.toast)
+        .animation(.huskSnappy(duration: 0.22), value: showGuestScreen)
+        .animation(.huskSnappy(duration: 0.25), value: host.toast)
         .fullScreenCover(isPresented: $showOnboarding) {
             OnboardingView {
                 showOnboarding = false

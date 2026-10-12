@@ -29,7 +29,7 @@ struct StoreView: View {
             .navigationBarTitleDisplayMode(.large)
             .searchable(text: $searchText, prompt: "搜索 Google Play")
             .toolbar {
-                ToolbarItemGroup(placement: .topBarTrailing) {
+                ToolbarItemGroup(placement: .navigationBarTrailing) {
                     if manager.isSignedIn {
                         Menu {
                             if let s = manager.session {

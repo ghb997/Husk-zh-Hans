@@ -886,7 +886,7 @@ struct TLCocosAttemptView: View {
                 Text(stats).font(.technical(11)).foregroundStyle(.white.opacity(0.7)).lineLimit(1)
             }
             if devInfo {
-                Button { withAnimation(.snappy(duration: 0.25)) { showLog.toggle() } } label: {
+                Button { withAnimation(.huskSnappy(duration: 0.25)) { showLog.toggle() } } label: {
                     Text(showLog ? "隐藏日志" : "日志").font(.system(size: 12, weight: .semibold))
                 }
                 .tint(.white)

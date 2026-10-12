@@ -863,7 +863,7 @@ struct TLClassicAttemptView: View {
                 .font(.system(size: 12, weight: .medium)).foregroundStyle(.white.opacity(0.85)).lineLimit(1)
             Spacer()
             if devInfo {
-                Button { withAnimation(.snappy(duration: 0.25)) { showLog.toggle() } } label: {
+                Button { withAnimation(.huskSnappy(duration: 0.25)) { showLog.toggle() } } label: {
                     Text(showLog ? "隐藏日志" : "日志").font(.system(size: 12, weight: .semibold))
                 }
                 .tint(.white)

@@ -65,12 +65,12 @@ struct OnboardingView: View {
                             Capsule()
                                 .fill(i == page ? Theme.accent : Color.secondary.opacity(0.3))
                                 .frame(width: i == page ? 18 : 6, height: 6)
-                                .animation(.snappy, value: page)
+                                .animation(.huskSnappy, value: page)
                         }
                     }
                     Button {
                         if page < pages - 1 {
-                            withAnimation(.snappy) { page += 1 }
+                            withAnimation(.huskSnappy) { page += 1 }
                         } else {
                             save()
                             onDone()

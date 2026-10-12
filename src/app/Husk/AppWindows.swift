@@ -36,7 +36,7 @@ import UIKit
     func open(_ app: TLApp) {
         if self.app?.id != app.id { frame = nil; maximized = false }
         self.app = app
-        withAnimation(.snappy(duration: 0.25)) { minimized = false }
+        withAnimation(.huskSnappy(duration: 0.25)) { minimized = false }
         TranslationLayerStore.shared.markPlayed(app)
     }
 
@@ -45,12 +45,12 @@ import UIKit
         if let only, app?.id != only.id { return }
         // A web app can be closed for real, as LiveContainer ends an app; a native engine stays loaded, paused.
         if let app, app.report?.webKind != nil { WebAppRuntime.close(app) }
-        withAnimation(.snappy(duration: 0.2)) { app = nil; minimized = false }
+        withAnimation(.huskSnappy(duration: 0.2)) { app = nil; minimized = false }
     }
 
-    func minimize() { withAnimation(.snappy(duration: 0.25)) { minimized = true } }
-    func restore() { withAnimation(.snappy(duration: 0.25)) { minimized = false } }
-    func toggleMaximized() { withAnimation(.snappy(duration: 0.25)) { maximized.toggle() } }
+    func minimize() { withAnimation(.huskSnappy(duration: 0.25)) { minimized = true } }
+    func restore() { withAnimation(.huskSnappy(duration: 0.25)) { minimized = false } }
+    func toggleMaximized() { withAnimation(.huskSnappy(duration: 0.25)) { maximized.toggle() } }
 }
 
 /// The layer the window and the dock live in, over the tabs. Empty space in it lets touches through to Husk underneath.
@@ -297,7 +297,7 @@ private struct WindowDock: View {
                     .onChanged { drag = $0.translation }
                     .onEnded { v in
                         let endX = x + v.translation.width
-                        withAnimation(.snappy(duration: 0.25)) {
+                        withAnimation(.huskSnappy(duration: 0.25)) {
                             windows.dockLeft = endX < container.width / 2
                             windows.dockY = min(max((y + v.translation.height) / container.height, 0), 1)
                             drag = .zero

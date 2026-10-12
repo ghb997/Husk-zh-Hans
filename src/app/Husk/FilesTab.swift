@@ -74,7 +74,7 @@ struct DirectoryView: View {
         .navigationTitle(title)
         .navigationBarTitleDisplayMode(path == FilesTab.root ? .large : .inline)
         .toolbar {
-            ToolbarItemGroup(placement: .topBarTrailing) {
+            ToolbarItemGroup(placement: .navigationBarTrailing) {
                 Button { load() } label: { Label("刷新", systemImage: "arrow.clockwise") }
                 Button { showImportSheet = true } label: { Label("导入", systemImage: "plus") }
             }
@@ -241,7 +241,7 @@ struct ImportSheet: View {
             .navigationTitle("导入")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
-                ToolbarItem(placement: .topBarTrailing) { Button("完成") { dismiss() } }
+                ToolbarItem(placement: .navigationBarTrailing) { Button("完成") { dismiss() } }
             }
         }
     }

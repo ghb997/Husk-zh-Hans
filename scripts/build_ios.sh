@@ -48,7 +48,7 @@ export PKG_CONFIG_LIBDIR="$PREFIX/lib/pkgconfig:$PREFIX/share/pkgconfig"
 unset PKG_CONFIG_PATH
 
 banner() { printf '\n\033[0;32m=== %s ===\033[0m\n' "$*"; }
-fail()   { printf '\033[0;31m[FAIL] %s (see %s)\033[0m\n' "$1" "$2"; exit 1; }
+fail()   { printf '\033[0;31m[FAIL] %s (see %s)\033[0m\n' "$1" "$2"; tail -60 "$2" >&2; exit 1; }
 
 done_stage() { [ -f "$STAMPS/$1" ]; }
 mark_stage() { touch "$STAMPS/$1"; }
@@ -160,6 +160,19 @@ stage_qemu() {
     local log="$LOGS/qemu.log"
     done_stage qemu && { echo "[skip] qemu"; return 0; }
     apply_patch qemu-10.0.12-utm qemu-10.0.12-utm.patch
+    # Both the Mac runner and iOS identify as arm64 Darwin. Without this
+    # property Meson assumes iOS test executables can run on the Mac.
+    python3 - "$dir/configure" <<'PY_CROSS'
+import pathlib, sys
+p = pathlib.Path(sys.argv[1])
+s = p.read_text()
+old = '  echo "[properties]" >> $cross\n'
+new = old + '  echo "needs_exe_wrapper = true" >> $cross\n'
+if new not in s:
+    assert old in s, "QEMU configure machine-file generation changed"
+    p.write_text(s.replace(old, new, 1))
+PY_CROSS
+    [ $? -eq 0 ] || fail qemu-cross "$log"
     banner "building qemu (this is the long one)"
     rm -rf "$dir/_husk_build"; mkdir -p "$dir/_husk_build"
     ( cd "$dir/_husk_build" \

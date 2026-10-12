@@ -136,7 +136,7 @@ struct AppDetailView: View {
         .listStyle(.insetGrouped)
         .navigationTitle(live.label)
         .navigationBarTitleDisplayMode(.inline)
-        .toolbar { ToolbarItem(placement: .topBarTrailing) { menu } }
+        .toolbar { ToolbarItem(placement: .navigationBarTrailing) { menu } }
         .confirmationDialog("卸载 \(live.label)？", isPresented: $confirmUninstall,
                             titleVisibility: .visible) {
             Button("卸载", role: .destructive) {

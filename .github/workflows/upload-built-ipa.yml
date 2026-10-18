@@ -1,0 +1,46 @@
+name: Upload verified installers to a draft release
+
+on:
+  workflow_dispatch:
+    inputs:
+      build_run_id:
+        description: Successful build workflow run ID
+        required: true
+        type: string
+      artifact_name:
+        description: Installer artifact from that build
+        required: true
+        type: string
+      release_tag:
+        description: Existing draft release with reviewed SHA256SUMS.txt
+        required: true
+        type: string
+
+permissions:
+  actions: read
+  contents: write
+
+concurrency:
+  group: husk-release-upload
+  cancel-in-progress: false
+
+jobs:
+  upload:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/download-artifact@v4
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          run-id: ${{ inputs.build_run_id }}
+          name: ${{ inputs.artifact_name }}
+          path: release-files
+      - name: Verify and upload installers
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          HUSK_BUILD_RUN_ID: ${{ inputs.build_run_id }}
+          HUSK_RELEASE_TAG: ${{ inputs.release_tag }}
+        run: python3 scripts/upload_release_installers.py

@@ -194,6 +194,7 @@ PY_CROSS
             --disable-nettle --disable-gcrypt --disable-auth-pam \
             --disable-install-blobs --disable-sparse --disable-debug-info \
             --extra-cflags="$CFLAGS" --extra-ldflags="$LDFLAGS" \
+      && python3 "$HUSK_ROOT/scripts/repair_qemu_python.py" \
       && make -j"$NCPU" ) > "$log" 2>&1 || fail qemu "$log"
     husk_stage_dylib
     mark_stage qemu
@@ -208,7 +209,8 @@ stage_qemurebuild() {
     local dir="$SRC/qemu-10.0.12-utm"
     local log="$LOGS/qemu-rebuild.log"
     banner "rebuilding qemu (incremental)"
-    ( cd "$dir/_husk_build" && ninja libqemu-aarch64-softmmu.dylib ) > "$log" 2>&1 \
+    ( python3 "$HUSK_ROOT/scripts/repair_qemu_python.py" \
+      && cd "$dir/_husk_build" && ninja libqemu-aarch64-softmmu.dylib ) > "$log" 2>&1 \
         || fail qemu-rebuild "$log"
     echo "[ok  ] $(ls -lh "$dir/_husk_build/libqemu-aarch64-softmmu.dylib" | awk '{print $5}')"
     husk_stage_dylib

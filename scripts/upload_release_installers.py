@@ -23,13 +23,20 @@ def main():
     tag = os.environ["HUSK_RELEASE_TAG"]
     assert run_id.isdecimal() and re.fullmatch(r"v\d+\.\d+\.\d+", tag)
     run = api(f"repos/{repo}/actions/runs/{run_id}")
-    release = api(f"repos/{repo}/releases/tags/{tag}")
+    # Drafts may not have a Git tag yet, so the /tags/{tag} endpoint returns
+    # 404 even when the draft is visible to this repository token.
+    matches = [r for r in api(f"repos/{repo}/releases?per_page=100") if r["tag_name"] == tag]
+    assert len(matches) == 1, "expected one existing release draft for this tag"
+    release = matches[0]
     assert run["conclusion"] == "success" and run["status"] == "completed", "build did not succeed"
     assert release["draft"] and not release["prerelease"], "upload only to an existing draft"
     assert release["target_commitish"] == run["head_sha"], "draft and build source commits differ"
     root = Path("release-files")
-    subprocess.run(["gh", "release", "download", tag, "--repo", repo, "--pattern", "SHA256SUMS.txt",
-                    "--dir", str(root)], check=True)
+    checksum = next(a for a in release["assets"] if a["name"] == "SHA256SUMS.txt" and a["state"] == "uploaded")
+    data = subprocess.check_output(["gh", "api", f"repos/{repo}/releases/assets/{checksum['id']}",
+                                    "-H", "Accept: application/octet-stream"])
+    assert checksum["digest"] == "sha256:" + hashlib.sha256(data).hexdigest()
+    (root / "SHA256SUMS.txt").write_bytes(data)
     expected = {}
     for line in (root / "SHA256SUMS.txt").read_text(encoding="utf-8").splitlines():
         digest, name = line.split(maxsplit=1)

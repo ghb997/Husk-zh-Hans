@@ -119,7 +119,7 @@ final class IncomingFiles: ObservableObject {
                 box.release()
                 guard ok else {
                     try? fm.removeItem(at: temp)
-                    failed.append((name, String(cString: err)))
+                    failed.append((name, PS4PackageMessages.localized(String(cString: err))))
                     HuskLog.log("ps4", "could not install \(url.lastPathComponent): \(String(cString: err))")
                     continue
                 }

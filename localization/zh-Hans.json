@@ -9574,5 +9574,47 @@
     "line": 255,
     "en": "CJK fonts bundled",
     "zh-Hans": "已内置中日韩字体"
+  },
+  {
+    "file": "src/app/Husk/PS4Library.swift",
+    "line": 9,
+    "en": "missing arguments",
+    "zh-Hans": "缺少安装参数。"
+  },
+  {
+    "file": "src/app/Husk/PS4Library.swift",
+    "line": 10,
+    "en": "this package is locked with a passcode",
+    "zh-Hans": "此安装包受密码保护。"
+  },
+  {
+    "file": "src/app/Husk/PS4Library.swift",
+    "line": 11,
+    "en": "this is not a PS4 package",
+    "zh-Hans": "这不是 PS4 安装包。"
+  },
+  {
+    "file": "src/app/Husk/PS4Library.swift",
+    "line": 13,
+    "en": "this is a retail package, which only a PS4 can open; use a fake package (fPKG) or the game's extracted folder",
+    "zh-Hans": "零售版安装包只能由 PS4 打开；请使用 fPKG 安装包或已解压的游戏文件夹。"
+  },
+  {
+    "file": "src/app/Husk/PS4Library.swift",
+    "line": 14,
+    "en": "the install was cancelled",
+    "zh-Hans": "安装已取消。"
+  },
+  {
+    "file": "src/app/Husk/PS4Library.swift",
+    "line": 16,
+    "en": "the package could not be extracted (is there enough space?)",
+    "zh-Hans": "无法解压安装包，请检查剩余存储空间是否充足。"
+  },
+  {
+    "file": "src/app/Husk/PS4Library.swift",
+    "line": 19,
+    "en": "the package could not be opened: ",
+    "zh-Hans": "无法打开安装包："
   }
 ]

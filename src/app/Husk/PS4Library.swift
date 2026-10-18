@@ -1,6 +1,27 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
 import Foundation
 
+/// User-facing errors from the official 3.0 module. Keep its original diagnostic
+/// text in the log; translate at the UI boundary without changing the binary.
+enum PS4PackageMessages {
+    static func localized(_ message: String) -> String {
+        switch message {
+        case "missing arguments": return "缺少安装参数。"
+        case "this package is locked with a passcode": return "此安装包受密码保护。"
+        case "this is not a PS4 package": return "这不是 PS4 安装包。"
+        case "this is a retail package, which only a PS4 can open; use a fake package (fPKG) or the game's extracted folder":
+            return "零售版安装包只能由 PS4 打开；请使用 fPKG 安装包或已解压的游戏文件夹。"
+        case "the install was cancelled": return "安装已取消。"
+        case "the package could not be extracted (is there enough space?)":
+            return "无法解压安装包，请检查剩余存储空间是否充足。"
+        default:
+            let prefix = "the package could not be opened: "
+            if message.hasPrefix(prefix) { return "无法打开安装包：" + message.dropFirst(prefix.count) }
+            return message
+        }
+    }
+}
+
 /// A PS4 game Husk can run: an extracted game folder (eboot.bin and sce_sys/) under Documents/PS4 Games, used where it is.
 /// Nothing is copied; a folder named like CUSA07023-UPDATE beside it is the game's patch, which the PS4 layer picks up itself.
 struct PS4Game: Identifiable, Hashable {

@@ -1,7 +1,7 @@
 {
   "name": "Husk 简体中文",
   "identifier": "com.ghb997.husk.zh-hans.source",
-  "subtitle": "在 iPhone / iPad 上运行 Android 应用和游戏。",
+  "subtitle": "在 iPhone / iPad 上运行 Android 应用与 PS4 游戏。",
   "description": "Husk 的独立简体中文构建，基于 Leviidev/Husk。添加到 SideStore、AltStore 或兼容的侧载工具即可获取中文版及其更新。",
   "iconURL": "https://raw.githubusercontent.com/ghb997/Husk-zh-Hans/main/src/app/Husk/Assets.xcassets/AppIcon.appiconset/Icon-Default.png",
   "website": "https://github.com/ghb997/Husk-zh-Hans",
@@ -14,12 +14,21 @@
       "name": "Husk 简体中文",
       "bundleIdentifier": "com.husk.app",
       "developerName": "Leviidev；简体中文构建：ghb997",
-      "subtitle": "在 iPhone / iPad 上运行 Android 应用和游戏。",
-      "localizedDescription": "Husk 通过转译层或完整 Android 模拟环境运行应用和游戏。转译层支持 Unity、Unreal、Godot、cocos2d-x、SDL 等引擎。需要 JIT，具体启用方式取决于设备与系统。此版本基于上游 2.0.0（112），包含 1,621 条翻译目录条目，覆盖应用界面、引导、设置、错误说明及扩展。没有完成真机安装或运行验证。",
+      "subtitle": "在 iPhone / iPad 上运行 Android 应用与 PS4 游戏。",
+      "localizedDescription": "Husk 通过转译层或完整 Android 模拟环境运行应用和游戏，3.0 新增 PS4 支持与主机风格首页。本版本基于上游 3.0.0（129），含完整简体中文界面、首次设置、导览、JIT 配对、PS4 安装提示及扩展。需要 JIT；主应用最低 iOS 15.5，PS4 需要 iOS 17.4。尚未完成真机安装和运行测试。",
       "iconURL": "https://raw.githubusercontent.com/ghb997/Husk-zh-Hans/main/src/app/Husk/Assets.xcassets/AppIcon.appiconset/Icon-Default.png",
       "tintColor": "#5865F2",
       "category": "games",
       "versions": [
+        {
+          "version": "3.0.0",
+          "buildVersion": "129",
+          "date": "2026-10-18T06:02:00Z",
+          "localizedDescription": "同步 Husk 3.0：汉化新首页、应用库、首次设置与导览、PS4 导入和安装错误、字体设置及更新说明；保留中日韩字体，统一三个目标版本为 3.0.0（129）。PS4 模块使用经 SHA-256 校验的官方 3.0 二进制，主应用从汉化源码构建。",
+          "downloadURL": "https://github.com/ghb997/Husk-zh-Hans/releases/download/v3.0.0/Husk-3.0.0-zh-Hans.ipa",
+          "size": 180818901,
+          "minOSVersion": "15.5"
+        },
         {
           "version": "2.0.0",
           "buildVersion": "112",

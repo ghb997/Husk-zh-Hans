@@ -21,13 +21,15 @@ Husk 用于在 iPhone / iPad 上通过转译层或完整 Android 模拟环境运
 
 ## 构建和下载
 
-**3.0.0（129）** 已完成源码汉化，安装包正在 GitHub Actions 构建和校验。构建通过后会发布新的版本；此前的 2.0.0 安装包继续保留在 [历史发布](https://github.com/ghb997/Husk-zh-Hans/releases/tag/v2.0.0)。
+已发布 **3.0.0（129）简体中文**，使用 Xcode 27.0 / Swift 6.4 构建。此前的 2.0.0 安装包继续保留在 [历史发布](https://github.com/ghb997/Husk-zh-Hans/releases/tag/v2.0.0)。
 
-- [发布说明、安装包、SHA-256 与验证报告](https://github.com/ghb997/Husk-zh-Hans/releases)
-- [构建记录](https://github.com/ghb997/Husk-zh-Hans/actions/workflows/build-zh-hans.yml)
+- [下载 IPA（普通侧载）](https://github.com/ghb997/Husk-zh-Hans/releases/download/v3.0.0/Husk-3.0.0-zh-Hans.ipa)
+- [下载 TIPA（TrollStore）](https://github.com/ghb997/Husk-zh-Hans/releases/download/v3.0.0/Husk-3.0.0-zh-Hans.tipa)
+- [发布说明、SHA-256 与验证报告](https://github.com/ghb997/Husk-zh-Hans/releases/tag/v3.0.0)
+- [成功构建记录](https://github.com/ghb997/Husk-zh-Hans/actions/runs/39102165266)
 - [SideStore / AltStore 侧载源](https://raw.githubusercontent.com/ghb997/Husk-zh-Hans/main/altsource.json)
 
-主应用最低 iOS 15.5；PS4 游戏需要 iOS 17.4，下载实时活动需要 iOS 16.1，内置 JIT 辅助扩展需要 iOS 26，其他系统使用受支持的 JIT 方式。首次设置中的语言、地区和时区偏好目前由上游保存，尚未接入 Android / PS4 运行时。
+本次安装包的源码提交为 `fac4ece0eae96807dfb1bd9a7d0244fbe4dd8cc5`，包含 1760 条翻译目录记录。主应用最低 iOS 15.5；PS4 游戏需要 iOS 17.4，下载实时活动需要 iOS 16.1，内置 JIT 辅助扩展需要 iOS 26，其他系统使用受支持的 JIT 方式。首次设置中的语言、地区和时区偏好目前由上游保存，尚未接入 Android / PS4 运行时。
 
 打开 [GitHub Actions](https://github.com/ghb997/Husk-zh-Hans/actions/workflows/build-zh-hans.yml)，选择 Run workflow，并保持 dependencies_only 为 false。成功后下载 Husk-3.0.0-zh-Hans 构建产物。
 

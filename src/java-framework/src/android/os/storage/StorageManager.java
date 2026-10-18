@@ -67,12 +67,12 @@ public class StorageManager {
     public static final int QUOTA_TYPE_MEDIA_NONE = 0;
     public static final int QUOTA_TYPE_MEDIA_VIDEO = 3;
     public static final java.lang.String STORAGE_THRESHOLD_PERCENT_HIGH_KEY = "storage_threshold_percent_high";
-    public static java.util.UUID UUID_DEFAULT;
+    public static java.util.UUID UUID_DEFAULT = java.util.UUID.fromString("41217664-9172-527a-b3d5-edabb50a7d69");
     public static final java.lang.String UUID_PRIMARY_PHYSICAL = "primary_physical";
-    public static java.util.UUID UUID_PRIMARY_PHYSICAL_;
+    public static java.util.UUID UUID_PRIMARY_PHYSICAL_ = java.util.UUID.fromString("0f95a519-dae7-5abf-9519-fbd6209e05fd");
     public static java.lang.String UUID_PRIVATE_INTERNAL;
     public static final java.lang.String UUID_SYSTEM = "system";
-    public static java.util.UUID UUID_SYSTEM_;
+    public static java.util.UUID UUID_SYSTEM_ = java.util.UUID.fromString("5d258386-e60d-59e3-826d-0089cdd42cc0");
     public StorageManager(android.content.Context p0, android.os.Looper p1) { this(); }
     public static boolean checkPermissionAndAppOp(android.content.Context p0, boolean p1, int p2, int p3, java.lang.String p4, java.lang.String p5, java.lang.String p6, int p7) { return false; }
     public static boolean checkPermissionAndCheckOp(android.content.Context p0, boolean p1, int p2, int p3, java.lang.String p4, java.lang.String p5, int p6) { return false; }

@@ -67,6 +67,7 @@ typedef struct tl_dual_mapping {
 } tl_dual_mapping;
 
 tl_dual_mapping *tl_find_stikdebug_prewarmed(void);
+bool tl_jit_reserve_bottom(size_t end);
 
 /* ------------------------------------------------------------------- ZIP */
 

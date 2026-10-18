@@ -519,13 +519,17 @@ public class View implements Drawable.Callback, KeyEvent.Callback {
     public boolean isDrawingCacheEnabled() { return false; }
     public void buildDrawingCache() {}
     public void buildDrawingCache(boolean a) {}
-    public void destroyDrawingCache() {}
+    private Bitmap mDrawingCache;
+    public void destroyDrawingCache() { if (mDrawingCache != null) mDrawingCache.recycle(); mDrawingCache = null; }
     public void setDrawingCacheQuality(int q) {}
     public void setDrawingCacheBackgroundColor(int c) {}
     public Bitmap getDrawingCache() { return getDrawingCache(false); }
     public Bitmap getDrawingCache(boolean a) {
         if (getWidth() <= 0 || getHeight() <= 0) return null;
-        Bitmap b = Bitmap.createBitmap(getWidth(), getHeight(), Bitmap.Config.ARGB_8888);
+        // one cache per view, as Android keeps it, drawn again on each call
+        Bitmap b = mDrawingCache;
+        if (b == null || b.isRecycled() || b.getWidth() != getWidth() || b.getHeight() != getHeight()) { destroyDrawingCache(); b = mDrawingCache = Bitmap.createBitmap(getWidth(), getHeight(), Bitmap.Config.ARGB_8888); }
+        else b.eraseColor(0);
         Canvas c = new Canvas(b); draw(c); c.huskRelease();
         return b;
     }
@@ -1174,6 +1178,7 @@ public class View implements Drawable.Callback, KeyEvent.Callback {
     public android.view.inputmethod.InputConnection onCreateInputConnection(android.view.inputmethod.EditorInfo o) { return null; }
     public boolean checkInputConnectionProxy(View v) { return false; }
     public void cancelPendingInputEvents() { removeCallbacks(mPendingLongPress); mPrivateFlags &= ~PFLAG_PREPRESSED; }
+    public void cancelLongPress() { removeCallbacks(mPendingLongPress); }
     public void setPointerIcon(PointerIcon p) {}
     public PointerIcon getPointerIcon() { return null; }
     public PointerIcon onResolvePointerIcon(MotionEvent e, int i) { return null; }
@@ -1235,6 +1240,8 @@ public class View implements Drawable.Callback, KeyEvent.Callback {
         return onTouchEvent(e);
     }
     public boolean onFilterTouchEventForSecurity(MotionEvent e) { return true; }
+    /** The time of the frame being drawn, on the uptime clock (Compose draws its layers with it). */
+    public long getDrawingTime() { return android.os.SystemClock.uptimeMillis(); }
     public boolean dispatchGenericMotionEvent(MotionEvent e) {
         if (mOnGeneric != null && mEnabled && mOnGeneric.onGenericMotion(this, e)) return true;
         return onGenericMotionEvent(e);

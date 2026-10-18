@@ -152,15 +152,13 @@ struct ShowcaseGallery: View {
                 HStack(spacing: 10) {
                     ForEach(pictures, id: \.self) { path in
                         Button { shown = path } label: {
-                            PictureView(path: path, pixels: 700)
-                                .frame(width: 250, height: 116)
-                                .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
+                            ScreenshotThumb(path: path)
                         }
                         .buttonStyle(CardButtonStyle())
                     }
                 }
             }
-            .scrollIndicators(.hidden)
+            .huskHideScrollIndicators()
             .fullScreenCover(item: Binding(get: { shown.map(ShownPicture.init) }, set: { shown = $0?.path })) { picture in
                 ZStack(alignment: .topTrailing) {
                     Color.black.ignoresSafeArea()
@@ -199,6 +197,33 @@ struct PictureView: View {
         .task(id: path) {
             if let hit = IconCache.shared.cached(path, pixels: pixels) { image = hit; return }
             let loaded = await IconCache.shared.load(path, pixels: pixels)
+            withAnimation(.easeOut(duration: 0.2)) { image = loaded }
+        }
+    }
+}
+
+/// A screenshot at a fixed height, as wide as its own shape makes it: a landscape picture shows landscape, a portrait one
+/// portrait. Never cropped to a shape and never rotated.
+struct ScreenshotThumb: View {
+    let path: String
+    var height: CGFloat = 160
+    @State private var image: UIImage?
+
+    var body: some View {
+        Group {
+            if let image, image.size.height > 0 {
+                Image(uiImage: image)
+                    .resizable()
+                    .aspectRatio(contentMode: .fit)
+                    .frame(width: height * image.size.width / image.size.height, height: height)
+            } else {
+                Color(uiColor: .secondarySystemBackground).frame(width: height * 16 / 9, height: height)
+            }
+        }
+        .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
+        .task(id: path) {
+            if let hit = IconCache.shared.cached(path, pixels: 700) { image = hit; return }
+            let loaded = await IconCache.shared.load(path, pixels: 700)
             withAnimation(.easeOut(duration: 0.2)) { image = loaded }
         }
     }

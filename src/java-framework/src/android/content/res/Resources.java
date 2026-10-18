@@ -45,6 +45,13 @@ public class Resources {
         loadTables();
     }
     private void updateCfg() {
+        // Android's ResourcesImpl: the configuration's density is the metrics' density. A Resources made with a fresh DisplayMetrics
+        // (density 0) otherwise picks mdpi entries, which the trimmed framework-res does not carry.
+        if (mConfig.densityDpi != Configuration.DENSITY_DPI_UNDEFINED) {
+            mMetrics.densityDpi = mConfig.densityDpi;
+            mMetrics.density = mConfig.densityDpi * DisplayMetrics.DENSITY_DEFAULT_SCALE;
+            if (mMetrics.scaledDensity == 0) mMetrics.scaledDensity = mMetrics.density;
+        }
         String lang = mConfig.locale != null ? mConfig.locale.getLanguage() : "en", country = mConfig.locale != null ? mConfig.locale.getCountry() : "US";
         mCfg = new ResTable.Config(lang, country, mConfig.screenWidthDp, mConfig.screenHeightDp, mMetrics.densityDpi,
                                    (mConfig.uiMode & Configuration.UI_MODE_NIGHT_MASK) == Configuration.UI_MODE_NIGHT_YES, android.os.Build.VERSION.SDK_INT);
@@ -275,7 +282,18 @@ public class Resources {
     /** A drawable value: a colour, an image file, or a drawable XML file. */
     public Drawable loadDrawable(TypedValue v, int id, Theme theme) {
         if (v.type >= TypedValue.TYPE_FIRST_COLOR_INT && v.type <= TypedValue.TYPE_LAST_COLOR_INT) return new android.graphics.drawable.ColorDrawable(v.data);
-        if (v.type == TypedValue.TYPE_ATTRIBUTE && theme != null) { TypedValue r = new TypedValue(); if (theme.resolveAttribute(v.data, r, true)) return loadDrawable(r, r.resourceId, theme); }
+        if (v.type == TypedValue.TYPE_ATTRIBUTE && theme != null) {
+            // follow ?attr references as far as the theme takes them, but not round a loop (an attribute that resolves to itself
+            // overflowed the stack: Codeword's theme); 20 is the depth the platform's own resolution stops at
+            TypedValue r = new TypedValue(), cur = v;
+            for (int depth = 0; cur.type == TypedValue.TYPE_ATTRIBUTE && depth < 20; depth++) {
+                if (!theme.resolveAttribute(cur.data, r, true)) return null;
+                if (r.type == TypedValue.TYPE_ATTRIBUTE && r.data == cur.data) return null;
+                TypedValue next = new TypedValue(); next.setTo(r); cur = next;
+            }
+            if (cur.type == TypedValue.TYPE_ATTRIBUTE) return null;
+            return loadDrawable(cur, cur.resourceId, theme);
+        }
         if (v.type != TypedValue.TYPE_STRING || v.string == null) {
             if (v.type == TypedValue.TYPE_NULL) return null;
             throw new NotFoundException("Resource ID #0x" + Integer.toHexString(id) + " type #0x" + Integer.toHexString(v.type) + " is not valid");
@@ -287,7 +305,18 @@ public class Resources {
         Drawable d;
         try {
             if (file.endsWith(".xml")) d = husk.ResInflate.drawable(this, huskXml(file, rid), theme);
-            else d = husk.ResInflate.image(this, huskFile(file, rid), file, v.density);
+            else {
+                int dens = v.density;
+                byte[] data = null;
+                if ((rid >>> 24) == 1 && (data = husk.Native.readApkFile(1, file)) == null) {
+                    // framework-res keeps only the 2x and 3x copy of an image that has one (tools/strip_framework_res.py)
+                    for (int k = 0; k < 2 && data == null; k++) {
+                        String alt = file.replaceFirst("-(ldpi|mdpi|hdpi|tvdpi|xxxhdpi)(-|/)", k == 0 ? "-xhdpi$2" : "-xxhdpi$2");
+                        if (!alt.equals(file) && (data = husk.Native.readApkFile(1, alt)) != null) dens = k == 0 ? 320 : 480;
+                    }
+                }
+                d = husk.ResInflate.image(this, data != null ? data : huskFile(file, rid), file, dens);
+            }
         } catch (NotFoundException e) { throw e; }
         catch (Exception e) {
             NotFoundException n = new NotFoundException("File " + file + " from drawable resource ID #0x" + Integer.toHexString(id));

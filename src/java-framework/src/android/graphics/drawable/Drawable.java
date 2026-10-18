@@ -103,7 +103,13 @@ public abstract class Drawable {
     public Insets getOpticalInsets() { return Insets.NONE; }
     public void getOutline(Outline o) { o.setRect(getBounds()); o.setAlpha(0); }
     public Drawable mutate() { return this; }
-    public ConstantState getConstantState() { return null; }
+    // Every framework drawable has a constant state on Android (Material copies a menu item's background through it); Husk's
+    // simpler ones share themselves. An app's own Drawable subclass still gets null, as there.
+    public ConstantState getConstantState() {
+        if (!getClass().getName().startsWith("android.graphics.drawable.")) return null;
+        final Drawable self = this;
+        return new ConstantState() { @Override public Drawable newDrawable() { return self; } };
+    }
     public boolean canApplyTheme() { return false; }
     public void applyTheme(Resources.Theme t) {}
     public Region getTransparentRegion() { return null; }

@@ -72,10 +72,10 @@ jobs:
         run: |
           set -o pipefail
           mkdir -p build
-          ./scripts/ci_build.sh "$PWD/build/Husk-2.0.0-zh-Hans.ipa" 2>&1 | tee build/ci.log
+          ./scripts/ci_build.sh "$PWD/build/Husk-3.0.0-zh-Hans.ipa" 2>&1 | tee build/ci.log
       - name: Verify IPA contents
         if: success() && !inputs.dependencies_only
-        run: python3 scripts/verify_zh_ipa.py build/Husk-2.0.0-zh-Hans.ipa build/Husk-2.0.0-zh-Hans.tipa
+        run: python3 scripts/verify_zh_ipa.py build/Husk-3.0.0-zh-Hans.ipa build/Husk-3.0.0-zh-Hans.tipa
       - name: Save dependencies
         if: always()
         continue-on-error: true
@@ -93,11 +93,11 @@ jobs:
         if: success() && !inputs.dependencies_only
         uses: actions/upload-artifact@v4
         with:
-          name: Husk-2.0.0-zh-Hans
+          name: Husk-3.0.0-zh-Hans
           path: |
-            build/Husk-2.0.0-zh-Hans.ipa
-            build/Husk-2.0.0-zh-Hans.tipa
-            build/Husk-2.0.0-zh-Hans.*.verification.json
+            build/Husk-3.0.0-zh-Hans.ipa
+            build/Husk-3.0.0-zh-Hans.tipa
+            build/Husk-3.0.0-zh-Hans.*.verification.json
           if-no-files-found: error
       - name: Upload build logs
         if: always()

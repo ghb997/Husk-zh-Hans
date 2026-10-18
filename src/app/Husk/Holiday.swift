@@ -5,6 +5,12 @@ import SwiftUI
 /// Home header. Purely decoration -- nothing here takes touches -- and one switch in Appearance turns it off.
 enum Holiday {
     static let key = "holiday.decorations"
+    /// The season the decorations are for: December 1 to January 6. Outside it they stay away whatever the setting says,
+    /// and the full-screen snow costs nothing.
+    static var inSeason: Bool {
+        let c = Calendar.current.dateComponents([.month, .day], from: Date())
+        return c.month == 12 || (c.month == 1 && (c.day ?? 1) <= 6)
+    }
 }
 
 /// Snow falling over the whole screen. Each flake is a fixed function of time, so there is no state to keep
@@ -66,7 +72,7 @@ private struct SnowCap: ViewModifier {
     var height: CGFloat
     func body(content: Content) -> some View {
         content.overlay(alignment: .top) {
-            if on {
+            if on && Holiday.inSeason {
                 SnowCapShape()
                     .fill(Color.white)
                     .frame(height: height)

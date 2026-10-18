@@ -37,6 +37,16 @@ void tl_pad_set_sink(const tl_pad_sink *sink) { pthread_mutex_lock(&P.lock); if 
 
 bool tl_pad_connected(int slot) { return slot >= 0 && slot < TL_PADS && P.connected[slot]; }
 
+bool tl_pad_read(int slot, tl_pad_state *out)
+{
+    if (slot < 0 || slot >= TL_PADS) return false;
+    pthread_mutex_lock(&P.lock);
+    bool ok = P.connected[slot];
+    if (ok) *out = P.last[slot];
+    pthread_mutex_unlock(&P.lock);
+    return ok;
+}
+
 void tl_pad_connect(int slot, const char *name)
 {
     if (slot < 0 || slot >= TL_PADS) return;

@@ -1281,7 +1281,7 @@ static bool load_library(const char *name, const uint8_t *file, size_t flen)
 
     if (stik && stik->rw_addr && stik->rx_addr) {
         size_t need = npages * TL_PAGE;
-        if (g_prewarmed_used + need <= stik->size) {
+        if (g_prewarmed_used + need <= stik->size && tl_jit_reserve_bottom(g_prewarmed_used + need)) {
             base = stik->rx_addr + g_prewarmed_used;
             base_rw = stik->rw_addr + g_prewarmed_used;
             g_prewarmed_used += need;

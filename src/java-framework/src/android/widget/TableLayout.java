@@ -65,6 +65,8 @@ public class TableLayout extends LinearLayout {
         public LayoutParams() { super(MATCH_PARENT, WRAP_CONTENT); }
         public LayoutParams(ViewGroup.LayoutParams p) { super(p); width = MATCH_PARENT; }
         public LayoutParams(MarginLayoutParams p) { super(p); width = MATCH_PARENT; }
+        // rows need no layout_width or layout_height (as on Android)
+        @Override protected void setBaseAttributes(TypedArray a, int wi, int hi) { width = MATCH_PARENT; height = a.hasValue(hi) ? a.getLayoutDimension(hi, "layout_height") : WRAP_CONTENT; }
     }
     @Override public CharSequence getAccessibilityClassName() { return TableLayout.class.getName(); }
 }

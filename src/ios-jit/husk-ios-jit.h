@@ -85,6 +85,12 @@ HuskDualMapping husk_ios_jit_allocate(size_t bytes);
  */
 HUSK_EXPORT bool husk_ios_jit_prewarm(size_t bytes);
 
+/*
+ * The native runtime shares the prewarmed region with QEMU: it takes bytes from the bottom, QEMU the top. Call before
+ * writing anything below `end` (an offset from the region's start); false means QEMU holds that part.
+ */
+HUSK_EXPORT bool husk_ios_jit_reserve_bottom(size_t end);
+
 /* Release a mapping obtained from husk_ios_jit_allocate(). */
 void husk_ios_jit_release(HuskDualMapping *m);
 

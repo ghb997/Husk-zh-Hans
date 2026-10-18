@@ -12,10 +12,12 @@ enum LibraryItem: Identifiable, Hashable {
     case game(TLApp)
     case app(AndroidHost.Package)
     case android
+    case ps4(PS4Game)
 
     var id: String {
         switch self {
         case .game(let g): return "tl:" + g.id
+        case .ps4(let g): return g.libraryID
         case .app(let p): return "android:" + p.name
         case .android: return "android-system"
         }
@@ -29,6 +31,7 @@ enum LibraryItem: Identifiable, Hashable {
         case .game(let g): return g.label
         case .app(let p): return p.label
         case .android: return "Android"
+        case .ps4(let g): return g.title
         }
     }
 
@@ -37,6 +40,7 @@ enum LibraryItem: Identifiable, Hashable {
         case .game(let g): return g.iconPath
         case .app(let p): return p.iconPath
         case .android: return nil
+        case .ps4(let g): return g.iconPath
         }
     }
 
@@ -46,6 +50,7 @@ enum LibraryItem: Identifiable, Hashable {
         case .game(let g): return (g.report?.nativeEngine != .flutter && g.report?.engine != "Flutter" && g.report?.webKind == nil) || g.isGameCategory
         case .app(let p): return p.category == "Game"
         case .android: return false
+        case .ps4: return true
         }
     }
 
@@ -54,11 +59,15 @@ enum LibraryItem: Identifiable, Hashable {
         case .game(let g): return g.packageName
         case .app(let p): return p.name
         case .android: return nil
+        case .ps4: return nil
         }
     }
 
     /// A gameplay picture, for apps that have been run on an iPhone (fetched from GitHub; see ShowcaseStore).
-    @MainActor var artworkPath: String? { ShowcaseStore.shared.pictures(for: packageName).first }
+    @MainActor var artworkPath: String? {
+        if case .ps4(let g) = self { return g.artPath }   // the game's own hero picture (pic1)
+        return ShowcaseStore.shared.pictures(for: packageName).first
+    }
 
     var runsInAndroid: Bool {
         if case .app = self { return true }
@@ -68,6 +77,7 @@ enum LibraryItem: Identifiable, Hashable {
     var lastUsed: Date? {
         switch self {
         case .game(let g): return g.lastPlayed
+        case .ps4(let g): return g.lastPlayed
         case .app(let p): return p.lastUsed
         case .android: return UserDefaults.standard.object(forKey: "husk.android.lastOpened") as? Date
         }
@@ -78,6 +88,7 @@ enum LibraryItem: Identifiable, Hashable {
         case .game(let g): return .game(g.id)
         case .app(let p): return .android(p)
         case .android: return .androidSystem
+        case .ps4(let g): return .ps4(g.titleID)
         }
     }
 
@@ -109,7 +120,7 @@ enum LibraryFilter: String, CaseIterable, Identifiable {
 @MainActor
 enum Launcher {
     static func items(store: TranslationLayerStore, host: AndroidHost) -> [LibraryItem] {
-        store.apps.map(LibraryItem.game) + host.packages.map(LibraryItem.app)
+        store.apps.map(LibraryItem.game) + PS4Store.shared.games.map(LibraryItem.ps4) + host.packages.map(LibraryItem.app)
     }
 
     /// Most recently used first; never-used ones after, by name.
@@ -125,221 +136,491 @@ enum Launcher {
     }
 
     static var jitOn: Bool { JITBootstrap.ready }
+
+    /// Play or open an item: its page, told to start the game as soon as it is up (Android apps just open their page).
+    static func play(_ item: LibraryItem, push: (LibraryRoute) -> Void) {
+        switch item {
+        case .game(let g): Router.shared.autoPlay = g.id
+        case .ps4(let g): Router.shared.autoPlay = g.libraryID
+        default: break
+        }
+        push(item.route)
+    }
 }
 
 // MARK: - Home
 
-/// Home as tiles: what you used last, the two things a game needs (JIT and its files), Android, and the rest of the library.
+/// Home as a console's home screen: the selected game's artwork across the top, a shelf of everything (most recently
+/// played first), what the selected one is and Play, then what was added lately.
 struct HomeView: View {
     @ObservedObject private var router = Router.shared
     @ObservedObject private var store = TranslationLayerStore.shared
     @ObservedObject private var host = AndroidHost.shared
+    @ObservedObject private var ps4 = PS4Store.shared
     @ObservedObject private var jit = JITCoordinator.shared
     @ObservedObject private var incoming = IncomingFiles.shared
-    @Environment(\.colorScheme) private var scheme
+    @ObservedObject private var statuses = GameStatusStore.shared
+    @ObservedObject private var compat = CompatibilityStore.shared
+    @ObservedObject private var showcase = ShowcaseStore.shared
     @AppStorage(Holiday.key) private var holiday = true
+    /// The tile the shelf has selected; nil means the first (the one played last).
+    @State private var selectedID: String?
 
-    /// Everything, most recent first.
-    private var all: [LibraryItem] { Launcher.byRecent(Launcher.items(store: store, host: host)) }
+    /// Everything on the chosen platform, most recent first.
+    private var items: [LibraryItem] {
+        Launcher.byRecent(Launcher.items(store: store, host: host)).filter(router.platform.includes)
+    }
 
     var body: some View {
         NavigationStack(path: $router.home) {
-            ScrollView {
-                VStack(alignment: .leading, spacing: 14) {
-                    HStack(spacing: 10) {
-                        if let icon = HuskAppIcon.current.preview(dark: scheme == .dark) {
-                            Image(uiImage: icon)
-                                .resizable()
-                                .frame(width: 34, height: 34)
-                                .clipShape(RoundedRectangle(cornerRadius: 9, style: .continuous))
-                        }
-                        Text("Husk")
-                            .font(.system(size: 28, weight: .heavy, design: .rounded))
-                        if holiday { ChristmasTree(size: 30).padding(.leading, 2) }
-                        Spacer()
-                        HeaderButton(systemImage: "plus") { router.addSomething() }
-                            .accessibilityLabel("添加游戏或应用")
-                    }
-                    .padding(.horizontal, 4)
-                    .padding(.bottom, 6)
+            GeometryReader { geo in
+                let items = self.items
+                let selected = items.first { $0.id == selectedID } ?? items.first
+                let heroHeight = (geo.size.height + geo.safeAreaInsets.top + geo.safeAreaInsets.bottom) * 0.55
+                ZStack(alignment: .top) {
+                    Console.page.ignoresSafeArea()
+                    HomeHero(item: selected, width: geo.size.width, height: heroHeight)
+                        .ignoresSafeArea(edges: .top)
 
-                    if let busy = incoming.preparing { BusyStrip(text: busy) }
-                    if let busy = store.busy { BusyStrip(text: busy) }
-                    if let busy = host.busy { BusyStrip(text: busy) }
+                    ScrollView {
+                        VStack(alignment: .leading, spacing: 0) {
+                            topBar
+                                .padding(.horizontal, 20)
+                                .padding(.top, 6)
+                                .environment(\.colorScheme, .dark)
+                            notices
+                                .padding(.horizontal, 20)
+                                .padding(.top, 10)
+                                // over the artwork: drawn as on dark in either appearance
+                                .environment(\.colorScheme, .dark)
 
-                    let items = all
-                    let lead = items.first { $0.lastUsed != nil } ?? items.first
-                    VStack(spacing: 12) {
-                        if let lead { LeadTile(item: lead) } else { WelcomeCard() }
-                        HStack(spacing: 12) {
-                            JITTile()
-                            DownloadsTile()
-                        }
-                        AndroidTile()
-                    }
-                    if let error = jit.error, !Launcher.jitOn {
-                        Text(error).font(.caption).foregroundStyle(.orange).fixedSize(horizontal: false, vertical: true)
-                            .padding(.horizontal, 4)
-                    }
-
-                    let rest = items.filter { $0 != lead }
-                    if !rest.isEmpty {
-                        ShelfHeader(title: "应用库") { router.showLibrary(.all) }
-                            .padding(.horizontal, 4)
-                            .padding(.top, 6)
-                        LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: 10), count: 4), spacing: 10) {
-                            ForEach(rest.prefix(UIDevice.current.userInterfaceIdiom == .pad ? 16 : 8)) { item in
-                                NavigationLink(value: item.route) { LibrarySquare(item: item) }
-                                    .buttonStyle(CardButtonStyle())
-                                    .accessibilityLabel(item.title)
+                            if let selected {
+                                Color.clear.frame(height: max(12, heroHeight - geo.safeAreaInsets.top - 62 - 150))
+                                shelf(items, selected: selected)
+                                details(selected)
+                                    .padding(.horizontal, 20)
+                                    .padding(.top, 14)
+                                recentlyAdded(items)
+                                    .padding(.top, 30)
+                            } else {
+                                Color.clear.frame(height: max(12, heroHeight - geo.safeAreaInsets.top - 62 - 200))
+                                empty.padding(.horizontal, 20)
                             }
                         }
+                        .padding(.bottom, 24)
+                        .id(jit.attachGeneration)
                     }
+                    .huskHideScrollIndicators()
                 }
-                .padding(.horizontal, 16)
-                .padding(.top, 8)
-                .padding(.bottom, 32)
-                .id(jit.attachGeneration)
             }
-            .scrollIndicators(.hidden)
-            .background(Color(uiColor: .systemBackground).ignoresSafeArea())
-            .toolbar(.hidden, for: .navigationBar)
+            .background(Console.page.ignoresSafeArea())
+            .huskNavigationBar(hidden: true)
             .libraryDestinations()
         }
     }
-}
 
-/// The surface every Home tile sits on.
-private struct Tile<Content: View>: View {
-    var padding: CGFloat = 16
-    @ViewBuilder let content: Content
+    // MARK: top bar
 
-    var body: some View {
-        content
-            .padding(padding)
-            .frame(maxWidth: .infinity, alignment: .leading)
-            .background(Color(uiColor: .secondarySystemBackground), in: RoundedRectangle(cornerRadius: 22, style: .continuous))
+    private var topBar: some View {
+        HStack(spacing: 10) {
+            Text("Husk")
+                .font(.system(size: 24, weight: .heavy, design: .rounded))
+                .foregroundStyle(.white)
+                .fixedSize()
+            if holiday && Holiday.inSeason { ChristmasTree(size: 22) }
+            PlatformChips(selection: $router.platform, compact: true)
+            Spacer(minLength: 4)
+            HomeAvatar()
+        }
+        .frame(height: 44)
+    }
+
+    /// Work under way, and JIT when it is off: what Home's tiles used to say.
+    @ViewBuilder
+    private var notices: some View {
+        VStack(spacing: 8) {
+            if let busy = incoming.preparing { BusyStrip(text: busy) }
+            if let busy = store.busy { BusyStrip(text: busy) }
+            if let busy = host.busy { BusyStrip(text: busy) }
+            DownloadsNotice()
+            if !Launcher.jitOn { JITNotice() }
+        }
+    }
+
+    // MARK: shelf
+
+    private func shelf(_ items: [LibraryItem], selected: LibraryItem) -> some View {
+        ScrollViewReader { proxy in
+            ScrollView(.horizontal, showsIndicators: false) {
+                HStack(alignment: .center, spacing: 12) {
+                    ForEach(items.prefix(30)) { item in
+                        let isSelected = item == selected
+                        Button {
+                            if isSelected {
+                                Launcher.play(item) { router.home.append($0) }
+                            } else {
+                                withAnimation(.huskSnappy(duration: 0.25)) { selectedID = item.id }
+                            }
+                        } label: {
+                            ShelfTile(item: item, selected: isSelected)
+                        }
+                        .buttonStyle(CardButtonStyle())
+                        .id(item.id)
+                        .accessibilityLabel(item.title)
+                        .accessibilityHint(isSelected ? (item.isGame ? "可游玩" : "可打开") : "选中此项")
+                        .libraryItemMenu(item) { router.home.append($0) }
+                    }
+                    if items.count > 1 {
+                        Button { router.tab = .library } label: {
+                            VStack(spacing: 6) {
+                                Image(systemName: "square.grid.2x2.fill").font(.system(size: 20, weight: .semibold))
+                                Text("全部").font(.system(size: 12, weight: .semibold))
+                            }
+                            .foregroundStyle(Console.text.opacity(0.8))
+                            .frame(width: 72, height: 72)
+                            .background(Console.card, in: RoundedRectangle(cornerRadius: 18, style: .continuous))
+                        }
+                        .buttonStyle(CardButtonStyle())
+                        .accessibilityLabel("打开应用库")
+                    }
+                }
+                .padding(.horizontal, 20)
+                .frame(height: 112)
+            }
+            .onChange(of: selectedID) { id in
+                guard let id else { return }
+                withAnimation(.huskSnappy(duration: 0.3)) { proxy.scrollTo(id, anchor: .center) }
+            }
+            .onChange(of: router.platform) { _ in selectedID = nil }
+        }
+    }
+
+    // MARK: details
+
+    private func details(_ item: LibraryItem) -> some View {
+        VStack(alignment: .leading, spacing: 6) {
+            HStack(spacing: 8) {
+                Text(item.platformName.uppercased())
+                    .font(.system(size: 12, weight: .bold))
+                    .tracking(0.8)
+                    .foregroundStyle(Console.textDim)
+                if let status = item.status {
+                    HStack(spacing: 5) {
+                        StatusDot(status: status)
+                        Text(status.label)
+                            .font(.system(size: 12, weight: .semibold))
+                            .foregroundStyle(status.color)
+                    }
+                }
+            }
+            Text(item.title)
+                .font(.system(size: 32, weight: .heavy))
+                .foregroundStyle(Console.text)
+                .lineLimit(2)
+                .minimumScaleFactor(0.7)
+                .fixedSize(horizontal: false, vertical: true)
+            if let used = item.lastPlayedText {
+                Text(used)
+                    .font(.system(size: 15))
+                    .foregroundStyle(Console.textDim)
+            }
+            HStack(spacing: 10) {
+                Button { Launcher.play(item) { router.home.append($0) } } label: {
+                    Label(item.isGame ? "开始游戏" : "打开", systemImage: item.isGame ? "play.fill" : "arrow.up.forward.app.fill")
+                }
+                .buttonStyle(ConsolePlayButtonStyle())
+                .accessibilityLabel((item.isGame ? "开始游戏：" : "打开：") + item.title)
+                HomeMoreButton(item: item)
+            }
+            .padding(.top, 10)
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .animation(nil, value: item.id)
+    }
+
+    // MARK: recently added
+
+    @ViewBuilder
+    private func recentlyAdded(_ items: [LibraryItem]) -> some View {
+        let added = items.compactMap { i in i.addedDate.map { (i, $0) } }
+            .sorted { $0.1 > $1.1 }
+            .prefix(10)
+            .map(\.0)
+        if !added.isEmpty {
+            VStack(alignment: .leading, spacing: 12) {
+                Text("最近添加")
+                    .font(.system(size: 20, weight: .bold))
+                    .foregroundStyle(Console.text)
+                    .padding(.horizontal, 20)
+                ScrollView(.horizontal, showsIndicators: false) {
+                    HStack(spacing: 12) {
+                        ForEach(added) { item in
+                            HuskLink(value: item.route) { WideCard(item: item) }
+                                .buttonStyle(CardButtonStyle())
+                                .accessibilityLabel(item.title)
+                                .libraryItemMenu(item) { router.home.append($0) }
+                        }
+                    }
+                    .padding(.horizontal, 20)
+                }
+            }
+        }
+    }
+
+    // MARK: empty
+
+    @ViewBuilder
+    private var empty: some View {
+        if router.platform != .all, !Launcher.items(store: store, host: host).isEmpty {
+            VStack(alignment: .leading, spacing: 10) {
+                Text(router.platform == .ps4 ? "还没有 PS4 游戏" : "还没有 Android 游戏或应用")
+                    .font(.system(size: 26, weight: .heavy))
+                    .foregroundStyle(Console.text)
+                Text(router.platform == .ps4
+                     ? "将解压后的 PS4 游戏文件夹放入“文件”中 Husk 的“PS4 Games”文件夹，或点击菜单中的“+”添加。"
+                     : "从菜单添加 APK 或应用包，也可以将文件共享到 Husk。")
+                    .font(.subheadline)
+                    .foregroundStyle(Console.textDim)
+                    .fixedSize(horizontal: false, vertical: true)
+                Button("显示全部") { router.platform = .all }
+                    .buttonStyle(ConsolePlayButtonStyle())
+                    .padding(.top, 6)
+            }
+        } else {
+            WelcomeCard()
+        }
     }
 }
 
-/// A tile's glyph: a small rounded square in the tile's own colour.
-private struct TileGlyph: View {
-    let systemImage: String
-    let color: Color
-    var size: CGFloat = 34
+/// What fills the top of Home: the selected item's own artwork, else its icon blown up and blurred, dimmed with plain
+/// black and faded into the page at its bottom edge.
+private struct HomeHero: View {
+    let item: LibraryItem?
+    let width: CGFloat
+    let height: CGFloat
+    @ObservedObject private var showcase = ShowcaseStore.shared
 
     var body: some View {
-        Image(systemName: systemImage)
-            .font(.system(size: size * 0.48, weight: .bold))
-            .foregroundStyle(color)
-            .frame(width: size, height: size)
-            .background(color.opacity(0.16), in: RoundedRectangle(cornerRadius: size * 0.3, style: .continuous))
+        ZStack {
+            Color.black
+            if let item {
+                art(item)
+                    .id(item.id)
+                    .transition(.opacity)
+            }
+            Color.black.opacity(0.45)
+            VStack(spacing: 0) {
+                Spacer(minLength: 0)
+                LinearGradient(colors: [.clear, Console.page], startPoint: .top, endPoint: .bottom)
+                    .frame(height: height * 0.32)
+            }
+        }
+        .frame(width: width, height: height)
+        .clipped()
+        .allowsHitTesting(false)
+        .animation(.easeInOut(duration: 0.35), value: item?.id)
+    }
+
+    @ViewBuilder
+    private func art(_ item: LibraryItem) -> some View {
+        if let art = item.artworkPath {
+            Color.clear.overlay { PictureView(path: art, pixels: 1600) }.clipped()
+        } else if item == .android {
+            AndroidMark.green.opacity(0.5)
+        } else if item.iconPath != nil {
+            AppIcon(path: item.iconPath, size: 160)
+                .scaleEffect(max(width, height) / 160 * 1.25)
+                .blur(radius: 36)
+                .frame(width: width, height: height)
+        }
     }
 }
 
-/// The thing you used last: its picture, its name, and Play.
-private struct LeadTile: View {
+/// One tile on Home's shelf: the icon, larger with a white ring when selected.
+private struct ShelfTile: View {
+    let item: LibraryItem
+    let selected: Bool
+
+    var body: some View {
+        let size: CGFloat = selected ? 92 : 72
+        ItemIcon(item: item, size: size)
+            .overlay(alignment: .bottomTrailing) {
+                if item.runsInAndroid { AndroidBadge().padding(4) }
+            }
+            .padding(selected ? 4 : 0)
+            .overlay {
+                if selected {
+                    RoundedRectangle(cornerRadius: size * 0.225 + 4, style: .continuous)
+                        .strokeBorder(Console.text, lineWidth: 3)
+                }
+            }
+            .shadow(color: .black.opacity(selected ? 0.5 : 0.3), radius: selected ? 12 : 6, y: 4)
+            .opacity(selected ? 1 : 0.85)
+            .contentShape(Rectangle())
+    }
+}
+
+/// A wide card in "Recently added": the item's picture, its icon and its name.
+private struct WideCard: View {
+    let item: LibraryItem
+
+    var body: some View {
+        ZStack(alignment: .bottomLeading) {
+            ItemBackdrop(item: item, pixels: 800, fallback: Console.card)
+            Color.black.opacity(0.35)
+            HStack(spacing: 10) {
+                ItemIcon(item: item, size: 38)
+                VStack(alignment: .leading, spacing: 2) {
+                    Text(item.title)
+                        .font(.system(size: 15, weight: .semibold))
+                        .foregroundStyle(.white)
+                        .lineLimit(1)
+                    Text(item.platformName)
+                        .font(.system(size: 12))
+                        .foregroundStyle(.white.opacity(0.7))
+                        .lineLimit(1)
+                }
+                Spacer(minLength: 0)
+                if let status = item.status { StatusDot(status: status, size: 8) }
+            }
+            .padding(12)
+        }
+        .frame(width: 250, height: 140)
+        .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
+        .overlay(RoundedRectangle(cornerRadius: 16, style: .continuous).stroke(Console.hairline, lineWidth: 0.5))
+        .contentShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
+    }
+}
+
+/// Home's big white Play button.
+struct ConsolePlayButtonStyle: ButtonStyle {
+    func makeBody(configuration: Configuration) -> some View {
+        configuration.label
+            .font(.system(size: 17, weight: .bold))
+            .foregroundStyle(Console.onText)
+            .frame(maxWidth: .infinity)
+            .frame(height: 52)
+            .background(Console.text, in: RoundedRectangle(cornerRadius: 14, style: .continuous))
+            .opacity(configuration.isPressed ? 0.85 : 1)
+            .scaleEffect(configuration.isPressed ? 0.98 : 1)
+            .animation(.easeOut(duration: 0.12), value: configuration.isPressed)
+    }
+}
+
+/// The square "⋯" beside Play: the same actions as a long press on the tile.
+private struct HomeMoreButton: View {
     let item: LibraryItem
     @ObservedObject private var router = Router.shared
+    @State private var confirmRemove = false
 
     var body: some View {
-        VStack(spacing: 0) {
-            NavigationLink(value: item.route) {
-                ItemBackdrop(item: item)
-                    .frame(height: 150)
-                    .frame(maxWidth: .infinity)
-                    .contentShape(Rectangle())
-            }
-            .buttonStyle(.plain)
-            HStack(spacing: 12) {
-                NavigationLink(value: item.route) {
-                    HStack(spacing: 12) {
-                        ItemIcon(item: item, size: 40)
-                        VStack(alignment: .leading, spacing: 2) {
-                            Text(item.title)
-                                .font(.headline)
-                                .foregroundStyle(.primary)
-                                .lineLimit(1)
-                            Text(item.usedText ?? (item.isGame ? "可以开始游戏" : "可以打开"))
-                                .font(.footnote)
-                                .foregroundStyle(.secondary)
-                                .lineLimit(1)
-                        }
-                        Spacer(minLength: 0)
-                    }
-                    .contentShape(Rectangle())
-                }
-                .buttonStyle(.plain)
-                Button(action: play) {
-                    Image(systemName: "play.fill")
-                        .font(.system(size: 16, weight: .bold))
-                        .foregroundStyle(.white)
-                        .frame(width: 46, height: 46)
-                        .background(Color.accentColor, in: Circle())
-                }
-                .buttonStyle(CardButtonStyle())
-                .accessibilityLabel((item.isGame ? "开始游戏：" : "打开：") + item.title)
-            }
-            .padding(.horizontal, 16)
-            .padding(.vertical, 14)
+        Menu {
+            LibraryItemActions(item: item, showsDetails: true, push: { router.home.append($0) }) { confirmRemove = true }
+        } label: {
+            Image(systemName: "ellipsis")
+                .font(.system(size: 18, weight: .bold))
+                .foregroundStyle(Console.text)
+                .frame(width: 52, height: 52)
+                .background(Console.raised, in: RoundedRectangle(cornerRadius: 14, style: .continuous))
         }
-        .background(Color(uiColor: .secondarySystemBackground))
-        .clipShape(RoundedRectangle(cornerRadius: 22, style: .continuous))
-    }
-
-    /// Games start as soon as their page is up; anything else just opens its page.
-    private func play() {
-        if case .game(let g) = item { router.autoPlay = g.id }
-        router.home.append(item.route)
+        .accessibilityLabel("\(item.title) 的更多选项")
+        .removeItemDialog(item, isPresented: $confirmRemove)
     }
 }
 
-/// Whether JIT is on, and the way to turn it on when it is not.
-private struct JITTile: View {
+/// The avatar in Home's corner: adding things, Downloads, Files, JIT and Settings. Its dot is JIT: green on, orange off.
+private struct HomeAvatar: View {
+    @ObservedObject private var router = Router.shared
+    @ObservedObject private var jit = JITCoordinator.shared
+    @ObservedObject private var downloads = Downloads.shared
+
+    var body: some View {
+        Menu {
+            Button { router.addSomething() } label: { Label("添加游戏或应用", systemImage: "plus") }
+            Button { router.showDownloads = true } label: { Label("下载", systemImage: "arrow.down.circle") }
+            Button { router.showFiles = true } label: { Label("文件", systemImage: "folder") }
+            Divider()
+            Button { JITNotice.toggle(jit) } label: {
+                Label(Launcher.jitOn ? "JIT 已开启（\(JITNotice.via(jit))）" : "开启 JIT", systemImage: "bolt.fill")
+            }
+            .disabled(jit.busy)
+            Button { router.tab = .settings } label: { Label("设置", systemImage: "gearshape") }
+        } label: {
+            ZStack(alignment: .topTrailing) {
+                Image(systemName: "person.fill")
+                    .font(.system(size: 15, weight: .semibold))
+                    .foregroundStyle(.white)
+                    .frame(width: 36, height: 36)
+                    .background(Console.raised, in: Circle())
+                    .overlay(Circle().stroke(Color.white.opacity(0.15), lineWidth: 0.5))
+                Circle()
+                    .fill(Launcher.jitOn ? Color.green : Color.orange)
+                    .frame(width: 10, height: 10)
+                    .overlay(Circle().stroke(Color.black, lineWidth: 2))
+                    .offset(x: 1, y: -1)
+            }
+        }
+        .accessibilityLabel("菜单")
+    }
+}
+
+/// JIT is off: say so, and the way to turn it on.
+private struct JITNotice: View {
     @ObservedObject private var jit = JITCoordinator.shared
 
-    private var isOn: Bool { Launcher.jitOn }
-    private var via: String {
+    static func via(_ jit: JITCoordinator) -> String {
         let m = jit.resolvedMethod
         return m == .builtIn ? "StikJIT" : m.title
     }
 
-    var body: some View {
-        Button(action: tap) {
-            Tile {
-                VStack(alignment: .leading, spacing: 18) {
-                    HStack {
-                        TileGlyph(systemImage: "bolt.fill", color: isOn ? .green : .orange)
-                        Spacer()
-                        if jit.busy { ProgressView() }
-                    }
-                    VStack(alignment: .leading, spacing: 2) {
-                        Text(isOn ? "JIT 已开启" : "JIT 未开启").font(.headline).foregroundStyle(.primary)
-                        Text(isOn ? "通过 \(via)" : jit.busy ? (jit.status ?? "正在开启…") : "轻点开启")
-                            .font(.footnote).foregroundStyle(.secondary).lineLimit(1)
-                    }
-                }
-            }
-        }
-        .buttonStyle(CardButtonStyle())
-        .disabled(jit.busy)
-    }
-
-    private func tap() {
-        if isOn { jit.showSetup = true; return }
+    static func toggle(_ jit: JITCoordinator) {
+        if Launcher.jitOn { jit.showSetup = true; return }
         if HuskBuiltInJIT.isAvailable, jit.resolvedMethod == .builtIn { jit.method = .builtIn }
         jit.enable()
     }
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 6) {
+            Button { Self.toggle(jit) } label: {
+                HStack(spacing: 10) {
+                    Image(systemName: "bolt.fill")
+                        .font(.system(size: 14, weight: .bold))
+                        .foregroundStyle(.orange)
+                    VStack(alignment: .leading, spacing: 1) {
+                        Text("JIT 未开启").font(.system(size: 14, weight: .semibold)).foregroundStyle(.white)
+                        Text(jit.busy ? (jit.status ?? "正在开启…") : "运行游戏需要 JIT，点按即可开启。")
+                            .font(.system(size: 12)).foregroundStyle(Console.textDim).lineLimit(1)
+                    }
+                    Spacer(minLength: 0)
+                    if jit.busy { ProgressView() } else {
+                        Text("开启")
+                            .font(.system(size: 13, weight: .bold))
+                            .foregroundStyle(.black)
+                            .padding(.horizontal, 12).frame(height: 28)
+                            .background(Color.white, in: Capsule())
+                    }
+                }
+                .padding(.horizontal, 12).padding(.vertical, 10)
+                .background(Color.black.opacity(0.55), in: RoundedRectangle(cornerRadius: 14, style: .continuous))
+                .overlay(RoundedRectangle(cornerRadius: 14, style: .continuous).stroke(Console.hairline, lineWidth: 0.5))
+            }
+            .buttonStyle(CardButtonStyle())
+            .disabled(jit.busy)
+            if let error = jit.error {
+                Text(error).font(.caption).foregroundStyle(.orange).fixedSize(horizontal: false, vertical: true)
+            }
+        }
+    }
 }
 
-/// Downloads at a glance: what is coming in, or that Husk is current.
-private struct DownloadsTile: View {
+/// Downloads at a glance, only while there is something to say: what is coming in, a failure, an update.
+private struct DownloadsNotice: View {
     @ObservedObject private var downloads = Downloads.shared
     @ObservedObject private var updates = AppUpdates.shared
     @ObservedObject private var guest = GuestImage.shared
     @ObservedObject private var router = Router.shared
 
-    private var status: String {
+    private var status: String? {
         let running = downloads.jobs.filter { !$0.complete && !$0.paused && !$0.failed }
         if !running.isEmpty {
             let total = running.reduce(Int64(0)) { $0 + $1.total }
@@ -347,77 +628,29 @@ private struct DownloadsTile: View {
             let pct = total > 0 ? " · \(Int(Double(got) / Double(total) * 100))%" : ""
             return "\(running.count) 项正在下载\(pct)"
         }
-        if downloads.jobs.contains(where: \.failed) { return "部分下载失败" }
+        if downloads.jobs.contains(where: \.failed) { return "有下载任务失败" }
         if let release = updates.available { return "Husk \(release.version) 已发布" }
         if guest.update.isSomething { return "Android 有可用更新" }
-        return "已是最新"
+        return nil
     }
 
     var body: some View {
-        Button { router.showDownloads = true } label: {
-            Tile {
-                VStack(alignment: .leading, spacing: 18) {
-                    TileGlyph(systemImage: "arrow.down", color: .indigo)
-                    VStack(alignment: .leading, spacing: 2) {
-                        Text("下载").font(.headline).foregroundStyle(.primary)
-                        Text(status).font(.footnote).foregroundStyle(.secondary).lineLimit(1)
-                    }
+        if let status {
+            Button { router.showDownloads = true } label: {
+                HStack(spacing: 10) {
+                    Image(systemName: "arrow.down.circle.fill")
+                        .font(.system(size: 16, weight: .semibold))
+                        .foregroundStyle(Theme.accent)
+                    Text(status).font(.system(size: 14, weight: .semibold)).foregroundStyle(.white).lineLimit(1)
+                    Spacer(minLength: 0)
+                    Image(systemName: "chevron.right").font(.system(size: 12, weight: .bold)).foregroundStyle(Console.textDim)
                 }
+                .padding(.horizontal, 12).padding(.vertical, 10)
+                .background(Color.black.opacity(0.55), in: RoundedRectangle(cornerRadius: 14, style: .continuous))
+                .overlay(RoundedRectangle(cornerRadius: 14, style: .continuous).stroke(Console.hairline, lineWidth: 0.5))
             }
+            .buttonStyle(CardButtonStyle())
         }
-        .buttonStyle(CardButtonStyle())
-    }
-}
-
-/// Android itself, for what the translation layer cannot run yet.
-private struct AndroidTile: View {
-    @ObservedObject private var router = Router.shared
-
-    var body: some View {
-        Tile(padding: 14) {
-            HStack(spacing: 12) {
-                NavigationLink(value: LibraryItem.android.route) {
-                    HStack(spacing: 12) {
-                        TileGlyph(systemImage: "apps.iphone", color: AndroidMark.green, size: 40)
-                        VStack(alignment: .leading, spacing: 2) {
-                            Text("Android").font(.headline).foregroundStyle(.primary)
-                            Text("用于运行转译层尚不支持的应用")
-                                .font(.footnote).foregroundStyle(.secondary)
-                                .fixedSize(horizontal: false, vertical: true)
-                        }
-                        Spacer(minLength: 0)
-                    }
-                    .contentShape(Rectangle())
-                }
-                .buttonStyle(.plain)
-                Button {
-                    if router.androidStarted { router.openGuest() } else { router.startAndroid() }
-                } label: {
-                    Text(router.androidStarted ? "打开" : "启动")
-                        .font(.subheadline.weight(.bold))
-                        .foregroundStyle(.primary)
-                        .padding(.horizontal, 14)
-                        .frame(height: 34)
-                        .background(Color(uiColor: .tertiarySystemFill), in: Capsule())
-                }
-                .buttonStyle(CardButtonStyle())
-            }
-        }
-    }
-}
-
-/// One square in Home's library grid: the app's own icon.
-private struct LibrarySquare: View {
-    let item: LibraryItem
-
-    var body: some View {
-        Color.clear
-            .aspectRatio(1, contentMode: .fit)
-            .overlay {
-                GeometryReader { geo in ItemIcon(item: item, size: geo.size.width) }
-            }
-            .overlay(alignment: .topTrailing) { if item.runsInAndroid { AndroidBadge().padding(5) } }
-            .contentShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
     }
 }
 
@@ -429,39 +662,25 @@ private struct WelcomeCard: View {
         VStack(alignment: .leading, spacing: 16) {
             Image(systemName: "gamecontroller.fill")
                 .font(.system(size: 28, weight: .semibold))
-                .foregroundStyle(Color.accentColor)
+                .foregroundStyle(Console.text)
                 .frame(width: 60, height: 60)
-                .background(Color.accentColor.opacity(0.15), in: RoundedRectangle(cornerRadius: 16, style: .continuous))
+                .background(Console.raised, in: RoundedRectangle(cornerRadius: 16, style: .continuous))
             VStack(alignment: .leading, spacing: 6) {
                 Text("添加你的第一个游戏")
-                    .font(.system(.title2, design: .rounded).weight(.bold))
+                    .font(.system(size: 26, weight: .heavy))
+                    .foregroundStyle(Console.text)
                 Text("选择 APK 或安装包（.xapk、.apkm、.apks），也可从“文件”或 Safari 共享到 Husk。游戏"
-                   + "直接在 iPhone 上运行，其他应用在 Android 系统内运行。")
+                   + "直接在 iPhone 上运行。其他应用可在 Android 系统中运行。PS4 游戏需要先解压，再放入"
+                   + "Husk 的“PS4 Games”文件夹。")
                     .font(.subheadline)
-                    .foregroundStyle(.secondary)
+                    .foregroundStyle(Console.textDim)
                     .fixedSize(horizontal: false, vertical: true)
             }
-            Button { router.addSomething() } label: {
-                Text("添加游戏或应用").frame(maxWidth: .infinity)
-            }
-            .buttonStyle(PrimaryButtonStyle())
+            Button { router.addSomething() } label: { Text("添加游戏或应用") }
+                .buttonStyle(ConsolePlayButtonStyle())
         }
         .padding(20)
-        .background(Color(uiColor: .secondarySystemBackground), in: RoundedRectangle(cornerRadius: 24, style: .continuous))
-    }
-}
-
-private struct ShelfHeader: View {
-    let title: String
-    let seeAll: () -> Void
-
-    var body: some View {
-        HStack(alignment: .firstTextBaseline) {
-            Text(title).font(.system(.title3, design: .rounded).weight(.bold))
-            Spacer()
-            Button("查看全部", action: seeAll).font(.subheadline.weight(.semibold))
-        }
-        .padding(.bottom, -10)
+        .background(Console.card, in: RoundedRectangle(cornerRadius: 22, style: .continuous))
     }
 }
 
@@ -538,7 +757,7 @@ struct AndroidMark: View {
             .font(.system(size: size * 0.46, weight: .semibold))
             .foregroundStyle(.white)
             .frame(width: size, height: size)
-            .background(Self.green.gradient, in: RoundedRectangle(cornerRadius: size * 0.225, style: .continuous))
+            .background(Self.green.huskGradient, in: RoundedRectangle(cornerRadius: size * 0.225, style: .continuous))
     }
 }
 
@@ -556,58 +775,81 @@ struct AndroidBadge: View {
 
 // MARK: - Library
 
-/// Every game and app, in one grid: search, and All / Games / Apps.
+/// Every game and app: the platform chips, search, and a grid per platform.
 struct LibraryScreen: View {
     @ObservedObject private var router = Router.shared
     @ObservedObject private var store = TranslationLayerStore.shared
     @ObservedObject private var host = AndroidHost.shared
+    @ObservedObject private var ps4 = PS4Store.shared
     @ObservedObject private var guest = GuestImage.shared
+    @ObservedObject private var statuses = GameStatusStore.shared
+    @ObservedObject private var compat = CompatibilityStore.shared
     @State private var query = ""
+
+    private var columns: [GridItem] {
+        Array(repeating: GridItem(.flexible(), spacing: 14, alignment: .top),
+              count: UIDevice.current.userInterfaceIdiom == .pad ? 6 : 3)
+    }
 
     var body: some View {
         NavigationStack(path: $router.library) {
             ScrollView {
-                VStack(alignment: .leading, spacing: 14) {
-                    HStack {
-                        Text("应用库")
-                            .font(.system(size: 28, weight: .heavy, design: .rounded))
-                        Spacer()
-                        HeaderButton(systemImage: "plus") { router.addSomething() }
-                            .accessibilityLabel("添加游戏或应用")
+                VStack(alignment: .leading, spacing: 16) {
+                    HStack(spacing: 8) {
+                        PlatformChips(selection: $router.platform)
+                        Spacer(minLength: 0)
+                        Menu {
+                            Picker("显示", selection: $router.libraryFilter) {
+                                ForEach(LibraryFilter.allCases) { Text($0.title).tag($0) }
+                            }
+                        } label: {
+                            Image(systemName: router.libraryFilter == .all ? "line.3.horizontal.decrease.circle"
+                                                                            : "line.3.horizontal.decrease.circle.fill")
+                                .font(.system(size: 22, weight: .regular))
+                                .foregroundStyle(router.libraryFilter == .all ? Console.textDim : Theme.accent)
+                                .frame(width: 36, height: 36)
+                        }
+                        .accessibilityLabel("游戏或应用")
                     }
-                    .padding(.horizontal, 4)
-                    .padding(.bottom, 6)
                     SearchField(text: $query, prompt: "搜索游戏和应用")
-                    Picker("显示", selection: $router.libraryFilter) {
-                        ForEach(LibraryFilter.allCases) { Text($0.title).tag($0) }
-                    }
-                    .pickerStyle(.segmented)
                     if let busy = store.busy { BusyStrip(text: busy) }
                     if let busy = host.busy { BusyStrip(text: busy) }
 
                     let items = Launcher.items(store: store, host: host)
+                        .filter(router.platform.includes)
+                        .filter { router.libraryFilter == .all || (router.libraryFilter == .games) == $0.isGame }
                         .filter { matches(query, $0.title) }
                         .sorted { $0.title.localizedCaseInsensitiveCompare($1.title) == .orderedAscending }
-                    let games = items.filter(\.isGame)
-                    // Android, as an app of its own: pinned first, and found by search like anything else.
-                    let apps = (matches(query, "Android") ? [LibraryItem.android] : []) + items.filter { !$0.isGame }
+                    let playstation = items.filter(\.isPS4)
+                    let android = items.filter { !$0.isPS4 }
 
-                    if router.libraryFilter != .apps {
-                        section("游戏", games, empty: query.isEmpty ? "轻点 + 按钮添加游戏。" : nil)
+                    if router.platform != .android {
+                        section("PlayStation 4", playstation,
+                                empty: router.platform == .ps4 && query.isEmpty
+                                    ? (PS4Store.available ? "将解压后的游戏文件夹放入“文件”中 Husk 的“PS4 Games”文件夹。"
+                                                          : "PS4 游戏需要 iOS 17.4 或更高版本。")
+                                    : nil)
                     }
-                    if router.libraryFilter != .games {
-                        section("应用", apps, empty: nil)
+                    if router.platform != .ps4 {
+                        section("Android", android, empty: query.isEmpty && router.libraryFilter == .all ? "轻点 + 按钮添加游戏。" : nil)
                     }
-                    if !query.isEmpty, games.isEmpty, apps.isEmpty { NoResults(query: query) }
+                    if !query.isEmpty, items.isEmpty { NoResults(query: query) }
                 }
-                .padding(.horizontal, 16)
+                .padding(.horizontal, 20)
                 .padding(.top, 8)
-                .padding(.bottom, 32)
+                .padding(.bottom, 24)
             }
-            .scrollIndicators(.hidden)
-            .scrollDismissesKeyboard(.immediately)
-            .background(Color(uiColor: .systemBackground).ignoresSafeArea())
-            .toolbar(.hidden, for: .navigationBar)
+            .huskHideScrollIndicators()
+            .huskDismissKeyboardOnScroll()
+            .background(Console.page.ignoresSafeArea())
+            .navigationTitle("应用库")
+            .navigationBarTitleDisplayMode(.large)
+            .toolbar {
+                ToolbarItem(placement: .navigationBarTrailing) {
+                    Button { router.addSomething() } label: { Image(systemName: "plus") }
+                        .accessibilityLabel("添加游戏或应用")
+                }
+            }
             .libraryDestinations()
         }
     }
@@ -615,28 +857,30 @@ struct LibraryScreen: View {
     @ViewBuilder
     private func section(_ title: String, _ items: [LibraryItem], empty: String?) -> some View {
         if !items.isEmpty || empty != nil {
-            Tile {
-                VStack(alignment: .leading, spacing: 16) {
-                    HStack(alignment: .firstTextBaseline, spacing: 6) {
-                        Text(title).font(.headline)
-                        Text("\(items.count)").font(.subheadline).foregroundStyle(.secondary)
-                    }
-                    if items.isEmpty, let empty {
-                        Text(empty).font(.subheadline).foregroundStyle(.secondary)
-                    } else {
-                        LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: 10, alignment: .top),
-                                                 count: UIDevice.current.userInterfaceIdiom == .pad ? 8 : 4),
-                                  spacing: 18) {
-                            ForEach(items) { item in
-                                NavigationLink(value: item.route) {
-                                    LauncherTile(title: item.title, iconPath: item.iconPath, item: item, caption: caption(item), size: 60)
-                                }
+            VStack(alignment: .leading, spacing: 14) {
+                HStack(alignment: .firstTextBaseline, spacing: 8) {
+                    Text(title).font(.system(size: 21, weight: .bold)).foregroundStyle(Console.text)
+                    Text("\(items.count)").font(.system(size: 15, weight: .medium)).foregroundStyle(Console.textDim)
+                }
+                if items.isEmpty, let empty {
+                    Text(empty)
+                        .font(.subheadline)
+                        .foregroundStyle(Console.textDim)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .padding(16)
+                        .background(Console.card, in: RoundedRectangle(cornerRadius: 16, style: .continuous))
+                } else {
+                    LazyVGrid(columns: columns, spacing: 20) {
+                        ForEach(items) { item in
+                            HuskLink(value: item.route) { LibraryCell(item: item, caption: caption(item)) }
                                 .buttonStyle(CardButtonStyle())
-                            }
+                                .accessibilityLabel(item.title)
+                                .libraryItemMenu(item) { router.library.append($0) }
                         }
                     }
                 }
             }
+            .padding(.top, 8)
         }
     }
 
@@ -648,8 +892,39 @@ struct LibraryScreen: View {
         case .android:
             if AndroidHost.shared.isReady { return "运行中" }
             return guest.state == .ready ? nil : "尚未安装"
-        case .app: return nil
+        case .app: return "模拟器"
+        case .ps4: return PS4Store.available ? nil : "需要 iOS 17.4"
         }
+    }
+}
+
+/// One item in the Library grid: a rounded square icon, its name with the status dot, and a caption when there is one.
+private struct LibraryCell: View {
+    let item: LibraryItem
+    let caption: String?
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            Color.clear
+                .aspectRatio(1, contentMode: .fit)
+                .overlay { GeometryReader { geo in ItemIcon(item: item, size: geo.size.width) } }
+                .overlay(alignment: .topTrailing) { if item.runsInAndroid { AndroidBadge().padding(6) } }
+                .snowCap(height: 7)
+                .shadow(color: .black.opacity(0.25), radius: 6, y: 3)
+            VStack(alignment: .leading, spacing: 2) {
+                HStack(spacing: 5) {
+                    if let status = item.status { StatusDot(status: status) }
+                    Text(item.title)
+                        .font(.system(size: 13, weight: .semibold))
+                        .foregroundStyle(Console.text)
+                        .lineLimit(1)
+                }
+                if let caption {
+                    Text(caption).font(.system(size: 11)).foregroundStyle(Console.textDim).lineLimit(1)
+                }
+            }
+        }
+        .contentShape(Rectangle())
     }
 }
 
@@ -696,6 +971,84 @@ struct LauncherTile: View {
         }
         .frame(maxWidth: .infinity)
         .contentShape(Rectangle())
+    }
+}
+
+/// What can be done with a library item: play or open it, its page, its settings, and removing it. Shared by the long press
+/// on a tile and Home's "⋯" button.
+struct LibraryItemActions: View {
+    let item: LibraryItem
+    var showsDetails = false
+    let push: (LibraryRoute) -> Void
+    let askRemove: () -> Void
+
+    var body: some View {
+        Button { Launcher.play(item, push: push) } label: {
+            Label(item.isGame ? "开始游戏" : "打开", systemImage: item.isGame ? "play.fill" : "arrow.up.forward.app")
+        }
+        if showsDetails, !item.runsInAndroid {
+            Button { push(item.route) } label: { Label("详情", systemImage: "info.circle") }
+        }
+        if case .game(let g) = item {
+            Button { push(.gameSettings(g.id)) } label: { Label("设置", systemImage: "slider.horizontal.3") }
+            Divider()
+            Button(role: .destructive) { askRemove() } label: { Label("移除", systemImage: "trash") }
+        } else if case .app(let p) = item, AndroidHost.shared.isReady {
+            Divider()
+            Button(role: .destructive) { askRemove() } label: { Label("卸载", systemImage: "trash") }
+                .accessibilityHint("从 Android 中卸载 \(p.label)")
+        }
+    }
+}
+
+/// Asking before an item is removed, and removing it.
+private struct RemoveItemDialog: ViewModifier {
+    let item: LibraryItem
+    @Binding var isPresented: Bool
+
+    func body(content: Content) -> some View {
+        content
+            .confirmationDialog(removeTitle, isPresented: $isPresented, titleVisibility: .visible) {
+                Button(removeVerb, role: .destructive) {
+                    switch item {
+                    case .game(let g): TranslationLayerStore.shared.remove(g)
+                    case .app(let p): AndroidHost.shared.uninstall(p.name)
+                    default: break
+                    }
+                }
+            } message: {
+                Text(removeMessage)
+            }
+    }
+
+    private var removeVerb: String { if case .app = item { return "卸载" }; return "移除" }
+    private var removeTitle: String { "\(removeVerb) \(item.title)?" }
+    private var removeMessage: String {
+        if case .app = item { return "应用及其数据将从 Android 中卸载。" }
+        return "其文件和存档进度将从 Husk 中删除。"
+    }
+}
+
+/// Long-press on a library tile: play or open it, its settings, and removing it -- what iOS puts on a home screen icon.
+private struct LibraryItemMenu: ViewModifier {
+    let item: LibraryItem
+    let push: (LibraryRoute) -> Void
+    @State private var confirmRemove = false
+
+    func body(content: Content) -> some View {
+        content
+            .contextMenu { LibraryItemActions(item: item, push: push) { confirmRemove = true } }
+            .removeItemDialog(item, isPresented: $confirmRemove)
+    }
+}
+
+extension View {
+    func libraryItemMenu(_ item: LibraryItem, push: @escaping (LibraryRoute) -> Void) -> some View {
+        modifier(LibraryItemMenu(item: item, push: push))
+    }
+
+    func removeItemDialog(_ item: LibraryItem, isPresented: Binding<Bool>) -> some View {
+        modifier(RemoveItemDialog(item: item, isPresented: isPresented))
     }
 }
 
@@ -792,8 +1145,8 @@ func matches(_ query: String, _ names: String...) -> Bool {
 extension View {
     /// The pages an item opens, for whichever stack shows it.
     func libraryDestinations() -> some View {
-        navigationDestination(for: LibraryRoute.self) { route in
-            LibraryRouteView(route: route).toolbar(.visible, for: .navigationBar)
+        huskDestination(for: LibraryRoute.self) { route in
+            LibraryRouteView(route: route).huskNavigationBar(hidden: false)
         }
     }
 }
@@ -814,6 +1167,8 @@ private struct LibraryRouteView: View {
             AndroidAppPage(app: pkg)
         case .androidSystem:
             AndroidSystemPage()
+        case .ps4(let id):
+            if let game = PS4Store.shared.game(id) { PS4GamePage(game: game) } else { GoneView() }
         }
     }
 }

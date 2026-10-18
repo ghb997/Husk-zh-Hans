@@ -623,6 +623,7 @@ wanted = [
     "husk_ios_jit_detach",
     "husk_ios_jit_log_footprint",
     "husk_ios_jit_get_mapping",
+    "husk_ios_jit_reserve_bottom",
     "husk_ios_jit_self_route",
     "husk_ios_available_memory",
 ]

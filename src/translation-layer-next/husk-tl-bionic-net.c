@@ -499,6 +499,60 @@ static void *b_gethostbyaddr(const void *addr, socklen_t len, int type)
     return &t_he;
 }
 
+/* The reentrant forms (Python's socket module uses them): the lookup under a lock, its result copied into the caller's buffer.
+ * 0 with *result NULL and *herr HOST_NOT_FOUND when there is no answer, ERANGE when buf is too small, as bionic does. */
+static pthread_mutex_t he_lock = PTHREAD_MUTEX_INITIALIZER;
+static int he_copy(const struct hostent *h, guest_hostent *out, char *buf, size_t buflen, guest_hostent **result, int *herr)
+{
+    size_t na = 0, nl = 0, need = strlen(h->h_name) + 1;
+    while (h->h_aliases && h->h_aliases[na]) need += strlen(h->h_aliases[na++]) + 1;
+    while (h->h_addr_list && h->h_addr_list[nl]) nl++;
+    need += (na + 1 + nl + 1) * sizeof(char *) + nl * (size_t)h->h_length + sizeof(char *);
+    if (need > buflen) { if (herr) *herr = -1; return ERANGE; }
+    char *p = (char *)(((uintptr_t)buf + sizeof(char *) - 1) & ~(uintptr_t)(sizeof(char *) - 1));
+    char **aliases = (char **)p; p += (na + 1) * sizeof(char *);
+    char **addrs = (char **)p; p += (nl + 1) * sizeof(char *);
+    for (size_t i = 0; i < nl; i++) { memcpy(p, h->h_addr_list[i], (size_t)h->h_length); addrs[i] = p; p += h->h_length; }
+    addrs[nl] = NULL;
+    for (size_t i = 0; i < na; i++) { size_t l = strlen(h->h_aliases[i]) + 1; memcpy(p, h->h_aliases[i], l); aliases[i] = p; p += l; }
+    aliases[na] = NULL;
+    size_t l = strlen(h->h_name) + 1; memcpy(p, h->h_name, l);
+    out->h_name = p; out->h_aliases = aliases; out->h_addrtype = dom_from_darwin(h->h_addrtype);
+    out->h_length = h->h_length; out->h_addr_list = addrs;
+    *result = out;
+    if (herr) *herr = 0;
+    return 0;
+}
+static int he_finish(struct hostent *h, guest_hostent *out, char *buf, size_t buflen, guest_hostent **result, int *herr)
+{
+    int r = 0;
+    *result = NULL;
+    if (h) r = he_copy(h, out, buf, buflen, result, herr);
+    else if (herr) *herr = h_errno;
+    pthread_mutex_unlock(&he_lock);
+    return r;
+}
+static int b_gethostbyname2_r(const char *name, int af, guest_hostent *out, char *buf, size_t buflen, guest_hostent **result, int *herr)
+{
+    int d = dom_to_darwin(af);
+    if (d < 0) { *result = NULL; if (herr) *herr = 1; return 0; }
+    pthread_mutex_lock(&he_lock);
+    return he_finish(gethostbyname2(name, d), out, buf, buflen, result, herr);
+}
+static int b_gethostbyname_r(const char *name, guest_hostent *out, char *buf, size_t buflen, guest_hostent **result, int *herr)
+{
+    pthread_mutex_lock(&he_lock);
+    return he_finish(gethostbyname(name), out, buf, buflen, result, herr);
+}
+static int b_gethostbyaddr_r(const void *addr, socklen_t len, int type, guest_hostent *out, char *buf, size_t buflen,
+                             guest_hostent **result, int *herr)
+{
+    int d = dom_to_darwin(type);
+    if (d < 0) { *result = NULL; if (herr) *herr = 1; return 0; }
+    pthread_mutex_lock(&he_lock);
+    return he_finish(gethostbyaddr(addr, len, d), out, buf, buflen, result, herr);
+}
+
 static uint16_t b_htons(uint16_t x) { return __builtin_bswap16(x); }
 static uint32_t b_htonl(uint32_t x) { return __builtin_bswap32(x); }
 static unsigned b_if_nametoindex(const char *n) { return if_nametoindex(n); }
@@ -540,8 +594,12 @@ static int b_getifaddrs(guest_ifaddrs **out)
 }
 static void b_freeifaddrs(guest_ifaddrs *g) { while (g) { guest_ifaddrs *n = g->next; free(g); g = n; } }
 
+/* The same 16 bytes on both sides */
+static const struct in6_addr g_in6addr_any = IN6ADDR_ANY_INIT, g_in6addr_loopback = IN6ADDR_LOOPBACK_INIT;
+
 const tl_bionic_entry tl_tab_net[] = {
     TL_WRAP("getifaddrs", b_getifaddrs), TL_WRAP("freeifaddrs", b_freeifaddrs),
+    TL_DATA("in6addr_any", &g_in6addr_any), TL_DATA("in6addr_loopback", &g_in6addr_loopback),
     TL_WRAP("socket", b_socket), TL_WRAP("socketpair", b_socketpair), TL_WRAP("bind", b_bind), TL_WRAP("connect", b_connect),
     TL_WRAP("listen", b_listen), TL_WRAP("accept", b_accept), TL_WRAP("accept4", b_accept4), TL_WRAP("send", b_send),
     TL_WRAP("recv", b_recv), TL_WRAP("sendto", b_sendto), TL_WRAP("__sendto_chk", b___sendto_chk), TL_WRAP("recvfrom", b_recvfrom), TL_WRAP("__recvfrom_chk", b___recvfrom_chk), TL_WRAP("sendmsg", b_sendmsg),
@@ -549,6 +607,7 @@ const tl_bionic_entry tl_tab_net[] = {
     TL_WRAP("getpeername", b_getpeername), TL_WRAP("setsockopt", b_setsockopt), TL_WRAP("getsockopt", b_getsockopt),
     TL_WRAP("getaddrinfo", b_getaddrinfo), TL_WRAP("android_getaddrinfofornet", b_android_getaddrinfofornet), TL_WRAP("freeaddrinfo", b_freeaddrinfo), TL_WRAP("gai_strerror", b_gai_strerror),
     TL_WRAP("getnameinfo", b_getnameinfo), TL_WRAP("gethostbyname", b_gethostbyname), TL_WRAP("gethostbyaddr", b_gethostbyaddr),
+    TL_WRAP("gethostbyname_r", b_gethostbyname_r), TL_WRAP("gethostbyname2_r", b_gethostbyname2_r), TL_WRAP("gethostbyaddr_r", b_gethostbyaddr_r),
     TL_WRAP("if_nametoindex", b_if_nametoindex), TL_WRAP("inet_pton", b_inet_pton), TL_WRAP("inet_ntop", b_inet_ntop),
     TL_DIRECT(inet_addr), TL_DIRECT(inet_aton), TL_DIRECT(inet_ntoa), TL_WRAP("htons", b_htons), TL_WRAP("ntohs", b_htons), TL_WRAP("htonl", b_htonl), TL_WRAP("ntohl", b_htonl),
     TL_END

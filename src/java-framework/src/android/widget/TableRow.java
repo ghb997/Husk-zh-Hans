@@ -90,6 +90,11 @@ public class TableRow extends LinearLayout {
         }
         public LayoutParams(int w, int h) { super(w, h); }
         public LayoutParams(int w, int h, float weight) { super(w, h, weight); }
+        // cells need no layout_width or layout_height (as on Android)
+        @Override protected void setBaseAttributes(TypedArray a, int wi, int hi) {
+            width = a.hasValue(wi) ? a.getLayoutDimension(wi, "layout_width") : MATCH_PARENT;
+            height = a.hasValue(hi) ? a.getLayoutDimension(hi, "layout_height") : WRAP_CONTENT;
+        }
         public LayoutParams() { super(MATCH_PARENT, WRAP_CONTENT); }
         public LayoutParams(int column) { this(); this.column = column; }
         public LayoutParams(ViewGroup.LayoutParams p) { super(p); }

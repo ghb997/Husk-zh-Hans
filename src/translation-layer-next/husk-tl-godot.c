@@ -91,6 +91,13 @@ static jobj *command_line(void)
         }
         if (owned) free((void *)d);
     }
+    /* Godot 4 games exported for the Forward+ or Mobile renderer ask for Vulkan with an Android window surface, which MoltenVK
+     * does not have, and then fail to make any display ("all display drivers failed"). Husk gives Godot a GL ES context, so run
+     * them on Godot's own OpenGL renderer (Compatibility), which every Godot 4 game can use. TL_GODOT_VULKAN keeps their choice. */
+    if (U.major >= 4 && !getenv("TL_GODOT_VULKAN") && n + 4 <= 32) {
+        static const char *gl[] = { "--rendering-driver", "opengl3", "--rendering-method", "gl_compatibility" };
+        for (int i = 0; i < 4; i++) list[n++] = strdup(gl[i]);
+    }
     jobj *arr = tl_jni_new_obj_array(tl_jni_class("java/lang/String"), (uint32_t)n);
     for (int i = 0; i < n; i++) { arr->oarr.v[i] = tl_jni_new_string(list[i]); tl_log_line("godot: argument %s", list[i]); free(list[i]); }
     return arr;

@@ -330,6 +330,24 @@ static tl_jclass *class_for_desc(const char *desc)
     return jc ? jc : tl_jni_class(name);        /* not defined anywhere: a framework class Husk may implement */
 }
 
+/*
+ * A class no DEX file defines (the app's, the framework's, libcore's) and Husk's C side does not implement either, outside the
+ * platform's packages: the app names a class it does not ship, and ART says NoClassDefFoundError when the code reaches it. Libraries
+ * probe for optional parts that way (slf4j looks for a binding, StaticLoggerBinder, and falls back to a no-op logger without one);
+ * a stand-in whose methods return zero tells them the part is there, and they fail on its null answers instead.
+ */
+static bool class_missing(tl_jclass *jc)
+{
+    if (!jc || jc->in_dex || dvm_class_of(jc) || jc->name[0] == '[') return false;
+    static const char *const platform[] = { "android/", "java/", "javax/", "dalvik/", "com/android/", "libcore/", "sun/", "org/apache/http/",
+                                            "org/json/", "org/xml/", "org/w3c/", "org/xmlpull/", "org/ccil/", "junit/", "husk/", NULL };
+    for (int i = 0; platform[i]; i++) if (!strncmp(jc->name, platform[i], strlen(platform[i]))) return false;
+    if (!strchr(jc->name, '/')) return false;                                   /* primitives, the default package */
+    return !tl_jni_class_known(jc);
+}
+
+static bool throw_missing(tl_jclass *jc) { return dvm_throw("java/lang/NoClassDefFoundError", "Failed resolution of: L%s;", jc->name); }
+
 static tl_jclass *resolve_type(dvm_dex *d, uint32_t idx)
 {
     tl_jclass *c = __atomic_load_n(&d->tcache[idx], __ATOMIC_ACQUIRE);
@@ -1195,6 +1213,7 @@ typedef struct mref {
     int nparams;
     dvm_method *dm;                 /* resolved in an interpreted class */
     tl_jmeth *hm;                   /* or Husk's own */
+    bool missing;                   /* or its class exists nowhere (class_missing) */
 } mref;
 
 static mref *resolve_mref(dvm_dex *d, uint32_t idx, bool is_static)
@@ -1210,7 +1229,8 @@ static mref *resolve_mref(dvm_dex *d, uint32_t idx, bool is_static)
     { char sg[8192], sh[300]; proto_sig(d, rd16(mi + 2), sg, sizeof(sg), sh, sizeof(sh), &r->nparams); r->sig = strdup(sg); r->shorty = strdup(sh); }
     dvm_class *c = dvm_class_of(r->cls);
     if (c) r->dm = dvm_find_method(c, r->name, r->sig, is_static);
-    if (!r->dm && !c) r->hm = tl_jni_method(r->cls, r->name, r->sig, is_static);
+    r->missing = !c && class_missing(r->cls);
+    if (!r->dm && !c && !r->missing) r->hm = tl_jni_method(r->cls, r->name, r->sig, is_static);
     if (!r->dm && c && !r->hm) {
         /* an interpreted class whose framework superclass declares it */
         for (tl_jclass *k = r->cls; k; k = k->super) if (!dvm_class_of(k)) { r->hm = tl_jni_method(k, r->name, r->sig, is_static); break; }
@@ -1223,7 +1243,7 @@ static mref *resolve_mref(dvm_dex *d, uint32_t idx, bool is_static)
 
 /* ---- fields */
 
-typedef struct fref { dvm_field *df; tl_jfield *hf; tl_jclass *cls; char type; } fref;
+typedef struct fref { dvm_field *df; tl_jfield *hf; tl_jclass *cls; char type; bool missing; } fref;
 
 static fref *resolve_fref(dvm_dex *d, uint32_t idx, bool is_static)
 {
@@ -1236,7 +1256,8 @@ static fref *resolve_fref(dvm_dex *d, uint32_t idx, bool is_static)
     r->type = type[0] == '[' ? 'L' : type[0];
     dvm_class *c = dvm_class_of(cls);
     if (c) r->df = dvm_find_field(c, name, is_static);
-    if (!r->df) r->hf = tl_jni_field(cls, name, type, is_static);
+    r->missing = !c && class_missing(cls);
+    if (!r->df && !r->missing) r->hf = tl_jni_field(cls, name, type, is_static);
     r->cls = r->df ? r->df->cls->jc : cls;
     pthread_mutex_lock(&g_lock);
     if (!d->fcache[idx]) __atomic_store_n(&d->fcache[idx], (dvm_field *)r, __ATOMIC_RELEASE); else { free(r); r = (fref *)d->fcache[idx]; }
@@ -1290,12 +1311,16 @@ static inline void WL(uint64_t *r, int n, jobj *o)
     r[n] = (uint64_t)(uintptr_t)o;
 }
 extern _Thread_local uint32_t t_pcs[8192];
+/* Whether a class name's first byte can start one: printable ASCII, or the lead byte of a UTF-8 sequence (obfuscators name
+ * classes with characters like U+3007 '〇': CamScanner's Kotlin code). */
+static inline bool name_start_ok(unsigned char ch) { return (ch > 0x20 && ch < 0x7f) || (ch >= 0xc2 && ch <= 0xf4); }
+
 static void check_ref(jobj *o, int n)
 {
     if (g_dvm_check < 0) { g_dvm_check = getenv("TL_DVM_CHECK") ? 1 : 0; if (!g_dvm_check) return; }
     uintptr_t p = (uintptr_t)o;
     bool ok = (p & 7) == 0 && p > 0x100000 && o->kind <= TL_K_OBJ_ARRAY && (o->kind == TL_K_CLASS || ((uintptr_t)o->cls & 7) == 0);
-    if (ok && o->kind != TL_K_CLASS && o->cls) { unsigned char ch = (unsigned char)o->cls->name[0]; ok = ch > 0x20 && ch < 0x7f; }
+    if (ok && o->kind != TL_K_CLASS && o->cls) ok = name_start_ok((unsigned char)o->cls->name[0]);
     if (ok) return;
     dvm_method *m = t_depth > 0 && t_depth <= 8192 ? t_frames[t_depth - 1] : NULL;
     uint32_t pc = t_depth > 0 && t_depth <= 8192 ? t_pcs[t_depth - 1] : 0;
@@ -1350,6 +1375,7 @@ static bool invoke_regs(dvm_method *caller, int kind, uint32_t midx, int count, 
     dvm_dex *d = caller->cls->dex;
     bool is_static = kind == 3;
     mref *r = resolve_mref(d, midx, is_static);
+    if (r->missing) return throw_missing(r->cls);
     uint16_t areg[256];
     for (int i = 0; i < count && i < 256; i++) areg[i] = range ? (uint16_t)(first + i) : argregs[i];
     int ai = 0;
@@ -1359,7 +1385,7 @@ static bool invoke_regs(dvm_method *caller, int kind, uint32_t midx, int count, 
         if (!self) return dvm_throw("java/lang/NullPointerException", "Attempt to invoke %s method '%s.%s%s' on a null object reference",
                                      kind == 4 ? "interface" : "virtual", r->cls->name, r->name, r->sig);
         /* not an object at all (a bug elsewhere put something else in the register): say where, rather than crash on it */
-        if (self->kind > TL_K_OBJ_ARRAY || (self->kind != TL_K_CLASS && self->cls && (((uintptr_t)self->cls & 7) || (unsigned char)self->cls->name[0] <= 0x20 || (unsigned char)self->cls->name[0] >= 0x7f))) {
+        if (self->kind > TL_K_OBJ_ARRAY || (self->kind != TL_K_CLASS && self->cls && (((uintptr_t)self->cls & 7) || !name_start_ok((unsigned char)self->cls->name[0])))) {
             tl_log_line("dvm: register v%u of %s.%s holds %p, not an object (kind %u, class %p \"%.40s\"), for %s.%s%s", areg[0], caller->cls->name, caller->name,
                         (void *)self, self->kind, (void *)self->cls, self->cls && !((uintptr_t)self->cls & 7) ? self->cls->name : "?", r->cls->name, r->name, r->sig);
             return dvm_throw("java/lang/InternalError", "not an object in v%u for %s.%s", areg[0], r->cls->name, r->name);
@@ -1640,6 +1666,7 @@ dispatch:;
     case 0x22: {                                                   /* new-instance */
         tl_jclass *c = resolve_type(dex, FETCH(1));
         dvm_class *dc = dvm_class_of(c);
+        if (!dc && class_missing(c)) { throw_missing(c); goto exception; }
         if (dc && !dvm_ensure_init(dc)) goto exception;
         jobj *o = dvm_new_object(c);
         if (dc) dvm_slots(o);
@@ -1649,7 +1676,15 @@ dispatch:;
     case 0x23: {                                                   /* new-array */
         int32_t n = RI(regs, B4);
         THROW_IF(n < 0 && !dvm_throw("java/lang/NegativeArraySizeException", "%d", n));
-        WL(regs, A4, new_array(resolve_type(dex, FETCH(1)), n));
+        tl_jclass *ac = resolve_type(dex, FETCH(1));
+        /* ART throws OutOfMemoryError past the heap's growth limit; apps that probe how much they may allocate (RoboZZle
+         * doubles a byte[] until it does) otherwise grow the size until it turns negative. */
+        char t = ac->name[1];
+        uint64_t esz = t == 'Z' || t == 'B' ? 1 : t == 'C' || t == 'S' ? 2 : t == 'I' || t == 'F' ? 4 : 8;
+        THROW_IF((uint64_t)n * esz > (256ull << 20) &&
+                 !dvm_throw("java/lang/OutOfMemoryError", "Failed to allocate a %llu byte allocation with 0 free bytes",
+                            (unsigned long long)((uint64_t)n * esz)));
+        WL(regs, A4, new_array(ac, n));
         NEXT(2);
     }
     case 0x24: case 0x25: {                                        /* filled-new-array(/range) */
@@ -1795,6 +1830,7 @@ dispatch:;
     case 0x60: case 0x61: case 0x62: case 0x63: case 0x64: case 0x65: case 0x66:     /* sget* */
     case 0x67: case 0x68: case 0x69: case 0x6a: case 0x6b: case 0x6c: case 0x6d: {   /* sput* */
         fref *f = resolve_fref(dex, FETCH(1), true);
+        if (f->missing) { throw_missing(f->cls); goto exception; }
         bool put = (w & 0xFF) >= 0x67;
         jvalue *slot;
         if (f->df) {

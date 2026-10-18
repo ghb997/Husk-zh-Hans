@@ -874,5 +874,71 @@
     "line": 272,
     "en": "pairing failed: {e}",
     "zh-Hans": "配对失败：{e}"
+  },
+  {
+    "file": "src/translation-layer-next/husk-console-host.c",
+    "line": 229,
+    "en": "a console game is already running in this process",
+    "zh-Hans": "当前进程中已有主机游戏正在运行"
+  },
+  {
+    "file": "src/translation-layer-next/husk-console-host.c",
+    "line": 231,
+    "en": "missing launch arguments",
+    "zh-Hans": "缺少启动参数"
+  },
+  {
+    "file": "src/translation-layer-next/husk-console-host.c",
+    "line": 236,
+    "en": "another game is already loaded in this session; close Husk and open it again",
+    "zh-Hans": "当前会话已加载其他游戏，请关闭 Husk 后重新打开"
+  },
+  {
+    "file": "src/translation-layer-next/husk-console-host.c",
+    "line": 243,
+    "en": "could not load %s: %s",
+    "zh-Hans": "无法加载 %s：%s"
+  },
+  {
+    "file": "src/translation-layer-next/husk-console-host.c",
+    "line": 247,
+    "en": "%s is not a console module this Husk understands",
+    "zh-Hans": "%s 不是当前版本 Husk 支持的主机模块"
+  },
+  {
+    "file": "src/translation-layer-next/husk-console-host.c",
+    "line": 254,
+    "en": "the JIT region is %zu MiB; %s needs %zu MiB",
+    "zh-Hans": "JIT 内存区域为 %zu MiB；%s 需要 %zu MiB"
+  },
+  {
+    "file": "src/translation-layer-next/husk-console-host.c",
+    "line": 275,
+    "en": "the %s module did not start (see the log)",
+    "zh-Hans": "%s 模块未能启动，请查看日志"
+  },
+  {
+    "file": "src/translation-layer-next/husk-console-host.c",
+    "line": 277,
+    "en": "the %s module could not launch %s",
+    "zh-Hans": "%s 模块无法启动 %s"
+  },
+  {
+    "file": "src/translation-layer-next/husk-console-host.c",
+    "line": 312,
+    "en": "this build's console module cannot install packages",
+    "zh-Hans": "此版本的主机模块不支持安装游戏包"
+  },
+  {
+    "file": "src/translation-layer-next/husk-jit-arena.c",
+    "line": 90,
+    "en": "no JIT region: Husk was not given one by StikDebug at launch",
+    "zh-Hans": "没有可用的 JIT 内存区域：启动时 StikDebug 未向 Husk 提供该区域"
+  },
+  {
+    "file": "src/translation-layer-next/husk-jit-arena.c",
+    "line": 94,
+    "en": "the JIT region (%p, %zu bytes) is not usable",
+    "zh-Hans": "JIT 内存区域（%p，%zu 字节）不可用"
   }
 ]

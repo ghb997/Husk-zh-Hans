@@ -80,6 +80,11 @@ struct tl_lib {
 
     struct { uint64_t start, end; } code[16];   /* executable sections, as vaddrs: the only places instructions are patched */
     int ncode;
+    /* A Go library (Go's build info is in it): every non-executable page is reached through the writable view, read-only data
+     * too, because Go compares data addresses from both kinds of page ("methodValueCallFrameObjs is not in a module" when the
+     * writable view lies below the executable one). C code is left as it was: it can compute jump targets from tables in
+     * read-only data. */
+    bool go_data;
     int tls_id;                    /* 1-based number of this library's thread-local storage template, 0 if it has none */
     uint64_t *fde_start, *fde_end; size_t nfde;   /* the address ranges of the functions the unwind tables describe, sorted; none if the library has no tables */
     size_t n_x18_data;             /* words naming x18 that lie outside every function: constant tables inside .text, left alone */
@@ -88,7 +93,10 @@ struct tl_lib {
     size_t n_x18, n_x18_failed;    /* sites rewritten for the reserved register, and sites that could not be */
     int state;                     /* 0 mapped, 1 relocating, 2 relocated, 3 initialising, 4 initialised */
     uint32_t n_unresolved;
+    bool system;                   /* from the runtime's own folders (an APEX's lib64), not the app: what it needs comes from there too */
 };
+static inline bool data_page(const tl_lib *L, size_t page);
+
 
 static struct {
     pthread_mutex_t lock;
@@ -117,16 +125,18 @@ static inline const void *at(const tl_lib *L, uint64_t vaddr) { return L->rw + (
 
 /* The app's split APKs (its 64-bit libraries, its asset packs), given before the engine starts: they are added right after
  * the base, whichever engine adds that, as Android puts a split's libraries and assets beside the base's. */
-static char g_splits[15][1024];
+static char g_splits[TL_LD_MAX_APKS][1024];
 static int g_nsplits;
 static char g_apk_paths[TL_LD_MAX_APKS][1024];
 
 void tl_ld_queue_split(const char *path)
 {
-    if (path && path[0] && g_nsplits < 15) snprintf(g_splits[g_nsplits++], sizeof(g_splits[0]), "%s", path);
+    if (path && path[0] && g_nsplits < TL_LD_MAX_APKS) snprintf(g_splits[g_nsplits++], sizeof(g_splits[0]), "%s", path);
 }
 
 const char *tl_ld_queued_split(int i) { return i >= 0 && i < g_nsplits ? g_splits[i] : NULL; }
+/* The app's base APK, the first one added (its folder also holds what was downloaded with it: expansion files in obb/) */
+const char *tl_ld_main_apk(void) { return G.napks > 0 ? g_apk_paths[0] : NULL; }
 
 static bool add_one(const char *path)
 {
@@ -327,16 +337,26 @@ static uint32_t dynsym_bound(const tl_lib *L, uint32_t hashed)
 const char *tl_path_resolve(const char *path, char *buf, size_t n);
 static const char *base_name(const char *path) { const char *b = strrchr(path, '/'); return b ? b + 1 : path; }
 
+/*
+ * Two sets of libraries, as Android's linker namespaces keep them: the app's, and the runtime's own (libcore's and Conscrypt's natives
+ * and what they need). A name can be in both: WeChat carries an OpenSSL libcrypto.so, and Conscrypt's libjavacrypto.so needs the
+ * BoringSSL one beside it. Which set a lookup searches: */
+enum { NS_APP, NS_SYSTEM, NS_ANY };   /* NS_ANY: the app's first, then the runtime's */
+
 /* By the name it was asked for, its soname, or -- for one loaded from a path (a mod's library) -- its file name. */
-static tl_lib *find_loaded(const char *name)
+static tl_lib *find_loaded_ns(const char *name, int ns)
 {
     const char *b = base_name(name);
+    tl_lib *sys = NULL;
     for (int i = 0; i < G.nlibs; i++) {
-        if (!strcmp(G.libs[i]->name, name) || !strcmp(G.libs[i]->soname, name)) return G.libs[i];
-        if (!strcmp(base_name(G.libs[i]->name), b) || !strcmp(G.libs[i]->soname, b)) return G.libs[i];
+        tl_lib *l = G.libs[i];
+        if (strcmp(l->name, name) && strcmp(l->soname, name) && strcmp(base_name(l->name), b) && strcmp(l->soname, b)) continue;
+        if (!l->system) { if (ns != NS_SYSTEM) return l; }
+        else if (!sys) sys = l;
     }
-    return NULL;
+    return ns == NS_APP ? NULL : sys;
 }
+static tl_lib *find_loaded(const char *name) { return find_loaded_ns(name, NS_ANY); }
 
 /* A library that is a file of its own rather than an APK entry: Geode, and the mods it loads from where it unpacked them. */
 static bool fetch_from_file(const char *path, uint8_t **out, size_t *len)
@@ -370,7 +390,7 @@ static void build_scope(tl_lib *L)
         tl_lib *cur = queue[qh++];
         for (int i = 0; i < cur->nneeded; i++) {
             const char *n = (const char *)at(cur, cur->strtab) + cur->needed[i];
-            tl_lib *d = find_loaded(n);
+            tl_lib *d = find_loaded_ns(n, cur->system ? NS_SYSTEM : NS_ANY);
             if (!d || d == L) continue;
             bool seen = false;
             for (int k = 0; k < L->ndeps; k++) if (L->deps[k] == d) seen = true;
@@ -596,7 +616,8 @@ static void *make_stub(const char *name)
  * the host might clobber, calls tl_svc_common, and branches back to the instruction
  * after the site. tl_svc_common saves everything else the C handler may disturb --
  * the kernel preserves all registers but x0 across a system call, so code around a
- * raw `svc` relies on that -- and calls tl_linux_syscall with the arguments and number.
+ * raw `svc` relies on that, the condition flags and all of q8-q15 included (C keeps
+ * only their low halves) -- and calls tl_linux_syscall with the arguments and number.
  */
 long tl_linux_syscall(long a0, long a1, long a2, long a3, long a4, long a5, long nr);
 
@@ -606,7 +627,7 @@ __attribute__((naked, used)) void tl_svc_common(void)
     __asm__ volatile(
         "stp x29, x30, [sp, #-16]!\n"
         "mov x29, sp\n"
-        "sub sp, sp, #512\n"
+        "sub sp, sp, #640\n"
         "stp x1, x2, [sp, #0]\n"
         "stp x3, x4, [sp, #16]\n"
         "stp x5, x6, [sp, #32]\n"
@@ -615,6 +636,12 @@ __attribute__((naked, used)) void tl_svc_common(void)
         "stp x11, x12, [sp, #80]\n"
         "stp x13, x14, [sp, #96]\n"
         "str x15, [sp, #112]\n"
+        "mrs x9, nzcv\n"
+        "str x9, [sp, #120]\n"
+        "stp q8, q9, [sp, #512]\n"
+        "stp q10, q11, [sp, #544]\n"
+        "stp q12, q13, [sp, #576]\n"
+        "stp q14, q15, [sp, #608]\n"
         "stp q0, q1, [sp, #128]\n"
         "stp q2, q3, [sp, #160]\n"
         "stp q4, q5, [sp, #192]\n"
@@ -629,6 +656,12 @@ __attribute__((naked, used)) void tl_svc_common(void)
         "stp q30, q31, [sp, #480]\n"
         "mov x6, x8\n"
         "bl _tl_linux_syscall\n"
+        "ldr x9, [sp, #120]\n"
+        "msr nzcv, x9\n"
+        "ldp q8, q9, [sp, #512]\n"
+        "ldp q10, q11, [sp, #544]\n"
+        "ldp q12, q13, [sp, #576]\n"
+        "ldp q14, q15, [sp, #608]\n"
         "ldp x1, x2, [sp, #0]\n"
         "ldp x3, x4, [sp, #16]\n"
         "ldp x5, x6, [sp, #32]\n"
@@ -928,7 +961,7 @@ static int x18_rewrite(tl_lib *L, uint32_t *site_rw, const uint8_t *pc, ptrdiff_
             int64_t imm = (int64_t)((((insn >> 5) & 0x7FFFFu) << 2) | ((insn >> 29) & 3u));
             if (imm & 0x100000) imm -= 0x200000;
             uintptr_t tp = page ? ((uintptr_t)pc & ~(uintptr_t)0xFFF) + (uintptr_t)(imm * 4096) : (uintptr_t)pc + (uintptr_t)imm;
-            if (tp >= (uintptr_t)L->rx && tp < (uintptr_t)L->rx + L->npages * PAGE && (L->pflags[(tp - (uintptr_t)L->rx) / PAGE] & TL_PAGE_W))
+            if (tp >= (uintptr_t)L->rx && tp < (uintptr_t)L->rx + L->npages * PAGE && data_page(L, (tp - (uintptr_t)L->rx) / PAGE))
                 tp += (uintptr_t)delta;
             value = tp;
         } else {
@@ -1123,7 +1156,7 @@ static void patch_image(tl_lib *L, size_t *n_tpidr, size_t *n_adrp, size_t *n_ad
                 uintptr_t tp = ((uintptr_t)pc & ~(uintptr_t)0xFFF) + (uintptr_t)(imm << 12);
                 if (tp >= (uintptr_t)L->rx && tp < (uintptr_t)L->rx + L->npages * PAGE) {
                     size_t tpg = (tp - (uintptr_t)L->rx) / PAGE;
-                    if ((L->pflags[tpg] & TL_PAGE_W) && !adrp_targets_code(L, w, i, nwords, insn & 0x1Fu, tp)) {
+                    if (data_page(L, tpg) && !adrp_targets_code(L, w, i, nwords, insn & 0x1Fu, tp)) {
                         w[i] = encode_adrp(insn & 0x1Fu, pc, (const void *)(tp + (uintptr_t)delta));
                         (*n_adrp)++;
                     }
@@ -1146,7 +1179,7 @@ static void patch_image(tl_lib *L, size_t *n_tpidr, size_t *n_adrp, size_t *n_ad
                 if (imm & 0x100000) imm -= 0x200000;
                 uintptr_t tp = (uintptr_t)pc + (uintptr_t)imm;
                 if (tp >= (uintptr_t)L->rx && tp < (uintptr_t)L->rx + L->npages * PAGE
-                    && (L->pflags[(tp - (uintptr_t)L->rx) / PAGE] & TL_PAGE_W)
+                    && data_page(L, (tp - (uintptr_t)L->rx) / PAGE)
                     && !in_code(L, (uint64_t)(tp - (uintptr_t)L->rx) + L->base_vaddr)) {
                     uint32_t branch;
                     if (adr_stub(L, pc, insn & 0x1Fu, (uint64_t)(tp + (uintptr_t)delta), &branch)) { w[i] = branch; (*n_adr)++; }
@@ -1249,11 +1282,16 @@ static inline uint64_t rd64(const uint8_t *p) { uint64_t v; memcpy(&v, p, 8); re
 /* An address inside the image as pointer data records it: writable view for data, executable view for code. A small library built
  * for 4 KiB pages has code and data on one 16 KiB page, which is then writable; a pointer into its executable sections (a Python
  * module's exec slot, a vtable entry) is still code and must be called through the executable view. */
+static inline bool data_page(const tl_lib *L, size_t page)
+{
+    return (L->pflags[page] & TL_PAGE_W) || (L->go_data && !(L->pflags[page] & TL_PAGE_X));
+}
+
 static uint64_t image_addr(const tl_lib *L, uint64_t vaddr)
 {
     uint64_t off = vaddr - L->base_vaddr;
     size_t page = (size_t)(off / PAGE);
-    if (page < L->npages && (L->pflags[page] & TL_PAGE_W)) {
+    if (page < L->npages && data_page(L, page)) {
         if (L->pflags[page] & TL_PAGE_X)
             for (int r = 0; r < L->ncode; r++)
                 if (vaddr >= L->code[r].start && vaddr < L->code[r].end) return (uint64_t)(uintptr_t)(L->rx + off);
@@ -1768,6 +1806,9 @@ static tl_lib *map_library(const char *name, uint8_t *file, size_t flen)
         }
     }
 
+    /* Go's build info marks a Go library (see tl_lib.go_data) */
+    static const char go_magic[] = "\xff Go buildinf:";
+    bool go = memmem(file, flen, go_magic, sizeof(go_magic) - 1) != NULL;
     /* Stub pages after the image: one literal slot, a few probes, a stub for every raw
      * system call, and one for every instruction that names the reserved register x18. */
     size_t stub_bytes = 16 + 8192;
@@ -1781,7 +1822,7 @@ static tl_lib *map_library(const char *name, uint8_t *file, size_t flen)
                 int64_t imm = (int64_t)((((v >> 5) & 0x7FFFFu) << 2) | ((v >> 29) & 3u));
                 if (imm & 0x100000) imm -= 0x200000;
                 int64_t tv = (int64_t)(code[r].vaddr + k * 4) + imm - (int64_t)base_vaddr;
-                if (tv >= 0 && (size_t)tv < npages * PAGE && (flags[(size_t)tv / PAGE] & TL_PAGE_W)) stub_bytes += 32;
+                if (tv >= 0 && (size_t)tv < npages * PAGE && ((flags[(size_t)tv / PAGE] & TL_PAGE_W) || (go && !(flags[(size_t)tv / PAGE] & TL_PAGE_X)))) stub_bytes += 32;
             }
             else if (((v & 31u) == 18 || ((v >> 5) & 31u) == 18 || ((v >> 10) & 31u) == 18 || ((v >> 16) & 31u) == 18) && a64_uses_gpr(v, 18, NULL))
                 stub_bytes += X18_STUB_BYTES;
@@ -1815,6 +1856,8 @@ static tl_lib *map_library(const char *name, uint8_t *file, size_t flen)
     tl_lib *L = calloc(1, sizeof(*L));
     snprintf(L->name, sizeof(L->name), "%s", name);
     L->rx = rx; L->rw = rw; L->base_vaddr = base_vaddr; L->npages = npages; L->pflags = flags;
+    L->go_data = go;
+    if (go) tl_log_line("ld: %s is a Go library: its read-only data is reached through the writable view too", name);
     L->phdr = phs; L->phnum = eh->e_phnum;
     load_unwind_ranges(L, file, flen, phs, eh->e_phnum);
     if (has_tls) {
@@ -1887,35 +1930,66 @@ static bool relocate(tl_lib *L)
     return true;
 }
 
-/* Folders a library named only by its file name is also looked for in (the Java runtime's: the ART APEX's lib64). */
+/* Folders a library named only by its file name is also looked for in: the Java runtime's (the APEXes' lib64), and folders the app
+ * unpacked libraries into. */
 static char *g_search[32];
+static bool g_search_app[32];
 static int g_nsearch;
-void tl_ld_add_search_dir(const char *dir)
+static void add_search_dir(const char *dir, bool app)
 {
     for (int i = 0; i < g_nsearch; i++) if (!strcmp(g_search[i], dir)) return;
-    if (g_nsearch < 32) g_search[g_nsearch++] = strdup(dir);
+    if (g_nsearch < 32) { g_search_app[g_nsearch] = app; g_search[g_nsearch++] = strdup(dir); }
+}
+void tl_ld_add_search_dir(const char *dir) { add_search_dir(dir, false); }
+
+static bool fetch_from_dirs(const char *name, bool app, uint8_t **file, size_t *flen)
+{
+    for (int d = 0; d < g_nsearch; d++) {
+        if (g_search_app[d] != app) continue;
+        char path[1024];
+        snprintf(path, sizeof(path), "%s/%s", g_search[d], base_name(name));
+        if (fetch_from_file(path, file, flen)) return true;
+    }
+    return false;
 }
 
-static tl_lib *load_locked(const char *name, int depth)
+/* A path inside one of the runtime's folders: libcore's Runtime.loadLibrary0 hands nativeLoad the full path of the APEX's copy. */
+static bool in_system_dir(const char *path)
 {
-    tl_lib *L = find_loaded(name);
+    char real[1024];
+    const char *paths[2] = { path, tl_path_resolve(path, real, sizeof(real)) };
+    for (int d = 0; d < g_nsearch; d++) {
+        if (g_search_app[d]) continue;
+        size_t n = strlen(g_search[d]);
+        for (int k = 0; k < 2; k++) if (paths[k] && !strncmp(paths[k], g_search[d], n) && paths[k][n] == '/') return true;
+    }
+    return false;
+}
+
+static tl_lib *load_locked(const char *name, int depth, bool system)
+{
+    if (!system && strchr(name, '/') && in_system_dir(name)) system = true;
+    tl_lib *L = find_loaded_ns(name, system ? NS_SYSTEM : NS_APP);
     if (L) return L;
     if (tl_bionic_is_system_lib(name)) return NULL;
     if (depth > 32) { tl_log_line("ld: dependency chain too deep at %s", name); return NULL; }
 
     uint8_t *file; size_t flen;
-    bool got = fetch_from_apks(base_name(name), &file, &flen);
-    if (!got && fetch_from_file(name, &file, &flen)) {
-        got = true;
-        /* a library the app unpacked itself (SoLoader's Superpack, an update): what it needs is next to it */
-        char dir[1024]; snprintf(dir, sizeof(dir), "%s", name);
-        char *sl = strrchr(dir, '/'); if (sl && sl != dir) { *sl = 0; tl_ld_add_search_dir(dir); }
+    bool got = false;
+    if (!system) {
+        /* the app's: its APKs, a path it names, the folders it unpacked libraries into; then the runtime's */
+        got = fetch_from_apks(base_name(name), &file, &flen);
+        if (!got && fetch_from_file(name, &file, &flen)) {
+            got = true;
+            /* a library the app unpacked itself (SoLoader's Superpack, an update): what it needs is next to it */
+            char dir[1024]; snprintf(dir, sizeof(dir), "%s", name);
+            char *sl = strrchr(dir, '/'); if (sl && sl != dir) { *sl = 0; add_search_dir(dir, true); }
+        }
+        if (!got) got = fetch_from_dirs(name, true, &file, &flen);
+        if (!got && (L = find_loaded_ns(name, NS_SYSTEM))) return L;
     }
-    for (int d = 0; !got && d < g_nsearch; d++) {
-        char path[1024];
-        snprintf(path, sizeof(path), "%s/%s", g_search[d], base_name(name));
-        got = fetch_from_file(path, &file, &flen);
-    }
+    if (!got && system && strchr(name, '/')) got = fetch_from_file(name, &file, &flen);
+    if (!got) system = got = fetch_from_dirs(name, false, &file, &flen);
     if (!got) {
         tl_log_line("ld: %s is not in the APK and is not a system library", name);
         return NULL;
@@ -1929,12 +2003,13 @@ static tl_lib *load_locked(const char *name, int depth)
     L = map_library(name, file, flen);
     free(file);
     if (!L) return NULL;
+    L->system = system;
 
     /* Dependencies first, so everything this library binds against exists. */
     for (int i = 0; i < L->nneeded; i++) {
         const char *dn = (const char *)at(L, L->strtab) + L->needed[i];
-        if (find_loaded(dn) || tl_bionic_is_system_lib(dn)) continue;
-        if (!load_locked(dn, depth + 1)) tl_log_line("ld: %s: needed library %s could not be loaded", name, dn);
+        if (tl_bionic_is_system_lib(dn)) continue;
+        if (!load_locked(dn, depth + 1, L->system)) tl_log_line("ld: %s: needed library %s could not be loaded", name, dn);
     }
     build_scope(L);
     if (!relocate(L)) return NULL;
@@ -1944,7 +2019,7 @@ static tl_lib *load_locked(const char *name, int depth)
 tl_lib *tl_ld_load(const char *name)
 {
     pthread_mutex_lock(&g_big);
-    tl_lib *L = load_locked(name, 0);
+    tl_lib *L = load_locked(name, 0, false);
     pthread_mutex_unlock(&g_big);
     return L;
 }
@@ -1980,9 +2055,18 @@ static bool init_locked(tl_lib *L)
     if (L->init_array) {
         const uint64_t *fns = at(L, L->init_array);
         size_t n = L->init_arraysz / 8;
+        static int trace = -1;
+        if (trace < 0) trace = getenv("TL_INIT_TRACE") ? 1 : 0;   /* each constructor before and after it runs */
+        if (trace) tl_log_line("ld: %s: rx %p rw %p (%zu pages)", L->name, (void *)L->rx, (void *)L->rw, L->npages);
         for (size_t i = 0; i < n; i++) {
             uint64_t f = fns[i];
-            if (f && f != ~0ull) ((init_fn)(uintptr_t)f)(argc, argv, envp);
+            if (!f || f == ~0ull) continue;
+            if (trace) tl_log_line("ld: %s: constructor %zu at +%#llx", L->name, i, (unsigned long long)(f - (uint64_t)(uintptr_t)L->rx + L->base_vaddr));
+            /* TL_INIT_BREAK=<library>: a debugger stops here with the constructor's address in x0 and the image base in x1 */
+            { const char *b = getenv("TL_INIT_BREAK");
+              if (b && !strcmp(b, L->name)) __asm__ volatile("mov x0, %0\n mov x1, %1\n brk #0xf00d" :: "r"(f), "r"((uint64_t)(uintptr_t)L->rx) : "x0", "x1"); }
+            ((init_fn)(uintptr_t)f)(argc, argv, envp);
+            if (trace) tl_log_line("ld: %s: constructor %zu returned", L->name, i);
         }
     }
     L->state = 4;

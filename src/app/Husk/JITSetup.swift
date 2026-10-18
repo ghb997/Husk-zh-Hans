@@ -166,7 +166,20 @@ final class JITCoordinator: ObservableObject {
     static let autoEnableKey = "husk.jit.autoEnable"
     private var autoTried = false
 
+    /// A Husk TrollStore installed asks TrollStore for JIT each time it opens without it (#135), unless turned off in Settings:
+    /// TrollStore attaches to the running Husk for a moment, with nothing to tap.
+    static let trollStoreAutoKey = "husk.jit.trollStoreAuto"
+    static var trollStoreAuto: Bool { UserDefaults.standard.object(forKey: trollStoreAutoKey) as? Bool ?? true }
+
     func enableAtLaunchIfAsked() {
+        if !autoTried, JITBootstrap.isInstalledWithTrollStore, Self.trollStoreAuto {
+            autoTried = true
+            guard !JITBootstrap.ready else { return }
+            log("installed by TrollStore: asking it for JIT at launch")
+            method = .trollStore
+            enable()
+            return
+        }
         guard !autoTried, UserDefaults.standard.bool(forKey: Self.autoEnableKey) else { return }
         autoTried = true
         guard !JITBootstrap.ready else { return }

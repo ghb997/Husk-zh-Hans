@@ -581,7 +581,10 @@ public class TextView extends View implements ViewTreeObserver.OnPreDrawListener
     @Override public int getBaseline() { if (mLayout == null) return super.getBaseline(); return getExtendedPaddingTop() + verticalOffset() + mLayout.getLineBaseline(0); }
 
     // ---- compound drawables
-    public void setCompoundDrawables(Drawable l, Drawable t, Drawable r, Drawable b) {
+    public void setCompoundDrawables(Drawable l, Drawable t, Drawable r, Drawable b) { applyCompoundDrawables(l, t, r, b); }
+    /* not overridable: setCompoundDrawables and setCompoundDrawablesRelative both store through here, as Android's do, so a
+       subclass that overrides one by calling the other (MJLauncher's ExtendedButton) does not recurse */
+    private void applyCompoundDrawables(Drawable l, Drawable t, Drawable r, Drawable b) {
         Drawable[] d = { l, t, r, b };
         for (Drawable o : mDrawables) if (o != null) o.setCallback(null);
         for (Drawable x : d) if (x != null) { x.setCallback(this); if (x.isStateful()) x.setState(getDrawableState()); if (mDrawableTint != null) x.setTintList(mDrawableTint); }
@@ -596,9 +599,15 @@ public class TextView extends View implements ViewTreeObserver.OnPreDrawListener
         Context c = getContext();
         setCompoundDrawablesWithIntrinsicBounds(l != 0 ? c.getDrawable(l) : null, t != 0 ? c.getDrawable(t) : null, r != 0 ? c.getDrawable(r) : null, b != 0 ? c.getDrawable(b) : null);
     }
-    public void setCompoundDrawablesRelative(Drawable s, Drawable t, Drawable e, Drawable b) { setCompoundDrawables(s, t, e, b); }
-    public void setCompoundDrawablesRelativeWithIntrinsicBounds(Drawable s, Drawable t, Drawable e, Drawable b) { setCompoundDrawablesWithIntrinsicBounds(s, t, e, b); }
-    public void setCompoundDrawablesRelativeWithIntrinsicBounds(int s, int t, int e, int b) { setCompoundDrawablesWithIntrinsicBounds(s, t, e, b); }
+    public void setCompoundDrawablesRelative(Drawable s, Drawable t, Drawable e, Drawable b) { applyCompoundDrawables(s, t, e, b); }
+    public void setCompoundDrawablesRelativeWithIntrinsicBounds(Drawable s, Drawable t, Drawable e, Drawable b) {
+        for (Drawable d : new Drawable[] { s, t, e, b }) if (d != null) d.setBounds(0, 0, d.getIntrinsicWidth(), d.getIntrinsicHeight());
+        setCompoundDrawablesRelative(s, t, e, b);
+    }
+    public void setCompoundDrawablesRelativeWithIntrinsicBounds(int s, int t, int e, int b) {
+        Context c = getContext();
+        setCompoundDrawablesRelativeWithIntrinsicBounds(s != 0 ? c.getDrawable(s) : null, t != 0 ? c.getDrawable(t) : null, e != 0 ? c.getDrawable(e) : null, b != 0 ? c.getDrawable(b) : null);
+    }
     public Drawable[] getCompoundDrawables() { return mDrawables.clone(); }
     public Drawable[] getCompoundDrawablesRelative() { return mDrawables.clone(); }
     public void setCompoundDrawablePadding(int p) { mDrawablePadding = p; relayout(); }

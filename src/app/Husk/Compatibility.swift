@@ -170,7 +170,8 @@ final class CompatibilityStore: ObservableObject {
         return png.count <= 60_000 ? png.base64EncodedString() : nil
     }
 
-    func send(package: String, name: String, isGame: Bool, status: Status, notes: String, author: String, iconPath: String? = nil) async throws {
+    func send(package: String, name: String, isGame: Bool, status: Status, notes: String, author: String, iconPath: String? = nil,
+              attachLog: Bool = false) async throws {
         var body: [String: String] = [
             "package": package, "name": name, "type": isGame ? "game" : "app", "status": status.rawValue,
             "device": Self.device, "ios": UIDevice.current.systemVersion, "build": Self.build, "jit": Self.jitMethod,
@@ -178,6 +179,7 @@ final class CompatibilityStore: ObservableObject {
         ]
         if body["author"]?.isEmpty == true { body["author"] = nil }
         if entry(package)?.icon == nil, let icon = Self.iconPNG(iconPath) { body["icon"] = icon }
+        if attachLog, let log = Self.logTail() { body["log"] = log }
         let payload = try JSONSerialization.data(withJSONObject: body)
         let (data, http) = try await call("api/reports") {
             $0.httpMethod = "POST"
@@ -187,11 +189,24 @@ final class CompatibilityStore: ObservableObject {
         }
         guard (200..<300).contains(http.statusCode) else {
             let message = (try? JSONSerialization.jsonObject(with: data) as? [String: Any])?["error"] as? String
-            throw NSError(domain: "Compatibility", code: 1, userInfo: [NSLocalizedDescriptionKey: message ?? "无法连接兼容性列表服务。"])
+            throw NSError(domain: "兼容性", code: 1, userInfo: [NSLocalizedDescriptionKey: message ?? "无法连接兼容性列表服务。"])
         }
         HuskLog.log("compat", "reported \(package): \(status.rawValue)")
         markAsked(package)
         await refresh(force: true)
+    }
+
+    /// The end of Husk's log, as the log export shares it (husk.log): at most the last 400,000 bytes, cut on a character boundary.
+    static func logTail(limit: Int = 400_000) -> String? {
+        guard let handle = try? FileHandle(forReadingFrom: HuskLog.logFileURL) else { return nil }
+        defer { try? handle.close() }
+        let size = (try? handle.seekToEnd()) ?? 0
+        try? handle.seek(toOffset: size > UInt64(limit) ? size - UInt64(limit) : 0)
+        guard let data = try? handle.readToEnd(), !data.isEmpty else { return nil }
+        var start = data.startIndex
+        // Not inside a UTF-8 sequence: skip continuation bytes (10xxxxxx).
+        while start < data.endIndex, data[start] & 0xC0 == 0x80 { start += 1 }
+        return String(decoding: data[start...], as: UTF8.self)
     }
 
     // Ask once per game per Husk build: a new build can change how a game runs.
@@ -265,6 +280,7 @@ struct CompatReportSheet: View {
     @State private var sending = false
     @State private var error: String?
     @State private var sent = false
+    @AppStorage("husk.compatAttachLog") private var attachLog = true
 
     var body: some View {
         NavigationStack {
@@ -284,8 +300,12 @@ struct CompatReportSheet: View {
                     Text(subject.afterPlaying ? "\(subject.name) 这次运行情况如何？" : "\(subject.name) 的运行情况如何？")
                 }
                 Section("补充说明") {
-                    TextField("哪些功能正常、遇到了什么问题、运行到哪个步骤", text: $notes, axis: .vertical)
-                        .lineLimit(3...8)
+                    if #available(iOS 16, *) {
+                        TextField("哪些功能正常、遇到了什么问题、运行到哪个步骤", text: $notes, axis: .vertical)
+                            .lineLimit(3...8)
+                    } else {
+                        TextEditor(text: $notes).frame(minHeight: 80)
+                    }
                 }
                 Section {
                     TextField("匿名", text: $author)
@@ -295,6 +315,11 @@ struct CompatReportSheet: View {
                     Text("你的名字")
                 } footer: {
                     Text("反馈将包含：\(CompatibilityStore.device)、iOS \(UIDevice.current.systemVersion)、Husk 构建 \(CompatibilityStore.build)、JIT 方式 \(CompatibilityStore.jitMethodLabel)。这些信息会在 antiweb.lol 上公开显示。")
+                }
+                Section {
+                    Toggle("附上我的日志", isOn: $attachLog)
+                } footer: {
+                    Text("Husk 日志可帮助开发者定位问题，仅版主可以查看。")
                 }
                 if let error {
                     Section { Text(error).foregroundStyle(.red) }
@@ -322,7 +347,7 @@ struct CompatReportSheet: View {
                 if notes.isEmpty { notes = crash }
             }
         }
-        .presentationDetents([.medium, .large])
+        .huskDetents([.medium, .large])
     }
 
     private func send() {
@@ -332,7 +357,8 @@ struct CompatReportSheet: View {
         Task {
             do {
                 try await CompatibilityStore.shared.send(package: subject.package, name: subject.name, isGame: subject.isGame,
-                                                         status: status, notes: notes, author: author, iconPath: subject.iconPath)
+                                                         status: status, notes: notes, author: author, iconPath: subject.iconPath,
+                                                         attachLog: attachLog)
                 sent = true
                 try? await Task.sleep(nanoseconds: 600_000_000)
                 dismiss()

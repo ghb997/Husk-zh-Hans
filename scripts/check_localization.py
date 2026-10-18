@@ -30,9 +30,10 @@ def main():
             info = plistlib.load(f)
         assert info["CFBundleDevelopmentRegion"] == "zh-Hans", target
         assert "zh-Hans" in info["CFBundleLocalizations"], target
-        assert info["CFBundleShortVersionString"] == "2.0.0", target
+        assert info["CFBundleShortVersionString"] == "3.0.0", target
         versions.append(info["CFBundleVersion"])
     assert len(set(versions)) == 1, ("app/extension build mismatch", versions)
+    assert versions[0] == "129", versions
     for path in (ROOT / "src/app").rglob("*.swift"):
         assert not re.search(r"^(<<<<<<<|=======|>>>>>>>)", path.read_text(encoding="utf-8"), re.M), path
     print(f"PASS: {len(rows)} catalog entries in {len({r['file'] for r in rows})} files; three Chinese bundle plists.")

@@ -10,7 +10,7 @@ import SwiftUI
 struct AppDiagnosis: Identifiable, Equatable {
     enum Kind: String {
         case badAPK, unsupportedCPU, missingSplits, protected, needsGoogle, missingFeature, javaCrash, nativeCrash, closedItself,
-             missingFunction, noProgress
+             missingFunction, noProgress, noJIT
     }
     let id = UUID()
     let kind: Kind
@@ -33,6 +33,7 @@ struct AppDiagnosis: Identifiable, Equatable {
         case .missingFeature, .missingFunction: return "puzzlepiece"
         case .javaCrash, .nativeCrash: return "exclamationmark.triangle.fill"
         case .noProgress: return "hourglass"
+        case .noJIT: return "bolt.slash"
         }
     }
 
@@ -79,6 +80,23 @@ struct AppDiagnosis: Identifiable, Equatable {
     /// The reason a run stopped, from its log; nil when nothing in it explains the end (the app closed the normal way).
     static func fromLog(_ text: String) -> AppDiagnosis? {
         let lines = text.split(separator: "\n", omittingEmptySubsequences: true).map(String.init)
+
+        // No executable memory: on iOS with TXM only a debugger can grant it, and without it the loader cannot load Android's own
+        // libraries, so everything after (java.lang.System failing to initialise, missing natives) follows from this
+        if let l = lines.first(where: { $0.contains("no StikDebug JIT region") }) {
+            return AppDiagnosis(kind: .noJIT, title: "JIT 未开启",
+                                detail: "此 iPhone 只有在调试器为应用开启 JIT 后，才能运行转译后的代码。请通过 StikDebug"
+                                    + "打开 Husk，或在 Husk 中点击“开启 JIT”，然后重新启动应用。",
+                                evidence: l)
+        }
+
+        // The JIT region is shared: Android (QEMU) holds its top half while it runs, an app's libraries fill it from the bottom
+        if let l = lines.first(where: { $0.contains("but QEMU holds its top") || $0.contains("of TCG") && $0.contains("no room for") }) {
+            return AppDiagnosis(kind: .noJIT, title: "JIT 内存不足",
+                                detail: "Android 模拟器和此应用共用 Husk 的可执行内存，剩余空间不足以同时运行两者。"
+                                    + "请关闭并重新打开 Husk，然后只启动该应用或 Android 模拟器。",
+                                evidence: l)
+        }
 
         // A native crash: the runtime's crash handler names the library the bad instruction was in
         if let i = lines.lastIndex(where: { $0.contains("=== CRASH:") || $0.contains("*** FATAL SIGNAL") }) {
@@ -240,7 +258,7 @@ struct AppStoppedOverlay: View {
                 AppDiagnosisCard(diagnosis: diagnosis, showsEvidence: true)
                 HStack(spacing: 10) {
                     if let report {
-                        ShareLink(item: report) { Label("分享报告", systemImage: "square.and.arrow.up").frame(maxWidth: .infinity) }
+                        HuskShareLink(item: report) { Label("分享报告", systemImage: "square.and.arrow.up").frame(maxWidth: .infinity) }
                             .buttonStyle(.bordered)
                     }
                     Button(action: close) { Text("关闭").frame(maxWidth: .infinity) }

@@ -10,6 +10,7 @@
  * limits it finds are quad's.
  */
 #define _DARWIN_C_SOURCE
+#include <inttypes.h>
 #include <errno.h>
 #include <fcntl.h>
 #include <math.h>
@@ -181,6 +182,15 @@ static const char *b_hstrerror(int e) { (void)e; return "Unknown resolver error"
 static void *b_null_lookup(const void *a, const void *b) { (void)a; (void)b; return NULL; }
 static int b_getpwnam_r(const char *name, void *pwd, char *buf, size_t n, void **result) { (void)name; (void)pwd; (void)buf; (void)n; if (result) *result = NULL; return 0; }
 
+/* Groups: an app has none to look up; extended attributes: not supported on Android's app storage; splice: not here;
+ * capabilities: an app holds none and cannot gain any. */
+static int b_getgr_r(const void *key, void *grp, char *buf, size_t n, void **result) { (void)key; (void)grp; (void)buf; (void)n; if (result) *result = NULL; return 0; }
+static long b_enotsup(void) { tl_set_guest_errno(95); return -1; }
+static long b_splice(void) { tl_set_guest_errno(38); return -1; }
+typedef struct { uint32_t version; int pid; } guest_cap_header;
+typedef struct { uint32_t effective, permitted, inheritable; } guest_cap_data;
+static int b_capget(guest_cap_header *h, guest_cap_data *d) { (void)h; if (d) memset(d, 0, 2 * sizeof(*d)); return 0; }
+
 const tl_bionic_entry tl_tab_ldbl[] = {
     TL_WRAP("acoshl", b_acoshl), TL_WRAP("acosl", b_acosl), TL_WRAP("asinhl", b_asinhl), TL_WRAP("asinl", b_asinl),
     TL_WRAP("atanhl", b_atanhl), TL_WRAP("atanl", b_atanl), TL_WRAP("cbrtl", b_cbrtl), TL_WRAP("ceill", b_ceill),
@@ -209,6 +219,11 @@ const tl_bionic_entry tl_tab_ldbl[] = {
     TL_WRAP("ttyname_r", b_ttyname_r), TL_WRAP("hstrerror", b_hstrerror), TL_WRAP("getprotobyname", b_null_lookup),
     TL_WRAP("getservbyport", b_null_lookup), TL_WRAP("getpwnam_r", b_getpwnam_r),
     TL_WRAP("posix_fadvise", b_posix_ok), TL_WRAP("posix_fallocate", b_posix_fallocate), TL_WRAP("posix_fallocate64", b_posix_fallocate),
-    TL_WRAP("clock_settime", b_eperm),
+    TL_WRAP("clock_settime", b_eperm), TL_WRAP("settimeofday", b_eperm), TL_WRAP("adjtime", b_eperm),
+    TL_WRAP("getgrgid_r", b_getgr_r), TL_WRAP("getgrnam_r", b_getgr_r),
+    TL_WRAP("getxattr", b_enotsup), TL_WRAP("setxattr", b_enotsup), TL_WRAP("listxattr", b_enotsup), TL_WRAP("removexattr", b_enotsup),
+    TL_WRAP("lgetxattr", b_enotsup), TL_WRAP("lsetxattr", b_enotsup), TL_WRAP("fgetxattr", b_enotsup), TL_WRAP("fsetxattr", b_enotsup),
+    TL_WRAP("splice", b_splice), TL_WRAP("capget", b_capget), TL_WRAP("capset", b_eperm),
+    TL_DIRECT(strtoimax), TL_DIRECT(strtoumax),
     TL_END
 };

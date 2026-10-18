@@ -33,7 +33,8 @@ public final class RenderNode {
     public RecordingCanvas beginRecording(int width, int height) {
         if (mCanvas != null) throw new IllegalStateException("Recording currently in progress - missing #endRecording() call?");
         int w = Math.max(1, width), h = Math.max(1, height);
-        if (mBitmap == null || mBitmap.getWidth() != w || mBitmap.getHeight() != h) mBitmap = Bitmap.createBitmap(w, h, Bitmap.Config.ARGB_8888);
+        // The old picture's pixels go back now: nothing collects them later, and Compose resizes its layers on every frame of an animation
+        if (mBitmap == null || mBitmap.getWidth() != w || mBitmap.getHeight() != h) { if (mBitmap != null) mBitmap.recycle(); mBitmap = Bitmap.createBitmap(w, h, Bitmap.Config.ARGB_8888); }
         else mBitmap.eraseColor(0);
         mCanvas = new RecordingCanvas(this, mBitmap);
         return mCanvas;
@@ -48,7 +49,7 @@ public final class RenderNode {
     }
     public void end(RecordingCanvas canvas) { endRecording(); }
     public boolean hasDisplayList() { return mHasDisplayList; }
-    public void discardDisplayList() { mHasDisplayList = false; mBitmap = null; }
+    public void discardDisplayList() { mHasDisplayList = false; if (mBitmap != null) mBitmap.recycle(); mBitmap = null; }
     public boolean isAttached() { return false; }
     public long getUniqueId() { return mId; }
     public long computeApproximateMemoryUsage() { return mBitmap == null ? 0 : (long) mBitmap.getByteCount(); }

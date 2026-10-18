@@ -120,7 +120,7 @@ final class PlayStoreManager: ObservableObject {
         } catch {
             isLoading = false
             statusMessage = nil
-            errorMessage = "访客登录失败：\(error.localizedDescription)"
+            errorMessage = error.localizedDescription
             HuskLog.log("store", "Aurora guest sign-in error: \(error.localizedDescription)")
         }
     }
@@ -135,6 +135,7 @@ final class PlayStoreManager: ObservableObject {
                 saveSession(fresh)
                 await loadBrowseApps()
             } catch {
+                errorMessage = error.localizedDescription
                 HuskLog.log("store", "Failed to refresh Aurora guest token: \(error.localizedDescription)")
             }
             return

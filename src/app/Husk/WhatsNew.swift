@@ -13,36 +13,26 @@ enum WhatsNew {
     }
 
     /// The version whose notes these are. A build of the same version shows nothing again.
-    static let version = "2.0.0"
+    static let version = "3.0.0"
     static let items: [Item] = [
-        Item(symbol: "character.bubble", title: "简体中文界面",
-             detail: "主界面、JIT 引导、设置、下载、错误提示和实时活动均已汉化。"),
-        Item(symbol: "questionmark.circle.fill", title: "常见问题",
-             detail: "可在应用内搜索 JIT、应用运行、存档和 Android 系统的常见问题及解决方法。"),
-        Item(symbol: "list.bullet.clipboard", title: "社区兼容性反馈",
-             detail: "查看应用的运行情况，并在选择发送后将你的测试结果提交到社区列表。"),
-        Item(symbol: "macwindow.on.rectangle", title: "多窗口运行",
-             detail: "开启窗口模式后，可移动、缩放或最小化应用窗口，同时继续浏览 Husk。"),
-        Item(symbol: "bag.fill", title: "Google Play",
-             detail: "从“商店”获取游戏。Play 商店下载的应用，包括拆分 APK 和资源包，均可交由转译层运行。"),
-        Item(symbol: "checkmark.seal.fill", title: "Google Play 服务",
-             detail: "游戏会检测到 Play 服务已安装但未登录，从而跳过安装提示并继续运行。"),
-        Item(symbol: "arrow.up.doc.fill", title: "存档备份",
-             detail: "在游戏页面将存档备份为 ZIP 文件，之后可在本机或其他设备上恢复。"),
-        Item(symbol: "exclamationmark.bubble.fill", title: "崩溃报告",
-             detail: "游戏导致 Husk 崩溃后，下次启动会说明原因，并提供可分享的报告。"),
-        Item(symbol: "checkmark.circle.fill", title: "查看兼容性",
-             detail: "应用库会标记游戏上次运行的结果：可以运行、发生崩溃或启动失败。"),
-        Item(symbol: "gamecontroller.fill", title: "Godot 游戏",
-             detail: "使用 Godot 3 和 4 制作的游戏现在可以在转译层中运行。"),
-        Item(symbol: "slider.horizontal.below.square.and.square.filled", title: "自定义控制",
-             detail: "可为每个游戏分别移动、缩放和隐藏虚拟手柄按钮。"),
-        Item(symbol: "keyboard.fill", title: "Minecraft 键盘输入",
-             detail: "聊天、告示牌和世界名称输入框现在可以唤起键盘。"),
-        Item(symbol: "arrow.left.arrow.right", title: "切换游戏",
-             detail: "关闭 Husk 后重新打开，即可自动启动选择的另一个游戏。"),
-        Item(symbol: "puzzlepiece.extension.fill", title: "Geode",
-             detail: "在游戏设置中开启 Geometry Dash 模组支持，包括 Geode 5。"),
+        Item(symbol: "gamecontroller.fill", title: "焕然一新的 Husk",
+             detail: "主机风格首页让游戏整齐排列，选中游戏即可铺满封面，点一下就能开玩。Android 与 PS4 游戏并排展示，应用库也焕然一新，并遵循“设置 › 外观”中的深浅色偏好。"),
+        Item(symbol: "playstation.logo", title: "PS4 游戏",
+             detail: "点击“+”添加 PS4 游戏：支持 FPKG 安装包（.pkg）、包含安装包的文件夹或已解压的游戏目录。更新包会随游戏安装，着色器缓存会在多次启动间保留，需要输入名称时会弹出键盘。"),
+        Item(symbol: "square.stack.3d.up.fill", title: "支持数百款新增 Android 游戏",
+             detail: "兼容列表新增数百款可运行游戏，支持 Sonic Robo Blast 2、Ring Racers、NetHack、PokeWilds 等非官方移植版。修复 Flutter 游戏白屏，支持 Godot 4 游戏，并为 Python 游戏提供联网能力。"),
+        Item(symbol: "arrow.down.circle.fill", title: "更完整的商店下载",
+             detail: "下载游戏时会一并获取所需的扩展数据文件，拆分为多个安装包的游戏也能正常加载。"),
+        Item(symbol: "keyboard.fill", title: "更广泛的文字输入支持",
+             detail: "Unity、Java、Flutter、cocos2d-x 和 SDL 游戏中的文本输入框现在都可以唤起键盘。"),
+        Item(symbol: "textformat", title: "中文、日文和韩文",
+             detail: "本汉化版已内置中日韩字体，帮助游戏正常显示文字；也可在“设置 › 字体”中管理额外字体。"),
+        Item(symbol: "bolt.fill", title: "自动开启 JIT",
+             detail: "通过 TrollStore 安装的版本可在启动时开启 JIT。若因未开启 JIT 而无法运行，Husk 会在界面中给出提示。"),
+        Item(symbol: "iphone", title: "iOS 15",
+             detail: "Husk 现支持 iOS 15.5 及更高版本；PS4 游戏需要 iOS 17.4。"),
+        Item(symbol: "wrench.and.screwdriver.fill", title: "问题修复",
+             detail: "修复 Android 下载完成后崩溃的问题，将完整 Android 模拟器移至“设置”并补充实验性说明，不再把从多任务界面关闭 Husk 误报为崩溃，以及更多修复。"),
     ]
 
     private static let seenKey = "husk.whatsNew.seen"
@@ -67,7 +57,7 @@ struct WhatsNewSheet: View {
                 VStack(alignment: .leading, spacing: 26) {
                     VStack(alignment: .leading, spacing: 6) {
                         Text("Husk \(WhatsNew.version) 更新内容").font(.largeTitle.weight(.bold))
-                        Text("简体中文版本，包含以下功能。").foregroundStyle(.secondary)
+                        Text("全新界面、PS4 游戏，以及数百款新增 Android 游戏。").foregroundStyle(.secondary)
                     }
                     .padding(.top, 36)
                     ForEach(WhatsNew.items) { item in

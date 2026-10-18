@@ -10,7 +10,7 @@ public abstract class DrmInitData {
     protected DrmInitData() {}
     public static final class SchemeInitData {
         private final java.util.HashMap<String, Object> huskProps = new java.util.HashMap<>();
-        public static java.util.UUID UUID_NIL;
+        public static java.util.UUID UUID_NIL = new java.util.UUID(0, 0);
         public byte[] data;
         public java.lang.String mimeType;
         public java.util.UUID uuid;

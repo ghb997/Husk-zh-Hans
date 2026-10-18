@@ -382,6 +382,11 @@ static int b_attr_setdetachstate(guest_attr *a, int s)
     a->flags = (a->flags & ~GATTR_DETACHED) | (s ? GATTR_DETACHED : 0);
     return 0;
 }
+static int b_attr_getdetachstate(const guest_attr *a, int *s)
+{
+    if (s) *s = (a->flags & GATTR_DETACHED) ? 1 : 0;
+    return 0;
+}
 static int b_attr_setstacksize(guest_attr *a, size_t n)
 {
     if (n < 16384) return 22;
@@ -530,7 +535,7 @@ const tl_bionic_entry tl_tab_pthread[] = {
     TL_WRAP("pthread_key_create", b_key_create), TL_WRAP("pthread_key_delete", b_key_delete),
     TL_WRAP("pthread_getspecific", b_getspecific), TL_WRAP("pthread_setspecific", b_setspecific),
     TL_WRAP("pthread_attr_init", b_attr_init), TL_WRAP("pthread_attr_destroy", b_attr_destroy),
-    TL_WRAP("pthread_attr_setdetachstate", b_attr_setdetachstate), TL_WRAP("pthread_attr_setstacksize", b_attr_setstacksize),
+    TL_WRAP("pthread_attr_setdetachstate", b_attr_setdetachstate), TL_WRAP("pthread_attr_getdetachstate", b_attr_getdetachstate), TL_WRAP("pthread_attr_setstacksize", b_attr_setstacksize),
     TL_WRAP("pthread_attr_getstacksize", b_attr_getstacksize), TL_WRAP("pthread_attr_getguardsize", b_attr_getguardsize), TL_WRAP("pthread_attr_setguardsize", b_attr_setguardsize), TL_WRAP("pthread_attr_setscope", b_attr_setscope), TL_WRAP("pthread_attr_getscope", b_attr_getscope), TL_WRAP("pthread_attr_getstack", b_attr_getstack),
     TL_WRAP("pthread_attr_getschedparam", b_attr_getschedparam),
     TL_WRAP("pthread_attr_getschedpolicy", b_attr_getschedpolicy), TL_WRAP("pthread_attr_setinheritsched", b_attr_setinheritsched), TL_WRAP("pthread_attr_getinheritsched", b_attr_getinheritsched), TL_WRAP("pthread_attr_setschedpolicy", b_attr_setschedpolicy),

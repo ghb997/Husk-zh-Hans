@@ -9,6 +9,7 @@
  */
 #define _DARWIN_C_SOURCE
 #include "husk-tl-bionic.h"
+const char *tl_ld_main_apk(void);
 #include "husk-tl-internal.h"
 #include "husk-tl-codewrite.h"
 #include "husk-tl-xmem.h"
@@ -158,12 +159,24 @@ void tl_set_cacerts_dir(const char *dir) { snprintf(g_cacerts, sizeof(g_cacerts)
  * typeface (Skia, in Flutter apps): a copy the app carries, laid out as fonts/ and etc/ under one directory. */
 static char g_sysfonts[1024];
 void tl_set_system_fonts_dir(const char *dir) { snprintf(g_sysfonts, sizeof(g_sysfonts), "%s", dir ? dir : ""); }
+/* Fonts the app downloaded later (the Chinese, Japanese and Korean ones the bundle leaves out, #95): a /system/fonts file the bundle
+ * does not have is looked for here too, and fonts.xml already names them. */
+static char g_extrafonts[1024];
+void tl_set_extra_fonts_dir(const char *dir) { snprintf(g_extrafonts, sizeof(g_extrafonts), "%s", dir ? dir : ""); }
 
 const char *tl_path_resolve(const char *path, char *buf, size_t n)
 {
     if (!path) return path;
     if (g_sysfonts[0]) {
-        if (!strncmp(path, "/system/fonts", 13) && (path[13] == 0 || path[13] == '/')) { snprintf(buf, n, "%s/fonts%s", g_sysfonts, path + 13); return buf; }
+        if (!strncmp(path, "/system/fonts", 13) && (path[13] == 0 || path[13] == '/')) {
+            snprintf(buf, n, "%s/fonts%s", g_sysfonts, path + 13);
+            if (g_extrafonts[0] && path[13] == '/' && access(buf, F_OK) != 0) {
+                char extra[1100];
+                snprintf(extra, sizeof(extra), "%s%s", g_extrafonts, path + 13);
+                if (access(extra, F_OK) == 0) snprintf(buf, n, "%s", extra);
+            }
+            return buf;
+        }
         if (!strcmp(path, "/system/etc/fonts.xml") || !strcmp(path, "/system/etc/font_fallback.xml")) { snprintf(buf, n, "%s/etc%s", g_sysfonts, path + 11); return buf; }
     }
     if (g_cacerts[0]) {
@@ -253,6 +266,18 @@ const char *tl_path_resolve(const char *path, char *buf, size_t n)
             return buf;
         }
         snprintf(buf, n, "%s/sdcard%s", tl_data_dir(), rest);
+        /* An expansion file (Android/obb/<package>/main.<version>.<package>.obb) not in the app's data: the one Husk's store
+         * downloaded with the app, kept beside its APKs in obb/ */
+        if (!strncmp(rest, "/Android/obb/", 13)) {
+            struct stat st;
+            const char *apk = tl_ld_main_apk(), *file = strrchr(rest, '/');
+            if (stat(buf, &st) != 0 && apk && file && file[1]) {
+                char beside[1024];
+                const char *slash = strrchr(apk, '/');
+                snprintf(beside, sizeof(beside), "%.*s/obb%s", slash ? (int)(slash - apk) : 0, apk, file);
+                if (stat(beside, &st) == 0) snprintf(buf, n, "%s", beside);
+            }
+        }
         return buf;
     }
     return path;
@@ -1514,7 +1539,7 @@ static long linux_syscall_impl(long a0, long a1, long a2, long a3, long a4, long
     case 233: return 0;                                                                 /* madvise */
     case 122: case 123: return 0;                                                       /* sched_setaffinity / getaffinity */
     case 167: return 0;                                                                 /* prctl */
-    case 160: return 0;                                                                 /* uname */
+    case 160: { int tl_bionic_uname(void *); return tl_bionic_uname((void *)a0); }    /* uname: filled in, as the libc call is */
     case 47: {                                                                          /* fallocate: growing the file (Superpack maps it at its full size, then writes) */
         if (a1) return -95;
         struct stat st;

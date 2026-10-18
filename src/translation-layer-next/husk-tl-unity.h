@@ -55,6 +55,15 @@ void tl_unity_set_paused(bool paused);
 /* Send a signal to the UnityMain thread (diagnostics: a backtrace handler in the host). */
 void tl_unity_poke(int signo);
 
+/* TouchScreenKeyboard: the game asks for the keyboard (action 1, kind = TouchScreenKeyboardType | 0x100 secure | 0x200 multi-line)
+ * or puts it away (2), on the engine's thread. The keyboard's edits go to the field the game opened, and reach the engine before
+ * its next frame; finish_text(true) is Done, (false) a dismissal. text_copy is the field as it stands. Safe from any thread. */
+void tl_unity_set_keyboard_handler(void (*hook)(int action, int kind));
+void tl_unity_insert_text(const char *utf8);
+void tl_unity_delete_backward(void);
+void tl_unity_finish_text(bool done);
+void tl_unity_text_copy(char *out, unsigned long cap);
+
 /* Ask the engine to stop and wait for UnityMain to finish. */
 void tl_unity_stop(void);
 

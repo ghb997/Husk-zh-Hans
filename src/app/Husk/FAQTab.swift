@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
 import SwiftUI
 
-/// The FAQ tab: common problems and what to do about them, so a user stuck on JIT or on an app
-/// that will not open has an answer without leaving Husk.
+/// Help: common problems and what to do about them, so a user stuck on JIT or on an app that will not open has an answer
+/// without leaving Husk. A page in Settings (it was a tab of its own; four tabs read simpler than five).
 struct FAQTab: View {
     @State private var query = ""
 
@@ -16,7 +16,6 @@ struct FAQTab: View {
     }
 
     var body: some View {
-        NavigationStack {
             List {
                 ForEach(sections) { s in
                     Section {
@@ -30,9 +29,8 @@ struct FAQTab: View {
                         .foregroundStyle(.secondary)
                 }
             }
-            .navigationTitle("常见问题")
+            .navigationTitle("帮助")
             .searchable(text: $query, prompt: "搜索问题")
-        }
     }
 }
 
@@ -109,6 +107,10 @@ enum FAQ {
                        + "即可保留应用库、应用和存档。"),
         ]),
         Section(title: "应用和游戏", symbol: "gamecontroller.fill", items: [
+            Item(question: "如何添加 PS4 游戏？",
+                 answer: "点击“+”，选择 FPKG 安装包（.pkg）、包含安装包的文件夹，或已解压的游戏文件夹（包含 eboot.bin 和 sce_sys）。"
+                       + "Husk 会将其安装到“文件”中的“PS4 Games”目录，更新包会安装在对应游戏旁的文件夹中。"
+                       + "零售版安装包与 PS4 设备绑定，无法安装。PS4 游戏需要 iOS 17.4 或更高版本。"),
             Item(question: "应用无法打开",
                  answer: "在应用库中打开该应用的页面，Husk 会说明停止运行的原因：\n"
                        + "• **受保护的应用：**应用会检测真实 Android 设备，或采用反作弊、DRM 保护。Husk 无法绕过这些限制。\n"

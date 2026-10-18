@@ -19,7 +19,7 @@ struct FilesTab: View {
     var body: some View {
         NavigationStack(path: $router.files) {
             DirectoryView(path: Self.root, title: "文件")
-                .navigationDestination(for: String.self) { path in
+                .huskDestination(for: String.self) { path in
                     DirectoryView(path: path,
                                   title: (path as NSString).lastPathComponent)
                 }
@@ -81,7 +81,7 @@ struct DirectoryView: View {
         }
         .sheet(isPresented: $showImportSheet) {
             ImportSheet(destination: path) { showImportSheet = false; importing = true }
-                .presentationDetents([.height(340)])
+                .huskDetents([.height(340)])
         }
         .huskFilePicker(isPresented: $importing) { urls in
             host.sendFiles(urls, to: path)
@@ -104,7 +104,7 @@ struct DirectoryView: View {
 
     @ViewBuilder private func row(_ e: AndroidHost.GuestEntry) -> some View {
         if e.isDirectory {
-            NavigationLink(value: e.path) {
+            HuskLink(value: e.path) {
                 fileLabel(icon: "folder.fill", tint: .accentColor, title: e.name,
                           subtitle: e.modified.map(Self.when))
             }

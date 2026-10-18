@@ -67,16 +67,18 @@ final class CrashReport: ObservableObject {
     /// A game is starting: if Husk ends before `gameEnded`, the next launch will say so.
     ///
     /// Not while Husk is in the background, though: iOS ends background apps when it wants the memory, without a word,
-    /// and that is not the game's doing. The note goes when Husk leaves the screen and comes back with it.
+    /// and that is not the game's doing. Nor while it is only inactive: swiping it away from the app switcher ends it with
+    /// no background notice at all (it is merely inactive while the switcher is up), which read as a crash every time
+    /// (a Geometry Dash session closed that way). The note goes when Husk stops being active and comes back with it.
     static func gameStarted(_ app: TLApp) {
         running = app
         writeMarker()
         if observers.isEmpty {
             let nc = NotificationCenter.default
-            observers.append(nc.addObserver(forName: UIApplication.didEnterBackgroundNotification, object: nil, queue: .main) { _ in
+            observers.append(nc.addObserver(forName: UIApplication.willResignActiveNotification, object: nil, queue: .main) { _ in
                 try? FileManager.default.removeItem(at: marker)
             })
-            observers.append(nc.addObserver(forName: UIApplication.willEnterForegroundNotification, object: nil, queue: .main) { _ in
+            observers.append(nc.addObserver(forName: UIApplication.didBecomeActiveNotification, object: nil, queue: .main) { _ in
                 writeMarker()
             })
         }
@@ -201,7 +203,7 @@ struct CrashReportSheet: View {
                     }
 
                     if let file {
-                        ShareLink(item: file) {
+                        HuskShareLink(item: file) {
                             Label("分享报告", systemImage: "square.and.arrow.up")
                                 .frame(maxWidth: .infinity).padding(.vertical, 6)
                         }

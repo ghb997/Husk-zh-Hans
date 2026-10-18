@@ -108,15 +108,47 @@ static char *es31_downgrade(const char *src, size_t n, es31_bind *rec, int *nrec
     return out;
 }
 
+/* External (camera/video) textures: ANGLE over Metal has no OES_EGL_image_external, so a shader declaring one does not compile,
+ * and Flutter's Impeller then draws nothing at all (it builds every pipeline at start). The extension lines go and samplerExternalOES
+ * becomes sampler2D, which texture()/texture2D() take as well; games rarely sample a real external image. NULL: nothing to change. */
+static char *oes_external_rewrite(const char *src)
+{
+    if (!strstr(src, "samplerExternalOES") && !strstr(src, "GL_OES_EGL_image_external")) return NULL;
+    size_t n = strlen(src);
+    char *out = malloc(n + 1); size_t o = 0;
+    for (size_t i = 0; i < n;) {
+        if ((i == 0 || src[i - 1] == '\n') && src[i] == '#') {
+            size_t j = i + 1; while (j < n && (src[j] == ' ' || src[j] == '\t')) j++;
+            if (!strncmp(src + j, "extension", 9)) {
+                const char *eol = memchr(src + j, '\n', n - j);
+                size_t e = eol ? (size_t)(eol - src) : n;
+                if (memmem(src + j, e - j, "GL_OES_EGL_image_external", 25)) { i = e; continue; }
+            }
+        }
+        if (!strncmp(src + i, "samplerExternalOES", 18)) { memcpy(out + o, "sampler2D", 9); o += 9; i += 18; continue; }
+        out[o++] = src[i++];
+    }
+    out[o] = 0;
+    return out;
+}
+
 static void (*r_glShaderSource)(unsigned, int, const char *const *, const int *);
 static void w_glShaderSource(unsigned sh, int count, const char *const *str, const int *len)
 {
-    if (!g_es31_shim || count <= 0 || !str) { r_glShaderSource(sh, count, str, len); return; }
+    if (count <= 0 || !str) { r_glShaderSource(sh, count, str, len); return; }
     size_t total = 0;
     for (int i = 0; i < count; i++) total += str[i] ? (len && len[i] >= 0 ? (size_t)len[i] : strlen(str[i])) : 0;
     char *cat = malloc(total + 1); size_t k = 0;
     for (int i = 0; i < count; i++) if (str[i]) { size_t l = len && len[i] >= 0 ? (size_t)len[i] : strlen(str[i]); memcpy(cat + k, str[i], l); k += l; }
     cat[k] = 0;
+    char *ext = oes_external_rewrite(cat);
+    if (ext) { free(cat); cat = ext; k = strlen(cat); }
+    if (!g_es31_shim) {
+        const char *one = cat; int one_len = (int)k;
+        r_glShaderSource(sh, 1, &one, &one_len);
+        free(cat);
+        return;
+    }
     es31_bind rec[ES31_BINDS]; int nrec = 0;
     char *down = es31_downgrade(cat, k, rec, &nrec);
     pthread_mutex_lock(&g_es31_mu);

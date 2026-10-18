@@ -27,9 +27,9 @@ public class Build {
         public static java.util.Set KNOWN_CODENAMES;
         public static int MEDIA_PERFORMANCE_CLASS;
         public static int MIN_SUPPORTED_TARGET_SDK_INT;
-        public static java.lang.String PREVIEW_SDK_FINGERPRINT;
-        public static java.lang.String RELEASE_OR_CODENAME;
-        public static java.lang.String RELEASE_OR_PREVIEW_DISPLAY;
+        public static java.lang.String PREVIEW_SDK_FINGERPRINT = "REL";
+        public static java.lang.String RELEASE_OR_CODENAME = "14";
+        public static java.lang.String RELEASE_OR_PREVIEW_DISPLAY = "14";
         public static int RESOURCES_SDK_INT;
         public static int RESOURCES_SDK_INT_FULL;
         public static int SDK_INT_FULL;

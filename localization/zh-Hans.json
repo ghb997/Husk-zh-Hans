@@ -1729,18 +1729,6 @@
   },
   {
     "file": "src/app/Husk/Launcher.swift",
-    "line": 260,
-    "en": "Ready to play",
-    "zh-Hans": "可以开始游戏"
-  },
-  {
-    "file": "src/app/Husk/Launcher.swift",
-    "line": 260,
-    "en": "Ready to open",
-    "zh-Hans": "可以打开"
-  },
-  {
-    "file": "src/app/Husk/Launcher.swift",
     "line": 278,
     "en": "Play ",
     "zh-Hans": "开始游戏："
@@ -1753,45 +1741,15 @@
   },
   {
     "file": "src/app/Husk/Launcher.swift",
-    "line": 314,
-    "en": "JIT on",
-    "zh-Hans": "JIT 已开启"
-  },
-  {
-    "file": "src/app/Husk/Launcher.swift",
-    "line": 314,
-    "en": "JIT off",
-    "zh-Hans": "JIT 未开启"
-  },
-  {
-    "file": "src/app/Husk/Launcher.swift",
-    "line": 315,
-    "en": "via \\(via)",
-    "zh-Hans": "通过 \\(via)"
-  },
-  {
-    "file": "src/app/Husk/Launcher.swift",
     "line": 315,
     "en": "Turning on…",
     "zh-Hans": "正在开启…"
   },
   {
     "file": "src/app/Husk/Launcher.swift",
-    "line": 315,
-    "en": "Tap to turn on",
-    "zh-Hans": "轻点开启"
-  },
-  {
-    "file": "src/app/Husk/Launcher.swift",
     "line": 345,
     "en": "\\(running.count) downloading\\(pct)",
     "zh-Hans": "\\(running.count) 项正在下载\\(pct)"
-  },
-  {
-    "file": "src/app/Husk/Launcher.swift",
-    "line": 347,
-    "en": "Something failed",
-    "zh-Hans": "部分下载失败"
   },
   {
     "file": "src/app/Husk/Launcher.swift",
@@ -1807,33 +1765,15 @@
   },
   {
     "file": "src/app/Husk/Launcher.swift",
-    "line": 350,
-    "en": "Up to date",
-    "zh-Hans": "已是最新"
-  },
-  {
-    "file": "src/app/Husk/Launcher.swift",
     "line": 359,
     "en": "Downloads",
     "zh-Hans": "下载"
   },
   {
     "file": "src/app/Husk/Launcher.swift",
-    "line": 381,
-    "en": "For apps the translation layer can't run yet",
-    "zh-Hans": "用于运行转译层尚不支持的应用"
-  },
-  {
-    "file": "src/app/Husk/Launcher.swift",
     "line": 393,
     "en": "Open",
     "zh-Hans": "打开"
-  },
-  {
-    "file": "src/app/Husk/Launcher.swift",
-    "line": 393,
-    "en": "Start",
-    "zh-Hans": "启动"
   },
   {
     "file": "src/app/Husk/Launcher.swift",
@@ -1849,21 +1789,9 @@
   },
   {
     "file": "src/app/Husk/Launcher.swift",
-    "line": 436,
-    "en": "straight on your iPhone. Other apps run inside Android.",
-    "zh-Hans": "直接在 iPhone 上运行，其他应用在 Android 系统内运行。"
-  },
-  {
-    "file": "src/app/Husk/Launcher.swift",
     "line": 442,
     "en": "Add a Game or App",
     "zh-Hans": "添加游戏或应用"
-  },
-  {
-    "file": "src/app/Husk/Launcher.swift",
-    "line": 459,
-    "en": "See All",
-    "zh-Hans": "查看全部"
   },
   {
     "file": "src/app/Husk/Launcher.swift",
@@ -2452,12 +2380,6 @@
     "line": 53,
     "en": "Each app can override this in its own settings.",
     "zh-Hans": "也可在每个应用的设置中单独选择打开方式。"
-  },
-  {
-    "file": "src/app/Husk/SettingsTab.swift",
-    "line": 56,
-    "en": "Emulator",
-    "zh-Hans": "模拟器"
   },
   {
     "file": "src/app/Husk/SettingsTab.swift",
@@ -3559,12 +3481,6 @@
   },
   {
     "file": "src/app/Husk/SettingsTab.swift",
-    "line": 688,
-    "en": "screen stays dark either way — it is a picture of another phone.",
-    "zh-Hans": "客户系统画面不受此设置影响，它显示的是另一套系统的画面。"
-  },
-  {
-    "file": "src/app/Husk/SettingsTab.swift",
     "line": 706,
     "en": "Custom Colour",
     "zh-Hans": "自定义颜色"
@@ -4339,18 +4255,6 @@
   },
   {
     "file": "src/app/Husk/JITSetupView.swift",
-    "line": 379,
-    "en": "TrollStore was not found on this \\(device). Husk can only use it once it is installed ",
-    "zh-Hans": "在此 \\(device) 上未检测到 TrollStore。请先安装 TrollStore，"
-  },
-  {
-    "file": "src/app/Husk/JITSetupView.swift",
-    "line": 380,
-    "en": "and Husk was installed through it.",
-    "zh-Hans": "并通过它安装 Husk，才能使用此方式。"
-  },
-  {
-    "file": "src/app/Husk/JITSetupView.swift",
     "line": 385,
     "en": "Use TrollStore",
     "zh-Hans": "使用 TrollStore"
@@ -4423,108 +4327,6 @@
   },
   {
     "file": "src/app/Husk/OnboardingView.swift",
-    "line": 79,
-    "en": "Start using Husk",
-    "zh-Hans": "开始使用 Husk"
-  },
-  {
-    "file": "src/app/Husk/OnboardingView.swift",
-    "line": 113,
-    "en": "Android apps, on your iPhone.",
-    "zh-Hans": "在 iPhone 上运行 Android 应用。"
-  },
-  {
-    "file": "src/app/Husk/OnboardingView.swift",
-    "line": 115,
-    "en": "Husk runs a real Android system and opens APKs inside it. ",
-    "zh-Hans": "Husk 可运行完整的 Android 系统，并在其中打开 APK。"
-  },
-  {
-    "file": "src/app/Husk/OnboardingView.swift",
-    "line": 116,
-    "en": "A few questions first — all of them can be changed later in Settings.",
-    "zh-Hans": "先完成几项设置，之后随时都可以在“设置”中修改。"
-  },
-  {
-    "file": "src/app/Husk/OnboardingView.swift",
-    "line": 127,
-    "en": "How should Husk behave?",
-    "zh-Hans": "选择 Husk 的运行方式"
-  },
-  {
-    "file": "src/app/Husk/OnboardingView.swift",
-    "line": 131,
-    "en": "Start Android on launch",
-    "zh-Hans": "启动时自动运行 Android"
-  },
-  {
-    "file": "src/app/Husk/OnboardingView.swift",
-    "line": 132,
-    "en": "Boots the guest as soon as Husk opens, once JIT is ",
-    "zh-Hans": "JIT 可用时，打开 Husk 即自动"
-  },
-  {
-    "file": "src/app/Husk/OnboardingView.swift",
-    "line": 133,
-    "en": "available. Off means you start it yourself.",
-    "zh-Hans": "启动 Android。关闭后需要手动启动。"
-  },
-  {
-    "file": "src/app/Husk/OnboardingView.swift",
-    "line": 136,
-    "en": "Landscape screen",
-    "zh-Hans": "横屏显示"
-  },
-  {
-    "file": "src/app/Husk/OnboardingView.swift",
-    "line": 137,
-    "en": "Gives Android a landscape screen, which games fill ",
-    "zh-Hans": "为 Android 创建横屏画面，让横屏游戏铺满屏幕。"
-  },
-  {
-    "file": "src/app/Husk/OnboardingView.swift",
-    "line": 138,
-    "en": "properly. Portrait apps get letterboxed instead.",
-    "zh-Hans": "竖屏应用则会显示黑边。"
-  },
-  {
-    "file": "src/app/Husk/OnboardingView.swift",
-    "line": 141,
-    "en": "Sound",
-    "zh-Hans": "声音"
-  },
-  {
-    "file": "src/app/Husk/OnboardingView.swift",
-    "line": 142,
-    "en": "Adds a sound device. Android cannot be saved while ",
-    "zh-Hans": "添加音频设备。开启后无法保存 Android 状态，"
-  },
-  {
-    "file": "src/app/Husk/OnboardingView.swift",
-    "line": 143,
-    "en": "this is on, so every launch boots from cold.",
-    "zh-Hans": "每次启动都需要完整冷启动。"
-  },
-  {
-    "file": "src/app/Husk/OnboardingView.swift",
-    "line": 146,
-    "en": "Save automatically",
-    "zh-Hans": "自动保存"
-  },
-  {
-    "file": "src/app/Husk/OnboardingView.swift",
-    "line": 147,
-    "en": "Saves the machine once Android settles, so later ",
-    "zh-Hans": "Android 稳定运行后保存系统状态，"
-  },
-  {
-    "file": "src/app/Husk/OnboardingView.swift",
-    "line": 148,
-    "en": "launches restore in seconds instead of booting.",
-    "zh-Hans": "下次启动时数秒即可恢复，无需重新引导。"
-  },
-  {
-    "file": "src/app/Husk/OnboardingView.swift",
     "line": 178,
     "en": "JIT is on.",
     "zh-Hans": "JIT 已开启。"
@@ -4555,30 +4357,6 @@
   },
   {
     "file": "src/app/Husk/OnboardingView.swift",
-    "line": 194,
-    "en": "Turn on JIT",
-    "zh-Hans": "开启 JIT"
-  },
-  {
-    "file": "src/app/Husk/OnboardingView.swift",
-    "line": 195,
-    "en": "Android and Translation Layer games need JIT, which on iOS only an attached debugger can grant. ",
-    "zh-Hans": "Android 和转译层游戏都需要 JIT，在 iOS 上需要附加调试器才能获得。"
-  },
-  {
-    "file": "src/app/Husk/OnboardingView.swift",
-    "line": 196,
-    "en": "StikJIT is built into Husk and is the recommended way: it turns JIT on from inside the app, ",
-    "zh-Hans": "推荐使用 Husk 内置的 StikJIT，可直接在应用内开启 JIT，"
-  },
-  {
-    "file": "src/app/Husk/OnboardingView.swift",
-    "line": 197,
-    "en": "with no computer and no other app. StikDebug and TrollStore work too.",
-    "zh-Hans": "无需电脑或其他调试应用。也可以使用 StikDebug 或 TrollStore。"
-  },
-  {
-    "file": "src/app/Husk/OnboardingView.swift",
     "line": 205,
     "en": "Set Up StikJIT Now",
     "zh-Hans": "立即设置 StikJIT"
@@ -4588,30 +4366,6 @@
     "line": 205,
     "en": "Change JIT Setup",
     "zh-Hans": "更改 JIT 设置"
-  },
-  {
-    "file": "src/app/Husk/OnboardingView.swift",
-    "line": 219,
-    "en": "Ready",
-    "zh-Hans": "准备就绪"
-  },
-  {
-    "file": "src/app/Husk/OnboardingView.swift",
-    "line": 220,
-    "en": "If JIT is not on when Android starts, Husk turns it on with the ",
-    "zh-Hans": "启动 Android 时，如果 JIT 尚未开启，Husk 会通过"
-  },
-  {
-    "file": "src/app/Husk/OnboardingView.swift",
-    "line": 221,
-    "en": "method you chose, or walks you through setting one up. You can ",
-    "zh-Hans": "你选择的方式开启，或引导你完成设置。"
-  },
-  {
-    "file": "src/app/Husk/OnboardingView.swift",
-    "line": 222,
-    "en": "change it any time in Settings › JIT & sideload.",
-    "zh-Hans": "之后可随时在“设置 › JIT 与侧载”中更改。"
   },
   {
     "file": "src/app/Husk/Play/GoogleSignInSheet.swift",
@@ -4642,12 +4396,6 @@
     "line": 51,
     "en": "Invalid dispenser URL: \\(dispenserURL)",
     "zh-Hans": "无效的令牌服务地址：\\(dispenserURL)"
-  },
-  {
-    "file": "src/app/Husk/Play/PlayAPI.swift",
-    "line": 92,
-    "en": "Aurora token dispenser returned HTTP \\((response as? HTTPURLResponse)?.statusCode ?? 0).",
-    "zh-Hans": "Aurora 令牌服务返回 HTTP \\((response as? HTTPURLResponse)?.statusCode ?? 0)。"
   },
   {
     "file": "src/app/Husk/Play/PlayAPI.swift",
@@ -4722,12 +4470,6 @@
     "zh-Hans": "没有可用于下载 \\(packageName) 的链接。"
   },
   {
-    "file": "src/app/Husk/Play/PlayAPI.swift",
-    "line": 779,
-    "en": "Failed to download \\(item.name) (HTTP \\((resp as? HTTPURLResponse)?.statusCode ?? 0))",
-    "zh-Hans": "下载 \\(item.name) 失败（HTTP \\((resp as? HTTPURLResponse)?.statusCode ?? 0)）"
-  },
-  {
     "file": "src/app/Husk/Play/PlayStoreManager.swift",
     "line": 68,
     "en": "Exchanging token with Google…",
@@ -4756,12 +4498,6 @@
     "line": 111,
     "en": "Connecting to Aurora guest server…",
     "zh-Hans": "正在连接 Aurora 访客服务…"
-  },
-  {
-    "file": "src/app/Husk/Play/PlayStoreManager.swift",
-    "line": 123,
-    "en": "Guest sign-in failed: \\(error.localizedDescription)",
-    "zh-Hans": "访客登录失败：\\(error.localizedDescription)"
   },
   {
     "file": "src/app/Husk/Play/PlayStoreManager.swift",
@@ -5623,123 +5359,9 @@
   },
   {
     "file": "src/app/Husk/WhatsNew.swift",
-    "line": 19,
-    "en": "Get games from the Store tab. Play Store downloads, with their split APKs and asset packs, run in the Translation Layer.",
-    "zh-Hans": "从“商店”获取游戏。Play 商店下载的应用，包括拆分 APK 和资源包，均可交由转译层运行。"
-  },
-  {
-    "file": "src/app/Husk/WhatsNew.swift",
-    "line": 20,
-    "en": "Google Play services",
-    "zh-Hans": "Google Play 服务"
-  },
-  {
-    "file": "src/app/Husk/WhatsNew.swift",
-    "line": 21,
-    "en": "Games see Play services as present and signed out, so they stop asking for it and carry on.",
-    "zh-Hans": "游戏会检测到 Play 服务已安装但未登录，从而跳过安装提示并继续运行。"
-  },
-  {
-    "file": "src/app/Husk/WhatsNew.swift",
-    "line": 22,
-    "en": "Save backups",
-    "zh-Hans": "存档备份"
-  },
-  {
-    "file": "src/app/Husk/WhatsNew.swift",
-    "line": 23,
-    "en": "Back up a game's saves to a .zip from its page, and restore them later or on another device.",
-    "zh-Hans": "在游戏页面将存档备份为 ZIP 文件，之后可在本机或其他设备上恢复。"
-  },
-  {
-    "file": "src/app/Husk/WhatsNew.swift",
-    "line": 24,
-    "en": "Crash reports",
-    "zh-Hans": "崩溃报告"
-  },
-  {
-    "file": "src/app/Husk/WhatsNew.swift",
-    "line": 25,
-    "en": "When a game takes Husk down, the next launch says what happened and gives you a report to share.",
-    "zh-Hans": "游戏导致 Husk 崩溃后，下次启动会说明原因，并提供可分享的报告。"
-  },
-  {
-    "file": "src/app/Husk/WhatsNew.swift",
-    "line": 26,
-    "en": "Know what works",
-    "zh-Hans": "查看兼容性"
-  },
-  {
-    "file": "src/app/Husk/WhatsNew.swift",
-    "line": 27,
-    "en": "The library marks each game with how it did last time: it plays, it crashed, or it did not start.",
-    "zh-Hans": "应用库会标记游戏上次运行的结果：可以运行、发生崩溃或启动失败。"
-  },
-  {
-    "file": "src/app/Husk/WhatsNew.swift",
-    "line": 28,
-    "en": "Godot games",
-    "zh-Hans": "Godot 游戏"
-  },
-  {
-    "file": "src/app/Husk/WhatsNew.swift",
-    "line": 29,
-    "en": "Games made with Godot 3 and 4 now run in the Translation Layer.",
-    "zh-Hans": "使用 Godot 3 和 4 制作的游戏现在可以在转译层中运行。"
-  },
-  {
-    "file": "src/app/Husk/WhatsNew.swift",
-    "line": 30,
-    "en": "Your own controls",
-    "zh-Hans": "自定义控制"
-  },
-  {
-    "file": "src/app/Husk/WhatsNew.swift",
-    "line": 31,
-    "en": "Move, resize and hide the on-screen controller's buttons, for each game.",
-    "zh-Hans": "可为每个游戏分别移动、缩放和隐藏虚拟手柄按钮。"
-  },
-  {
-    "file": "src/app/Husk/WhatsNew.swift",
-    "line": 32,
-    "en": "Typing in Minecraft",
-    "zh-Hans": "Minecraft 键盘输入"
-  },
-  {
-    "file": "src/app/Husk/WhatsNew.swift",
-    "line": 33,
-    "en": "Chat, sign and world-name fields bring up the keyboard.",
-    "zh-Hans": "聊天、告示牌和世界名称输入框现在可以唤起键盘。"
-  },
-  {
-    "file": "src/app/Husk/WhatsNew.swift",
-    "line": 34,
-    "en": "Switching games",
-    "zh-Hans": "切换游戏"
-  },
-  {
-    "file": "src/app/Husk/WhatsNew.swift",
-    "line": 35,
-    "en": "Close Husk to play another game, and it starts by itself when Husk opens.",
-    "zh-Hans": "关闭 Husk 后重新打开，即可自动启动选择的另一个游戏。"
-  },
-  {
-    "file": "src/app/Husk/WhatsNew.swift",
-    "line": 37,
-    "en": "Mods for Geometry Dash, Geode 5 included, turned on from the game's settings.",
-    "zh-Hans": "在游戏设置中开启 Geometry Dash 模组支持，包括 Geode 5。"
-  },
-  {
-    "file": "src/app/Husk/WhatsNew.swift",
     "line": 61,
     "en": "What's New in Husk \\(WhatsNew.version)",
     "zh-Hans": "Husk \\(WhatsNew.version) 更新内容"
-  },
-  {
-    "file": "src/app/Husk/WhatsNew.swift",
-    "line": 62,
-    "en": "The first full release.",
-    "zh-Hans": "简体中文版本，包含以下功能。"
   },
   {
     "file": "src/app/Husk/WhatsNew.swift",
@@ -8190,12 +7812,6 @@
     "zh-Hans": "正常运行"
   },
   {
-    "file": "src/app/Husk/ContentView.swift",
-    "line": 65,
-    "en": "FAQ",
-    "zh-Hans": "常见问题"
-  },
-  {
     "file": "src/app/Husk/CrashReport.swift",
     "line": 212,
     "en": "Report to the Compatibility List",
@@ -8779,12 +8395,6 @@
   },
   {
     "file": "src/app/Husk/FAQTab.swift",
-    "line": 33,
-    "en": "FAQ",
-    "zh-Hans": "常见问题"
-  },
-  {
-    "file": "src/app/Husk/FAQTab.swift",
     "line": 29,
     "en": "Nothing matches “\\(query)”. Open Settings › About › Open Console to see what Husk is doing.",
     "zh-Hans": "没有找到与“\\(query)”匹配的问题。可前往“设置 › 关于 › 打开控制台”查看 Husk 的运行日志。"
@@ -8802,51 +8412,1167 @@
     "zh-Hans": "正在启动"
   },
   {
-    "file": "src/app/Husk/WhatsNew.swift",
-    "line": 18,
-    "en": "Simplified Chinese Interface",
-    "zh-Hans": "简体中文界面"
+    "file": "src/app/Husk/ConsoleUI.swift",
+    "line": 102,
+    "en": "Last opened ",
+    "zh-Hans": "上次打开："
+  },
+  {
+    "file": "src/app/Husk/ConsoleUI.swift",
+    "line": 102,
+    "en": "Last played ",
+    "zh-Hans": "上次游玩："
+  },
+  {
+    "file": "src/app/Husk/ConsoleUI.swift",
+    "line": 101,
+    "en": "just now",
+    "zh-Hans": "刚刚"
+  },
+  {
+    "file": "src/app/Husk/ConsoleUI.swift",
+    "line": 72,
+    "en": "Android · Emulator",
+    "zh-Hans": "Android · 模拟器"
+  },
+  {
+    "file": "src/app/Husk/ConsoleUI.swift",
+    "line": 62,
+    "en": "Protected",
+    "zh-Hans": "受保护"
+  },
+  {
+    "file": "src/app/Husk/ConsoleUI.swift",
+    "line": 61,
+    "en": "Broken",
+    "zh-Hans": "无法运行"
+  },
+  {
+    "file": "src/app/Husk/ConsoleUI.swift",
+    "line": 60,
+    "en": "Opens",
+    "zh-Hans": "可打开"
+  },
+  {
+    "file": "src/app/Husk/ConsoleUI.swift",
+    "line": 59,
+    "en": "Plays",
+    "zh-Hans": "可游玩"
+  },
+  {
+    "file": "src/app/Husk/ConsoleUI.swift",
+    "line": 39,
+    "en": "All",
+    "zh-Hans": "全部"
+  },
+  {
+    "file": "src/app/Husk/ContentView.swift",
+    "line": 347,
+    "en": "Husk could not get executable memory. Turn JIT on again (Settings > JIT) and retry.",
+    "zh-Hans": "Husk 无法获取可执行内存。请前往“设置 > JIT”重新开启 JIT 后重试。"
+  },
+  {
+    "file": "src/app/Husk/ContentView.swift",
+    "line": 346,
+    "en": "Android can't start without JIT",
+    "zh-Hans": "未开启 JIT，无法启动 Android"
+  },
+  {
+    "file": "src/app/Husk/ContentView.swift",
+    "line": 142,
+    "en": "Games and apps run much better in the Translation Layer.",
+    "zh-Hans": "使用转译层运行游戏和应用通常能获得更好的体验。"
+  },
+  {
+    "file": "src/app/Husk/ContentView.swift",
+    "line": 141,
+    "en": "Full Android emulation is experimental. It is slow, takes minutes to start, and can freeze or crash Husk. ",
+    "zh-Hans": "完整 Android 模拟仍处于实验阶段，运行较慢，启动需要数分钟，并可能导致 Husk 卡死或崩溃。"
+  },
+  {
+    "file": "src/app/Husk/ContentView.swift",
+    "line": 139,
+    "en": "Cancel",
+    "zh-Hans": "取消"
+  },
+  {
+    "file": "src/app/Husk/ContentView.swift",
+    "line": 138,
+    "en": "Start",
+    "zh-Hans": "启动"
+  },
+  {
+    "file": "src/app/Husk/ContentView.swift",
+    "line": 137,
+    "en": "Start Android?",
+    "zh-Hans": "启动 Android？"
+  },
+  {
+    "file": "src/app/Husk/IncomingFiles.swift",
+    "line": 153,
+    "en": "It's in your library.",
+    "zh-Hans": "已添加到应用库。"
+  },
+  {
+    "file": "src/app/Husk/IncomingFiles.swift",
+    "line": 151,
+    "en": "Could not install \\(what)",
+    "zh-Hans": "无法安装 \\(what)"
+  },
+  {
+    "file": "src/app/Husk/IncomingFiles.swift",
+    "line": 134,
+    "en": "is already installed",
+    "zh-Hans": "已安装"
+  },
+  {
+    "file": "src/app/Husk/IncomingFiles.swift",
+    "line": 91,
+    "en": "PS4 games need iOS 17.4 or later.",
+    "zh-Hans": "PS4 游戏需要 iOS 17.4 或更高版本。"
+  },
+  {
+    "file": "src/app/Husk/IncomingFiles.swift",
+    "line": 91,
+    "en": "This copy of Husk doesn't have the PS4 layer.",
+    "zh-Hans": "此版本的 Husk 未包含 PS4 运行模块。"
+  },
+  {
+    "file": "src/app/Husk/IncomingFiles.swift",
+    "line": 91,
+    "en": "Can't install PS4 games here",
+    "zh-Hans": "无法在此安装 PS4 游戏"
+  },
+  {
+    "file": "src/app/Husk/ItemPages.swift",
+    "line": 430,
+    "en": "Can't Play Here",
+    "zh-Hans": "无法在此运行"
+  },
+  {
+    "file": "src/app/Husk/ItemPages.swift",
+    "line": 417,
+    "en": "\\(blockedBy ?? \"The other game\") is still loaded and only one game can run per session. Husk closes; open it again and \\(game.title) starts by itself.",
+    "zh-Hans": "\\(blockedBy ?? \"另一款游戏\") 仍处于已加载状态，每次启动 Husk 只能运行一款游戏。Husk 将关闭；再次打开后，\\(game.title) 会自动启动。"
+  },
+  {
+    "file": "src/app/Husk/ItemPages.swift",
+    "line": 402,
+    "en": "Folder",
+    "zh-Hans": "文件夹"
+  },
+  {
+    "file": "src/app/Husk/ItemPages.swift",
+    "line": 399,
+    "en": "Title ID",
+    "zh-Hans": "游戏编号"
+  },
+  {
+    "file": "src/app/Husk/ItemPages.swift",
+    "line": 398,
+    "en": "Husk's PS4 layer",
+    "zh-Hans": "Husk PS4 运行模块"
+  },
+  {
+    "file": "src/app/Husk/ItemPages.swift",
+    "line": 393,
+    "en": "PS4 games need iOS 17.4 or later.",
+    "zh-Hans": "PS4 游戏需要 iOS 17.4 或更高版本。"
+  },
+  {
+    "file": "src/app/Husk/ItemPages.swift",
+    "line": 392,
+    "en": "This build of Husk does not include the PS4 layer.",
+    "zh-Hans": "此版本的 Husk 未包含 PS4 运行模块。"
+  },
+  {
+    "file": "src/app/Husk/Launcher.swift",
+    "line": 1028,
+    "en": "Its files and saved progress are deleted from Husk.",
+    "zh-Hans": "其文件和存档进度将从 Husk 中删除。"
+  },
+  {
+    "file": "src/app/Husk/Launcher.swift",
+    "line": 1027,
+    "en": "It is uninstalled from Android, with its data.",
+    "zh-Hans": "应用及其数据将从 Android 中卸载。"
+  },
+  {
+    "file": "src/app/Husk/Launcher.swift",
+    "line": 1024,
+    "en": "Remove",
+    "zh-Hans": "移除"
+  },
+  {
+    "file": "src/app/Husk/Launcher.swift",
+    "line": 1024,
+    "en": "Uninstall",
+    "zh-Hans": "卸载"
+  },
+  {
+    "file": "src/app/Husk/Launcher.swift",
+    "line": 999,
+    "en": "Removes \\(p.label) from Android",
+    "zh-Hans": "从 Android 中卸载 \\(p.label)"
+  },
+  {
+    "file": "src/app/Husk/Launcher.swift",
+    "line": 993,
+    "en": "Settings",
+    "zh-Hans": "设置"
+  },
+  {
+    "file": "src/app/Husk/Launcher.swift",
+    "line": 990,
+    "en": "Details",
+    "zh-Hans": "详情"
+  },
+  {
+    "file": "src/app/Husk/Launcher.swift",
+    "line": 987,
+    "en": "Play",
+    "zh-Hans": "开始游戏"
+  },
+  {
+    "file": "src/app/Husk/Launcher.swift",
+    "line": 896,
+    "en": "Needs iOS 17.4",
+    "zh-Hans": "需要 iOS 17.4"
+  },
+  {
+    "file": "src/app/Husk/Launcher.swift",
+    "line": 895,
+    "en": "Emulator",
+    "zh-Hans": "模拟器"
+  },
+  {
+    "file": "src/app/Husk/Launcher.swift",
+    "line": 830,
+    "en": "PS4 games need iOS 17.4 or later.",
+    "zh-Hans": "PS4 游戏需要 iOS 17.4 或更高版本。"
+  },
+  {
+    "file": "src/app/Husk/Launcher.swift",
+    "line": 829,
+    "en": "Put an extracted game folder in Husk's PS4 Games folder in Files.",
+    "zh-Hans": "将解压后的游戏文件夹放入“文件”中 Husk 的“PS4 Games”文件夹。"
+  },
+  {
+    "file": "src/app/Husk/Launcher.swift",
+    "line": 812,
+    "en": "Games or Apps",
+    "zh-Hans": "游戏或应用"
+  },
+  {
+    "file": "src/app/Husk/Launcher.swift",
+    "line": 674,
+    "en": "Husk's PS4 Games folder.",
+    "zh-Hans": "Husk 的“PS4 Games”文件夹。"
+  },
+  {
+    "file": "src/app/Husk/Launcher.swift",
+    "line": 673,
+    "en": "straight on your iPhone. Other apps run inside Android. PS4 games are extracted folders put in ",
+    "zh-Hans": "直接在 iPhone 上运行。其他应用可在 Android 系统中运行。PS4 游戏需要先解压，再放入"
+  },
+  {
+    "file": "src/app/Husk/Launcher.swift",
+    "line": 631,
+    "en": "A download failed",
+    "zh-Hans": "有下载任务失败"
+  },
+  {
+    "file": "src/app/Husk/Launcher.swift",
+    "line": 596,
+    "en": "Turn On",
+    "zh-Hans": "开启"
+  },
+  {
+    "file": "src/app/Husk/Launcher.swift",
+    "line": 591,
+    "en": "Games need it. Tap to turn it on.",
+    "zh-Hans": "运行游戏需要 JIT，点按即可开启。"
+  },
+  {
+    "file": "src/app/Husk/Launcher.swift",
+    "line": 590,
+    "en": "JIT is off",
+    "zh-Hans": "JIT 未开启"
+  },
+  {
+    "file": "src/app/Husk/Launcher.swift",
+    "line": 563,
+    "en": "Menu",
+    "zh-Hans": "菜单"
+  },
+  {
+    "file": "src/app/Husk/Launcher.swift",
+    "line": 544,
+    "en": "Turn On JIT",
+    "zh-Hans": "开启 JIT"
+  },
+  {
+    "file": "src/app/Husk/Launcher.swift",
+    "line": 544,
+    "en": "JIT On (\\(JITNotice.via(jit)))",
+    "zh-Hans": "JIT 已开启（\\(JITNotice.via(jit))）"
+  },
+  {
+    "file": "src/app/Husk/Launcher.swift",
+    "line": 541,
+    "en": "Files",
+    "zh-Hans": "文件"
+  },
+  {
+    "file": "src/app/Husk/Launcher.swift",
+    "line": 526,
+    "en": "More for \\(item.title)",
+    "zh-Hans": "\\(item.title) 的更多选项"
+  },
+  {
+    "file": "src/app/Husk/Launcher.swift",
+    "line": 385,
+    "en": "Show All",
+    "zh-Hans": "显示全部"
+  },
+  {
+    "file": "src/app/Husk/Launcher.swift",
+    "line": 381,
+    "en": "Add an APK or a bundle from the menu, or share one to Husk.",
+    "zh-Hans": "从菜单添加 APK 或应用包，也可以将文件共享到 Husk。"
+  },
+  {
+    "file": "src/app/Husk/Launcher.swift",
+    "line": 380,
+    "en": "Put an extracted PS4 game folder in Files, in Husk's PS4 Games folder, or add one with the + in the menu.",
+    "zh-Hans": "将解压后的 PS4 游戏文件夹放入“文件”中 Husk 的“PS4 Games”文件夹，或点击菜单中的“+”添加。"
+  },
+  {
+    "file": "src/app/Husk/Launcher.swift",
+    "line": 376,
+    "en": "No Android games or apps yet",
+    "zh-Hans": "还没有 Android 游戏或应用"
+  },
+  {
+    "file": "src/app/Husk/Launcher.swift",
+    "line": 376,
+    "en": "No PS4 games yet",
+    "zh-Hans": "还没有 PS4 游戏"
+  },
+  {
+    "file": "src/app/Husk/Launcher.swift",
+    "line": 351,
+    "en": "Recently added",
+    "zh-Hans": "最近添加"
+  },
+  {
+    "file": "src/app/Husk/Launcher.swift",
+    "line": 284,
+    "en": "Open the Library",
+    "zh-Hans": "打开应用库"
+  },
+  {
+    "file": "src/app/Husk/Launcher.swift",
+    "line": 270,
+    "en": "Selects it",
+    "zh-Hans": "选中此项"
+  },
+  {
+    "file": "src/app/Husk/Launcher.swift",
+    "line": 270,
+    "en": "Opens it",
+    "zh-Hans": "可打开"
+  },
+  {
+    "file": "src/app/Husk/Launcher.swift",
+    "line": 270,
+    "en": "Plays it",
+    "zh-Hans": "可游玩"
+  },
+  {
+    "file": "src/app/Husk/OnboardingView.swift",
+    "line": 400,
+    "en": "Stuck? Settings › Help answers the common problems, and a game that crashes Husk leaves a report to share.",
+    "zh-Hans": "遇到问题时，可在“设置 › 帮助”中查找解答。若游戏导致 Husk 崩溃，还可以分享生成的报告。"
+  },
+  {
+    "file": "src/app/Husk/OnboardingView.swift",
+    "line": 399,
+    "en": "Help",
+    "zh-Hans": "帮助"
+  },
+  {
+    "file": "src/app/Husk/OnboardingView.swift",
+    "line": 398,
+    "en": "input, and the optional full Android emulator.",
+    "zh-Hans": "输入方式，以及可选的完整 Android 模拟器等选项。"
+  },
+  {
+    "file": "src/app/Husk/OnboardingView.swift",
+    "line": 397,
+    "en": "Games need JIT. Turn it on from Home or Settings › JIT & Sideload. Settings also has performance, appearance, ",
+    "zh-Hans": "游戏需要 JIT。可从首页或“设置 › JIT 与侧载”开启。“设置”中还有性能、外观、"
+  },
+  {
+    "file": "src/app/Husk/OnboardingView.swift",
+    "line": 396,
+    "en": "Settings & JIT",
+    "zh-Hans": "设置与 JIT"
+  },
+  {
+    "file": "src/app/Husk/OnboardingView.swift",
+    "line": 395,
+    "en": "Browse and download Android apps from Google Play, with a guest account or your own, and see how each runs in Husk.",
+    "zh-Hans": "使用游客账号或自己的账号浏览并下载 Google Play 中的 Android 应用，还能查看它们在 Husk 中的兼容情况。"
+  },
+  {
+    "file": "src/app/Husk/OnboardingView.swift",
+    "line": 394,
+    "en": "Store",
+    "zh-Hans": "商店"
+  },
+  {
+    "file": "src/app/Husk/OnboardingView.swift",
+    "line": 393,
+    "en": "them, or an extracted game folder. You can also share files to Husk from Files or Safari.",
+    "zh-Hans": "或已解压的游戏文件夹。也可从“文件”或 Safari 将文件共享到 Husk。"
+  },
+  {
+    "file": "src/app/Husk/OnboardingView.swift",
+    "line": 392,
+    "en": "Tap + to add an Android APK or bundle (.xapk, .apkm, .apks), or a PS4 game: a fake package (.pkg), a folder of ",
+    "zh-Hans": "点击“+”添加 Android APK 或应用包（.xapk、.apkm、.apks），或添加 PS4 游戏：FPKG 安装包（.pkg）、包含安装包的文件夹，"
+  },
+  {
+    "file": "src/app/Husk/OnboardingView.swift",
+    "line": 391,
+    "en": "Adding Games",
+    "zh-Hans": "添加游戏"
+  },
+  {
+    "file": "src/app/Husk/OnboardingView.swift",
+    "line": 390,
+    "en": "game for its options. The dot shows how it runs: green plays, orange opens, red is broken.",
+    "zh-Hans": "游戏可查看操作选项。圆点表示兼容状态：绿色为可游玩，橙色为可打开，红色为无法运行。"
+  },
+  {
+    "file": "src/app/Husk/OnboardingView.swift",
+    "line": 389,
+    "en": "Everything you have added, by platform. Use All, Android and PS4 to filter, search by name, and long-press any ",
+    "zh-Hans": "按平台查看已添加的全部内容。可用“全部”“Android”和“PS4”筛选、按名称搜索，长按"
+  },
+  {
+    "file": "src/app/Husk/OnboardingView.swift",
+    "line": 388,
+    "en": "Library",
+    "zh-Hans": "应用库"
+  },
+  {
+    "file": "src/app/Husk/OnboardingView.swift",
+    "line": 387,
+    "en": "again, or press Play, to start it. The ⋯ button has its settings and more.",
+    "zh-Hans": "或点击“开始游戏”即可运行。“⋯”按钮中包含游戏设置及更多选项。"
+  },
+  {
+    "file": "src/app/Husk/OnboardingView.swift",
+    "line": 386,
+    "en": "Your games on a shelf, the last one played first. Tap a game to pick it and its artwork fills the screen; tap it ",
+    "zh-Hans": "游戏按最近游玩的顺序排列。点按游戏即可选中，并在背景中显示其封面；再次点按，"
+  },
+  {
+    "file": "src/app/Husk/OnboardingView.swift",
+    "line": 385,
+    "en": "Home",
+    "zh-Hans": "首页"
+  },
+  {
+    "file": "src/app/Husk/OnboardingView.swift",
+    "line": 372,
+    "en": "Not Now",
+    "zh-Hans": "暂不需要"
+  },
+  {
+    "file": "src/app/Husk/OnboardingView.swift",
+    "line": 366,
+    "en": "Show Me Around",
+    "zh-Hans": "查看使用导览"
+  },
+  {
+    "file": "src/app/Husk/OnboardingView.swift",
+    "line": 363,
+    "en": "A quick look at how Husk works: where your games are, how to add more, and where the settings live.",
+    "zh-Hans": "快速了解游戏的位置、添加游戏的方法以及各项设置。"
+  },
+  {
+    "file": "src/app/Husk/OnboardingView.swift",
+    "line": 363,
+    "en": "Would you like a walkthrough?",
+    "zh-Hans": "需要快速了解使用方法吗？"
+  },
+  {
+    "file": "src/app/Husk/OnboardingView.swift",
+    "line": 352,
+    "en": "You can skip this: Husk asks again when a game needs it, and it is in Settings › JIT & Sideload.",
+    "zh-Hans": "可以跳过：游戏需要 JIT 时，Husk 会再次提示。也可前往“设置 › JIT 与侧载”开启。"
+  },
+  {
+    "file": "src/app/Husk/OnboardingView.swift",
+    "line": 344,
+    "en": "inside the app, with no computer. StikDebug and TrollStore work too.",
+    "zh-Hans": "应用内开启，无需电脑。也支持 StikDebug 和 TrollStore。"
+  },
+  {
+    "file": "src/app/Husk/OnboardingView.swift",
+    "line": 343,
+    "en": "Games need JIT, which iOS only grants to an attached debugger. StikJIT is built into Husk and turns it on from ",
+    "zh-Hans": "游戏需要 JIT，而 iOS 通常仅在连接调试器后才会授予这一权限。Husk 内置 StikJIT，可直接在"
+  },
+  {
+    "file": "src/app/Husk/OnboardingView.swift",
+    "line": 342,
+    "en": "Turn On JIT",
+    "zh-Hans": "开启 JIT"
+  },
+  {
+    "file": "src/app/Husk/OnboardingView.swift",
+    "line": 302,
+    "en": "Saves the emulator once it settles, so later starts take seconds.",
+    "zh-Hans": "模拟器运行稳定后自动保存状态，方便之后快速启动。"
+  },
+  {
+    "file": "src/app/Husk/OnboardingView.swift",
+    "line": 301,
+    "en": "Save Android Automatically",
+    "zh-Hans": "自动保存 Android 状态"
+  },
+  {
+    "file": "src/app/Husk/OnboardingView.swift",
+    "line": 299,
+    "en": "Adds a sound device to the emulator. It can't be saved while this is on, so it boots from cold.",
+    "zh-Hans": "为模拟器添加音频设备。开启时无法保存运行状态，每次都需完整启动。"
+  },
+  {
+    "file": "src/app/Husk/OnboardingView.swift",
+    "line": 298,
+    "en": "Android Sound",
+    "zh-Hans": "Android 声音"
+  },
+  {
+    "file": "src/app/Husk/OnboardingView.swift",
+    "line": 296,
+    "en": "For the Android emulator: games fill a landscape screen, portrait apps get letterboxed.",
+    "zh-Hans": "适用于 Android 模拟器：游戏铺满横屏，竖屏应用两侧保留黑边。"
+  },
+  {
+    "file": "src/app/Husk/OnboardingView.swift",
+    "line": 295,
+    "en": "Landscape Android Screen",
+    "zh-Hans": "Android 使用横屏"
+  },
+  {
+    "file": "src/app/Husk/OnboardingView.swift",
+    "line": 293,
+    "en": "bugs, freezes and crashes, and slows every launch. Games and apps don't need it.",
+    "zh-Hans": "异常、卡死或崩溃，也会拖慢每次启动。运行转译层游戏和应用无需开启此项。"
+  },
+  {
+    "file": "src/app/Husk/OnboardingView.swift",
+    "line": 292,
+    "en": "Off by default. The full Android emulator is experimental: starting it on launch can cause unwanted ",
+    "zh-Hans": "默认关闭。完整 Android 模拟器仍处于实验阶段，随 Husk 启动可能引发"
+  },
+  {
+    "file": "src/app/Husk/OnboardingView.swift",
+    "line": 291,
+    "en": "Start Android When Husk Opens",
+    "zh-Hans": "打开 Husk 时启动 Android"
+  },
+  {
+    "file": "src/app/Husk/OnboardingView.swift",
+    "line": 274,
+    "en": "Accent Colour",
+    "zh-Hans": "主题色"
+  },
+  {
+    "file": "src/app/Husk/OnboardingView.swift",
+    "line": 269,
+    "en": "Appearance",
+    "zh-Hans": "外观"
+  },
+  {
+    "file": "src/app/Husk/OnboardingView.swift",
+    "line": 265,
+    "en": "All optional. You can change these any time in Settings.",
+    "zh-Hans": "所有选项均可跳过，之后随时都能在“设置”中修改。"
+  },
+  {
+    "file": "src/app/Husk/OnboardingView.swift",
+    "line": 265,
+    "en": "Make It Yours",
+    "zh-Hans": "个性化设置"
+  },
+  {
+    "file": "src/app/Husk/OnboardingView.swift",
+    "line": 229,
+    "en": "Search",
+    "zh-Hans": "搜索"
+  },
+  {
+    "file": "src/app/Husk/OnboardingView.swift",
+    "line": 215,
+    "en": "A few quick choices first. Everything here can be changed later in Settings.",
+    "zh-Hans": "先完成几项简单设置，之后随时都能在“设置”中修改。"
+  },
+  {
+    "file": "src/app/Husk/OnboardingView.swift",
+    "line": 212,
+    "en": "Android and PS4 games, on your iPhone.",
+    "zh-Hans": "在 iPhone 上畅玩 Android 和 PS4 游戏。"
+  },
+  {
+    "file": "src/app/Husk/OnboardingView.swift",
+    "line": 210,
+    "en": "Welcome to Husk",
+    "zh-Hans": "欢迎使用 Husk"
+  },
+  {
+    "file": "src/app/Husk/OnboardingView.swift",
+    "line": 177,
+    "en": "For apps that show local times.",
+    "zh-Hans": "供需要显示本地时间的应用使用。"
+  },
+  {
+    "file": "src/app/Husk/OnboardingView.swift",
+    "line": 176,
+    "en": "Time Zone",
+    "zh-Hans": "时区"
+  },
+  {
+    "file": "src/app/Husk/OnboardingView.swift",
+    "line": 173,
+    "en": "For apps that ask for your country.",
+    "zh-Hans": "供需要获取国家或地区信息的应用使用。"
+  },
+  {
+    "file": "src/app/Husk/OnboardingView.swift",
+    "line": 172,
+    "en": "Region",
+    "zh-Hans": "地区"
+  },
+  {
+    "file": "src/app/Husk/OnboardingView.swift",
+    "line": 169,
+    "en": "The language apps and games inside Husk see. Husk itself follows your iPhone.",
+    "zh-Hans": "Husk 内应用和游戏使用的语言。Husk 本身使用简体中文界面。"
+  },
+  {
+    "file": "src/app/Husk/OnboardingView.swift",
+    "line": 168,
+    "en": "Language",
+    "zh-Hans": "语言"
+  },
+  {
+    "file": "src/app/Husk/OnboardingView.swift",
+    "line": 102,
+    "en": "Start Using Husk",
+    "zh-Hans": "开始使用 Husk"
+  },
+  {
+    "file": "src/app/Husk/OnboardingView.swift",
+    "line": 83,
+    "en": "Back",
+    "zh-Hans": "返回"
+  },
+  {
+    "file": "src/app/Husk/PS4Screen.swift",
+    "line": 248,
+    "en": "OK",
+    "zh-Hans": "确定"
+  },
+  {
+    "file": "src/app/Husk/PS4Screen.swift",
+    "line": 247,
+    "en": "Cancel",
+    "zh-Hans": "取消"
+  },
+  {
+    "file": "src/app/Husk/PS4Screen.swift",
+    "line": 241,
+    "en": "Enter Text",
+    "zh-Hans": "输入文字"
+  },
+  {
+    "file": "src/app/Husk/PS4Screen.swift",
+    "line": 171,
+    "en": "\\(model.fps) fps",
+    "zh-Hans": "\\(model.fps) 帧/秒"
+  },
+  {
+    "file": "src/app/Husk/PS4Screen.swift",
+    "line": 133,
+    "en": "The game could not start. Its log is in the game's Technical Details.",
+    "zh-Hans": "游戏无法启动。可在游戏的“技术详情”中查看日志。"
+  },
+  {
+    "file": "src/app/Husk/PS4Screen.swift",
+    "line": 132,
+    "en": "The game has ended.",
+    "zh-Hans": "游戏已结束。"
+  },
+  {
+    "file": "src/app/Husk/PS4Screen.swift",
+    "line": 131,
+    "en": "Starting…",
+    "zh-Hans": "正在启动…"
+  },
+  {
+    "file": "src/app/Husk/AppDiagnosis.swift",
+    "line": 97,
+    "en": "Close Husk and open it again, then start only the app (or only Android).",
+    "zh-Hans": "请关闭并重新打开 Husk，然后只启动该应用或 Android 模拟器。"
+  },
+  {
+    "file": "src/app/Husk/AppDiagnosis.swift",
+    "line": 96,
+    "en": "Android and this app share the memory Husk runs translated code in, and together they do not fit. ",
+    "zh-Hans": "Android 模拟器和此应用共用 Husk 的可执行内存，剩余空间不足以同时运行两者。"
+  },
+  {
+    "file": "src/app/Husk/AppDiagnosis.swift",
+    "line": 95,
+    "en": "Not enough JIT memory",
+    "zh-Hans": "JIT 内存不足"
+  },
+  {
+    "file": "src/app/Husk/AppDiagnosis.swift",
+    "line": 89,
+    "en": "through StikDebug, or tap Turn On JIT in Husk, then start the app again.",
+    "zh-Hans": "打开 Husk，或在 Husk 中点击“开启 JIT”，然后重新启动应用。"
+  },
+  {
+    "file": "src/app/Husk/AppDiagnosis.swift",
+    "line": 88,
+    "en": "This iPhone only lets an app run translated code while a debugger enables JIT for it. Open Husk ",
+    "zh-Hans": "此 iPhone 只有在调试器为应用开启 JIT 后，才能运行转译后的代码。请通过 StikDebug"
+  },
+  {
+    "file": "src/app/Husk/AppDiagnosis.swift",
+    "line": 87,
+    "en": "JIT is not enabled",
+    "zh-Hans": "JIT 未开启"
+  },
+  {
+    "file": "src/app/Husk/Compatibility.swift",
+    "line": 322,
+    "en": "Your Husk log helps the developer see what went wrong. Only moderators can read it.",
+    "zh-Hans": "Husk 日志可帮助开发者定位问题，仅版主可以查看。"
+  },
+  {
+    "file": "src/app/Husk/Compatibility.swift",
+    "line": 320,
+    "en": "Attach my log",
+    "zh-Hans": "附上我的日志"
+  },
+  {
+    "file": "src/app/Husk/FAQTab.swift",
+    "line": 113,
+    "en": "Retail packages are locked to a PS4 and do not install. PS4 games need iOS 17.4 or later.",
+    "zh-Hans": "零售版安装包与 PS4 设备绑定，无法安装。PS4 游戏需要 iOS 17.4 或更高版本。"
+  },
+  {
+    "file": "src/app/Husk/FAQTab.swift",
+    "line": 112,
+    "en": "Husk installs it into PS4 Games in Files, and an update package goes beside the game it updates. ",
+    "zh-Hans": "Husk 会将其安装到“文件”中的“PS4 Games”目录，更新包会安装在对应游戏旁的文件夹中。"
+  },
+  {
+    "file": "src/app/Husk/FAQTab.swift",
+    "line": 111,
+    "en": "Tap + and pick a fake package (.pkg), a folder of packages, or an extracted game folder (eboot.bin and sce_sys). ",
+    "zh-Hans": "点击“+”，选择 FPKG 安装包（.pkg）、包含安装包的文件夹，或已解压的游戏文件夹（包含 eboot.bin 和 sce_sys）。"
+  },
+  {
+    "file": "src/app/Husk/FAQTab.swift",
+    "line": 110,
+    "en": "How do I add a PS4 game?",
+    "zh-Hans": "如何添加 PS4 游戏？"
+  },
+  {
+    "file": "src/app/Husk/FAQTab.swift",
+    "line": 32,
+    "en": "Help",
+    "zh-Hans": "帮助"
+  },
+  {
+    "file": "src/app/Husk/GuestImage.swift",
+    "line": 718,
+    "en": "it needs \\(gb(need)) free and the device has \\(gb(free))",
+    "zh-Hans": "需要 \\(gb(need)) 可用空间，设备目前仅剩 \\(gb(free))"
+  },
+  {
+    "file": "src/app/Husk/GuestImage.swift",
+    "line": 578,
+    "en": "Not enough free space for the pre-booted snapshot: \\(short).",
+    "zh-Hans": "可用空间不足，无法保存预启动快照：\\(short)。"
+  },
+  {
+    "file": "src/app/Husk/JITSetupView.swift",
+    "line": 378,
+    "en": "TrollStore was not found on this \\(device). It installs on iOS 14.0 to 17.0.",
+    "zh-Hans": "未在此\\(device)上找到 TrollStore。它支持 iOS 14.0 至 17.0。"
+  },
+  {
+    "file": "src/app/Husk/Play/PlayAPI.swift",
+    "line": 822,
+    "en": "Failed to download \\(item.name) (HTTP \\(status))",
+    "zh-Hans": "无法下载 \\(item.name)（HTTP \\(status)）"
+  },
+  {
+    "file": "src/app/Husk/Play/PlayAPI.swift",
+    "line": 93,
+    "en": "Sign in with a Google account instead, or try again later.",
+    "zh-Hans": "请改用 Google 账号登录，或稍后重试。"
+  },
+  {
+    "file": "src/app/Husk/Play/PlayAPI.swift",
+    "line": 92,
+    "en": "The anonymous login service (Aurora's token dispenser) is not working right now",
+    "zh-Hans": "匿名登录服务（Aurora 令牌分发服务）暂时不可用"
+  },
+  {
+    "file": "src/app/Husk/SettingsTab.swift",
+    "line": 841,
+    "en": "Holiday decorations appear from December to early January.",
+    "zh-Hans": "节日装饰会在 12 月至次年 1 月初显示。"
+  },
+  {
+    "file": "src/app/Husk/SettingsTab.swift",
+    "line": 840,
+    "en": "screen stays dark either way — it is a picture of another phone. ",
+    "zh-Hans": "无论选择哪种外观，Android 屏幕都保持深色，因为它显示的是另一套系统的画面。"
+  },
+  {
+    "file": "src/app/Husk/SettingsTab.swift",
+    "line": 800,
+    "en": "Everything installed or saved inside Android is deleted. Translation layer apps keep their data.",
+    "zh-Hans": "Android 系统内安装的内容和保存的数据都将删除，转译层应用的数据会保留。"
+  },
+  {
+    "file": "src/app/Husk/SettingsTab.swift",
+    "line": 793,
+    "en": "Remove Android",
+    "zh-Hans": "移除 Android"
+  },
+  {
+    "file": "src/app/Husk/SettingsTab.swift",
+    "line": 792,
+    "en": "Remove Android?",
+    "zh-Hans": "移除 Android？"
+  },
+  {
+    "file": "src/app/Husk/SettingsTab.swift",
+    "line": 772,
+    "en": "Android is not downloaded.",
+    "zh-Hans": "尚未下载 Android。"
+  },
+  {
+    "file": "src/app/Husk/SettingsTab.swift",
+    "line": 771,
+    "en": "Apps and games on the translation layer do not need them. Android downloads again the next time it is started.",
+    "zh-Hans": "转译层应用和游戏无需这些文件。下次启动 Android 时会重新下载。"
+  },
+  {
+    "file": "src/app/Husk/SettingsTab.swift",
+    "line": 770,
+    "en": "Android's system, its data and the saved machine take \\(ByteCountFormatter.string(fromByteCount: androidBytes, countStyle: .file)). ",
+    "zh-Hans": "Android 系统、用户数据和运行快照共占用 \\(ByteCountFormatter.string(fromByteCount: androidBytes, countStyle: .file))。"
+  },
+  {
+    "file": "src/app/Husk/SettingsTab.swift",
+    "line": 648,
+    "en": "Each time Husk opens without JIT, it asks TrollStore to turn it on. TrollStore's URL Scheme setting must be on.",
+    "zh-Hans": "每次打开 Husk 时，若 JIT 尚未开启，就会请求 TrollStore 开启。需要在 TrollStore 中启用“URL Scheme”设置。"
+  },
+  {
+    "file": "src/app/Husk/SettingsTab.swift",
+    "line": 646,
+    "en": "Turn On JIT with TrollStore at Launch",
+    "zh-Hans": "启动时通过 TrollStore 开启 JIT"
+  },
+  {
+    "file": "src/app/Husk/SettingsTab.swift",
+    "line": 269,
+    "en": "Fonts",
+    "zh-Hans": "字体"
+  },
+  {
+    "file": "src/app/Husk/SettingsTab.swift",
+    "line": 265,
+    "en": "cocos2d-x) show empty boxes for these characters without it. Takes effect the next time an app opens.",
+    "zh-Hans": "cocos2d-x）会将这些字符显示为空方框。更改将在下次打开应用时生效。"
+  },
+  {
+    "file": "src/app/Husk/SettingsTab.swift",
+    "line": 264,
+    "en": "Noto Sans CJK, the font Android uses for these languages. Games and apps that draw their own text (Unity, Flutter, ",
+    "zh-Hans": "Noto Sans CJK 是 Android 用于显示这些语言的字体。缺少此字体时，自行绘制文字的游戏和应用（Unity、Flutter、"
+  },
+  {
+    "file": "src/app/Husk/SettingsTab.swift",
+    "line": 262,
+    "en": "Chinese, Japanese and Korean",
+    "zh-Hans": "中文、日文和韩文"
+  },
+  {
+    "file": "src/app/Husk/SettingsTab.swift",
+    "line": 256,
+    "en": "Download (19.5 MB)",
+    "zh-Hans": "下载（19.5 MB）"
+  },
+  {
+    "file": "src/app/Husk/SettingsTab.swift",
+    "line": 256,
+    "en": "Downloading…",
+    "zh-Hans": "正在下载…"
+  },
+  {
+    "file": "src/app/Husk/SettingsTab.swift",
+    "line": 253,
+    "en": "Remove",
+    "zh-Hans": "移除"
+  },
+  {
+    "file": "src/app/Husk/SettingsTab.swift",
+    "line": 252,
+    "en": "Installed",
+    "zh-Hans": "已安装"
+  },
+  {
+    "file": "src/app/Husk/SettingsTab.swift",
+    "line": 232,
+    "en": "The download failed: \\(error.localizedDescription)",
+    "zh-Hans": "下载失败：\\(error.localizedDescription)"
+  },
+  {
+    "file": "src/app/Husk/SettingsTab.swift",
+    "line": 98,
+    "en": "and it can freeze or crash.",
+    "zh-Hans": "并可能出现卡死或崩溃。"
+  },
+  {
+    "file": "src/app/Husk/SettingsTab.swift",
+    "line": 97,
+    "en": "Full Android runs in an emulator, for the apps the Translation Layer can't run yet. It is experimental: slow, ",
+    "zh-Hans": "在模拟器中运行完整 Android 系统，用于转译层暂不支持的应用。此功能仍处于实验阶段，运行较慢，"
+  },
+  {
+    "file": "src/app/Husk/SettingsTab.swift",
+    "line": 95,
+    "en": "Android Emulator",
+    "zh-Hans": "Android 模拟器"
+  },
+  {
+    "file": "src/app/Husk/SettingsTab.swift",
+    "line": 90,
+    "en": "Experimental: full Android in an emulator",
+    "zh-Hans": "实验性功能：完整 Android 模拟器"
+  },
+  {
+    "file": "src/app/Husk/SettingsTab.swift",
+    "line": 31,
+    "en": "Answers to common problems",
+    "zh-Hans": "常见问题解答"
+  },
+  {
+    "file": "src/app/Husk/SettingsTab.swift",
+    "line": 31,
+    "en": "Help",
+    "zh-Hans": "帮助"
+  },
+  {
+    "file": "src/app/Husk/SettingsTab.swift",
+    "line": 30,
+    "en": "Chinese, Japanese and Korean text",
+    "zh-Hans": "中文、日文和韩文显示"
   },
   {
     "file": "src/app/Husk/WhatsNew.swift",
-    "line": 19,
-    "en": "Localized interface, JIT setup, settings, downloads, errors and Live Activities.",
-    "zh-Hans": "主界面、JIT 引导、设置、下载、错误提示和实时活动均已汉化。"
+    "line": 60,
+    "en": "A new look, PS4 games, and hundreds more Android games.",
+    "zh-Hans": "全新界面、PS4 游戏，以及数百款新增 Android 游戏。"
   },
   {
     "file": "src/app/Husk/WhatsNew.swift",
-    "line": 20,
-    "en": "Frequently Asked Questions",
-    "zh-Hans": "常见问题"
+    "line": 35,
+    "en": "Android no longer crashes after its download, the full Android emulator moved into Settings with a warning, closing Husk from the app switcher isn't reported as a crash, and much more.",
+    "zh-Hans": "修复 Android 下载完成后崩溃的问题，将完整 Android 模拟器移至“设置”并补充实验性说明，不再把从多任务界面关闭 Husk 误报为崩溃，以及更多修复。"
   },
   {
     "file": "src/app/Husk/WhatsNew.swift",
-    "line": 21,
-    "en": "Search for help with JIT, apps, saves and Android inside Husk.",
-    "zh-Hans": "可在应用内搜索 JIT、应用运行、存档和 Android 系统的常见问题及解决方法。"
+    "line": 34,
+    "en": "Fixes",
+    "zh-Hans": "问题修复"
   },
   {
     "file": "src/app/Husk/WhatsNew.swift",
-    "line": 22,
-    "en": "Community Compatibility Reports",
-    "zh-Hans": "社区兼容性反馈"
+    "line": 33,
+    "en": "Husk now runs on iOS 15.5 and later (PS4 games need iOS 17.4).",
+    "zh-Hans": "Husk 现支持 iOS 15.5 及更高版本；PS4 游戏需要 iOS 17.4。"
   },
   {
     "file": "src/app/Husk/WhatsNew.swift",
-    "line": 23,
-    "en": "View app compatibility and choose to send your results to the community list.",
-    "zh-Hans": "查看应用的运行情况，并在选择发送后将你的测试结果提交到社区列表。"
+    "line": 31,
+    "en": "TrollStore installs turn JIT on at launch, and Husk says on screen when something can't start without it.",
+    "zh-Hans": "通过 TrollStore 安装的版本可在启动时开启 JIT。若因未开启 JIT 而无法运行，Husk 会在界面中给出提示。"
   },
   {
     "file": "src/app/Husk/WhatsNew.swift",
-    "line": 24,
-    "en": "Multiple Windows",
-    "zh-Hans": "多窗口运行"
+    "line": 30,
+    "en": "JIT on its own",
+    "zh-Hans": "自动开启 JIT"
+  },
+  {
+    "file": "src/app/Husk/WhatsNew.swift",
+    "line": 29,
+    "en": "Download the fonts in Settings › Fonts, and games stop showing empty boxes.",
+    "zh-Hans": "本汉化版已内置中日韩字体，帮助游戏正常显示文字；也可在“设置 › 字体”中管理额外字体。"
+  },
+  {
+    "file": "src/app/Husk/WhatsNew.swift",
+    "line": 28,
+    "en": "Chinese, Japanese and Korean",
+    "zh-Hans": "中文、日文和韩文"
+  },
+  {
+    "file": "src/app/Husk/WhatsNew.swift",
+    "line": 27,
+    "en": "Text fields in Unity, Java, Flutter, cocos2d-x and SDL games bring up the keyboard.",
+    "zh-Hans": "Unity、Java、Flutter、cocos2d-x 和 SDL 游戏中的文本输入框现在都可以唤起键盘。"
+  },
+  {
+    "file": "src/app/Husk/WhatsNew.swift",
+    "line": 26,
+    "en": "Typing everywhere",
+    "zh-Hans": "更广泛的文字输入支持"
   },
   {
     "file": "src/app/Husk/WhatsNew.swift",
     "line": 25,
-    "en": "Move, resize and minimize apps in window mode while browsing Husk.",
-    "zh-Hans": "开启窗口模式后，可移动、缩放或最小化应用窗口，同时继续浏览 Husk。"
+    "en": "Games that keep their data in expansion files get them with the download, and games split into many pieces load.",
+    "zh-Hans": "下载游戏时会一并获取所需的扩展数据文件，拆分为多个安装包的游戏也能正常加载。"
+  },
+  {
+    "file": "src/app/Husk/WhatsNew.swift",
+    "line": 24,
+    "en": "Complete Store downloads",
+    "zh-Hans": "更完整的商店下载"
+  },
+  {
+    "file": "src/app/Husk/WhatsNew.swift",
+    "line": 23,
+    "en": "Hundreds of newly working games on the compatibility list, unofficial ports like Sonic Robo Blast 2, Ring Racers, NetHack and PokeWilds, Flutter games that showed a blank screen draw again, Godot 4 games run, and Python games get online.",
+    "zh-Hans": "兼容列表新增数百款可运行游戏，支持 Sonic Robo Blast 2、Ring Racers、NetHack、PokeWilds 等非官方移植版。修复 Flutter 游戏白屏，支持 Godot 4 游戏，并为 Python 游戏提供联网能力。"
+  },
+  {
+    "file": "src/app/Husk/WhatsNew.swift",
+    "line": 22,
+    "en": "Hundreds more Android games",
+    "zh-Hans": "支持数百款新增 Android 游戏"
+  },
+  {
+    "file": "src/app/Husk/WhatsNew.swift",
+    "line": 21,
+    "en": "Add a PS4 game with the + button, as a fake package (.pkg), a folder of them, or an extracted game folder, and play it from your library. Updates install beside their game, shaders are kept between launches, and games that ask for a name bring up the keyboard.",
+    "zh-Hans": "点击“+”添加 PS4 游戏：支持 FPKG 安装包（.pkg）、包含安装包的文件夹或已解压的游戏目录。更新包会随游戏安装，着色器缓存会在多次启动间保留，需要输入名称时会弹出键盘。"
+  },
+  {
+    "file": "src/app/Husk/WhatsNew.swift",
+    "line": 20,
+    "en": "PS4 games",
+    "zh-Hans": "PS4 游戏"
+  },
+  {
+    "file": "src/app/Husk/WhatsNew.swift",
+    "line": 19,
+    "en": "A console-style home: your games on a shelf, the one you pick fills the screen with its artwork, and Play is one tap away. Android and PS4 games side by side, a new library, in light or dark as Settings › Appearance says.",
+    "zh-Hans": "主机风格首页让游戏整齐排列，选中游戏即可铺满封面，点一下就能开玩。Android 与 PS4 游戏并排展示，应用库也焕然一新，并遵循“设置 › 外观”中的深浅色偏好。"
+  },
+  {
+    "file": "src/app/Husk/WhatsNew.swift",
+    "line": 18,
+    "en": "A new Husk",
+    "zh-Hans": "焕然一新的 Husk"
+  },
+  {
+    "file": "src/app/Husk/IncomingFiles.swift",
+    "line": 161,
+    "en": "Importing \\(folders.count) PS4 games…",
+    "zh-Hans": "正在导入 \\(folders.count) 款 PS4 游戏…"
+  },
+  {
+    "file": "src/app/Husk/IncomingFiles.swift",
+    "line": 161,
+    "en": "Importing \\(folders[0].lastPathComponent)…",
+    "zh-Hans": "正在导入 \\(folders[0].lastPathComponent)…"
+  },
+  {
+    "file": "src/app/Husk/IncomingFiles.swift",
+    "line": 153,
+    "en": "Installed \\(installed.count) PS4 packages",
+    "zh-Hans": "已安装 \\(installed.count) 个 PS4 安装包"
+  },
+  {
+    "file": "src/app/Husk/IncomingFiles.swift",
+    "line": 153,
+    "en": "Installed \\(installed[0])",
+    "zh-Hans": "已安装 \\(installed[0])"
+  },
+  {
+    "file": "src/app/Husk/IncomingFiles.swift",
+    "line": 151,
+    "en": " (and \\(failed.count - 1) more)",
+    "zh-Hans": "（另有 \\(failed.count - 1) 项失败）"
+  },
+  {
+    "file": "src/app/Husk/IncomingFiles.swift",
+    "line": 139,
+    "en": "\\(sfo?.title ?? titleID) update",
+    "zh-Hans": "\\(sfo?.title ?? titleID) 的更新"
+  },
+  {
+    "file": "src/app/Husk/IncomingFiles.swift",
+    "line": 109,
+    "en": "needs \\(ByteCountFormatter.string(fromByteCount: size, countStyle: .file)) free",
+    "zh-Hans": "需要 \\(ByteCountFormatter.string(fromByteCount: size, countStyle: .file)) 可用空间"
+  },
+  {
+    "file": "src/app/Husk/IncomingFiles.swift",
+    "line": 104,
+    "en": "Installing \\(name) (\\(i + 1) of \\(files.count))",
+    "zh-Hans": "正在安装 \\(name)（\\(i + 1)/\\(files.count)）"
+  },
+  {
+    "file": "src/app/Husk/IncomingFiles.swift",
+    "line": 104,
+    "en": "Installing \\(name)",
+    "zh-Hans": "正在安装 \\(name)"
+  },
+  {
+    "file": "src/app/Husk/IncomingFiles.swift",
+    "line": 95,
+    "en": "Installing \\(files[0].lastPathComponent)…",
+    "zh-Hans": "正在安装 \\(files[0].lastPathComponent)…"
+  },
+  {
+    "file": "src/app/Husk/SettingsTab.swift",
+    "line": 796,
+    "en": "Freed \\(ByteCountFormatter.string(fromByteCount: freed, countStyle: .file)).",
+    "zh-Hans": "已释放 \\(ByteCountFormatter.string(fromByteCount: freed, countStyle: .file))。"
+  },
+  {
+    "file": "src/app/Husk/SettingsTab.swift",
+    "line": 255,
+    "en": "CJK fonts bundled",
+    "zh-Hans": "已内置中日韩字体"
   }
 ]

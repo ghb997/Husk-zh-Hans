@@ -350,6 +350,7 @@ static const tl_jhle k_godot[] = {
     M(IO, "getLocale", "()Ljava/lang/String;", IO_locale), M(IO, "getModel", "()Ljava/lang/String;", IO_model),
     M(IO, "getScreenDPI", "()I", IO_dpi), M(IO, "getScaledDensity", "()F", IO_density),
     M(IO, "getScreenOrientation", "()I", IO_orientation), M(IO, "setScreenOrientation", "(I)V", Noop),
+    M("android/content/res/AssetManager", "setScreenOrientation", "(I)V", Noop),
     M(IO, "getScreenRefreshRate", "(D)D", IO_refresh), M(IO, "getUniqueID", "()Ljava/lang/String;", IO_uniqueID),
     M(IO, "getSystemDir", "(IZ)Ljava/lang/String;", IO_systemDir), M(IO, "openURI", "(Ljava/lang/String;)I", IO_openURI),
     M(IO, "getWindowSafeArea", "()[I", IO_safeArea), M(IO, "getDisplaySafeArea", "()[I", IO_safeArea),
@@ -427,4 +428,13 @@ void tl_godot_hle_install(const char *pkg, const char *apk, const char *data, in
     mkdirs(G.files); mkdirs(G.cache);
     for (size_t i = 0; i < sizeof(k_classes) / sizeof(k_classes[0]); i++) tl_jni_declare(k_classes[i], "java/lang/Object");
     tl_jni_register_hle(k_godot);
+    /* Godot 4.7 calls what Godot.java answered on org.godotengine.godot.nativeapi.GodotNativeBridge instead: the same answers
+     * there (#140: getRenderView answered null and the engine dereferenced it on its GL thread) */
+    static const char NB[] = "org/godotengine/godot/nativeapi/GodotNativeBridge";
+    static tl_jhle bridge[sizeof(k_godot) / sizeof(k_godot[0])];
+    size_t nb = 0;
+    for (const tl_jhle *e = k_godot; e->cls; e++) if (!strcmp(e->cls, GD)) { bridge[nb] = *e; bridge[nb].cls = NB; nb++; }
+    bridge[nb] = (tl_jhle){ NULL, NULL, NULL, NULL };
+    tl_jni_declare(NB, "java/lang/Object");
+    tl_jni_register_hle(bridge);
 }

@@ -35,7 +35,7 @@ extern "C" {
 typedef struct tl_lib tl_lib;
 
 /* Where libraries come from: the APKs' lib/arm64-v8a/ directories. */
-#define TL_LD_MAX_APKS 16
+#define TL_LD_MAX_APKS 48   /* a big game ships a dozen asset-pack splits besides its config ones (Disney Speedstorm: 16) */
 bool tl_ld_add_apk(const char *path);
 /* A split APK of the app about to start; added right after its base APK, whichever engine adds that. */
 void tl_ld_queue_split(const char *path);

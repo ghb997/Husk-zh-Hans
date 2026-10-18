@@ -22,7 +22,7 @@ struct JITSetupFlow: View {
     var body: some View {
         NavigationStack(path: $path) {
             choose
-                .navigationDestination(for: Step.self) { step in
+                .huskDestination(for: Step.self) { step in
                     switch step {
                     case .pairOnDevice: pairOnDevice
                     case .importFile: importFile
@@ -369,15 +369,13 @@ struct JITSetupFlow: View {
                 point(1, "在 TrollStore 支持的 iOS 版本上，通过 TrollStore 安装 Husk.ipa。安装包中已包含"
                        + "TrollStore 会保留的权限，因此同一文件也可用于其他侧载工具。",
                       done: JITBootstrap.isInstalledWithTrollStore)
-                point(2, "在 TrollStore 的设置中开启“URL Scheme”，否则 TrollStore 会忽略 JIT 开启请求。",
-                      done: JITBootstrap.isTrollStoreInstalled)
+                point(2, "在 TrollStore 的设置中开启“URL Scheme”，否则 TrollStore 会忽略 JIT 开启请求。")
                 point(3, "每次启动 Android 或游戏时，Husk 会请求 TrollStore 开启 JIT。TrollStore 将打开 Husk，"
                        + "短暂附加调试器后分离，使 Husk 能执行自行生成的代码。")
             }
             .padding(16).huskCard()
             if !JITBootstrap.isTrollStoreInstalled {
-                Label("在此 \(device) 上未检测到 TrollStore。请先安装 TrollStore，"
-                    + "并通过它安装 Husk，才能使用此方式。", systemImage: "info.circle")
+                Label("未在此\(device)上找到 TrollStore。它支持 iOS 14.0 至 17.0。", systemImage: "info.circle")
                     .font(.system(size: 13)).foregroundStyle(Theme.textDim)
                     .fixedSize(horizontal: false, vertical: true)
             }

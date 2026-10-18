@@ -242,10 +242,24 @@ enum JITBootstrap {
         URL(string: "stikjit://").map(UIApplication.shared.canOpenURL) ?? false
     }
 
-    /// TrollStore answers enable-jit on the `apple-magnifier` scheme.
-    static var isTrollStoreInstalled: Bool {
-        URL(string: "apple-magnifier://").map(UIApplication.shared.canOpenURL) ?? false
-    }
+    /// Whether TrollStore is on this device. It answers enable-jit on the `apple-magnifier` scheme, but that scheme is also the
+    /// Magnifier app's, on every iPhone, so whether it opens says nothing. A Husk TrollStore installed knows from its marker file;
+    /// otherwise SpringBoard is asked to open TrollStore, suspended, which an ordinary app is refused (9) when it exists and told
+    /// it does not (7) when it does not. TrollStore installs on iOS 14.0 to 17.0 only.
+    static let isTrollStoreInstalled: Bool = {
+        if isInstalledWithTrollStore { return true }
+        if #available(iOS 17.0.1, *) { return false }
+        typealias Launch = @convention(c) (NSString, NSURL?, NSDictionary?, NSDictionary?, Bool) -> Int32
+        guard let lib = dlopen("/System/Library/PrivateFrameworks/SpringBoardServices.framework/SpringBoardServices", RTLD_NOW),
+              let sym = dlsym(lib, "SBSLaunchApplicationWithIdentifierAndURLAndLaunchOptions") else { return false }
+        let launch = unsafeBitCast(sym, to: Launch.self)
+        for id in ["com.opa334.TrollStore", "com.opa334.TrollStoreLite"] {
+            let r = launch(id as NSString, nil, nil, nil, true)
+            HuskLog.log("jit", "SpringBoard on opening \(id): \(r)")
+            if r == 9 { return true }
+        }
+        return false
+    }()
 
     /// Whether this copy of Husk was installed by TrollStore (or TrollStore Lite): it leaves a marker file next to the app in
     /// its bundle container (TrollStore's `TS_MARKER`). Only then is it a TrollStore app, which keeps the entitlements it was
@@ -290,8 +304,8 @@ enum JITBootstrap {
         guard let bundleID = Bundle.main.bundleIdentifier else { return false }
         
         let url = "apple-magnifier://enable-jit?bundle-id=\(bundleID)"
-        guard let launchURL = URL(string: url), UIApplication.shared.canOpenURL(launchURL) else {
-            HuskLog.log("jit", "FAIL: cannot open apple-magnifier:// -- TrollStore is not installed")
+        guard isTrollStoreInstalled, let launchURL = URL(string: url) else {
+            HuskLog.log("jit", "FAIL: TrollStore is not installed")
             return false
         }
         

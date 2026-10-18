@@ -1,6 +1,6 @@
 # Husk
 
-> **简体中文构建：** 基于上游 2.0.0（112）源码的独立汉化版本。阅读 [中文说明](README.zh-CN.md)，或前往 [下载 IPA / TIPA](https://github.com/ghb997/Husk-zh-Hans/releases/tag/v2.0.0)。上游项目为 [Leviidev/Husk](https://github.com/Leviidev/Husk)，以下保留原始介绍与截图；中文版下载请使用上方链接。
+> **简体中文构建：** 已同步上游 3.0.0（129）源码。阅读 [中文说明与构建状态](README.zh-CN.md)，或查看 [已发布的 IPA / TIPA](https://github.com/ghb997/Husk-zh-Hans/releases)。上游项目为 [Leviidev/Husk](https://github.com/Leviidev/Husk)，以下保留原始介绍与截图；中文版下载请使用上方链接。
 
 <p align="center">
   <a href="https://trendshift.io/repositories/233057?utm_source=trendshift-badge&amp;utm_medium=badge&amp;utm_campaign=badge-trendshift-233057" target="_blank" rel="noopener noreferrer">

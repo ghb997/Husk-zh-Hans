@@ -8,6 +8,8 @@ import plistlib
 import sys
 import zipfile
 
+from prepare_ps4_module import IPA_SHA256, UPSTREAM_COMMIT, PROVENANCE, inspect_module
+
 
 def verify(path):
     root = "Payload/Husk.app/"
@@ -23,7 +25,9 @@ def verify(path):
             return plistlib.loads(z.read(root + name))
 
         info = plist("Info.plist")
-        assert info["CFBundleShortVersionString"] == "2.0.0", info
+        assert info["CFBundleShortVersionString"] == "3.0.0", info
+        assert info["CFBundleVersion"] == "129", info
+        assert info["MinimumOSVersion"] == "15.5", info
         assert info["CFBundleDevelopmentRegion"] == "zh-Hans", info
         assert "zh-Hans" in info["CFBundleLocalizations"], info
         assert "本地网络" in info["NSLocalNetworkUsageDescription"], info
@@ -32,6 +36,7 @@ def verify(path):
         for label in ("添加游戏或应用", "常见问题", "兼容性", "分享报告", "简体中文界面"):
             assert label.encode("utf-8") in executable, f"Chinese UI text missing: {label}"
         for name in (
+            "Frameworks/libhuskps4.dylib",
             "Frameworks/libqemu-aarch64-softmmu.dylib",
             "Frameworks/libANGLE-shared.dylib",
             "Frameworks/libFilePickerFix.dylib",
@@ -55,6 +60,17 @@ def verify(path):
         certs = [n for n in names if n.startswith(root + "android-system/cacerts/") and z.getinfo(n).file_size > 0]
         assert cjk, "CJK fonts missing"
         assert certs, "CA certificates missing"
+        required(PROVENANCE)
+        ps4 = json.loads(z.read(root + PROVENANCE))
+        assert ps4["source_ipa_sha256"] == IPA_SHA256, "unverified PS4 source IPA"
+        assert ps4["upstream_commit"] == UPSTREAM_COMMIT
+        module = z.read(root + "Frameworks/libhuskps4.dylib")
+        assert inspect_module(module) == ps4["mach_o"], "PS4 Mach-O metadata differs"
+        for notice in ps4["notices"]:
+            name = "ps4-upstream-notices/" + notice["archive_path"]
+            required(name)
+            assert hashlib.sha256(z.read(root + name)).hexdigest() == notice["sha256"], name
+        ps4["packaged_module_sha256"] = hashlib.sha256(module).hexdigest()
         for target in ("HuskJITHelper", "HuskDownloadsWidget"):
             base = f"PlugIns/{target}.appex/"
             required(base + target)
@@ -81,6 +97,7 @@ def verify(path):
         "required_resources": "passed",
         "cjk_font_files": len(cjk),
         "ca_certificates": len(certs),
+        "ps4_module": ps4,
         "device_runtime_test": "not performed",
     }
     destination = path.with_suffix(path.suffix + ".verification.json")

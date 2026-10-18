@@ -97,7 +97,10 @@ final class TLUnityUIView: UIView, UIKeyInput {
         stats.isUserInteractionEnabled = false
         stats.text = " "
         if engine == .unity { addSubview(stats) }
-        if engine == .cocos {
+        if engine == .unity {
+            TLUnityUIView.cocosView = self
+            TLUnityUIView.installUnityKeyboardHandler()
+        } else if engine == .cocos {
             TLUnityUIView.cocosView = self
             TLUnityUIView.installKeyboardHandler()
         } else if engine == .sdl {
@@ -196,7 +199,7 @@ final class TLUnityUIView: UIView, UIKeyInput {
         husk_unity_perf_snapshot(&p)
         let text = p.fps > 0
             ? String(format: "%.0f 帧/秒 · %.1f 毫秒 · 峰值 %.0f", p.fps, p.mean_ms, p.max_ms)
-            : "starting"
+            : "正在启动"
         stats.text = text
         onStats?(text)
     }
@@ -276,6 +279,7 @@ final class TLUnityUIView: UIView, UIKeyInput {
         if let sys = Bundle.main.resourcePath.map({ $0 + "/android-system" }), FileManager.default.fileExists(atPath: sys) {
             husk_native_set_system_files(sys + "/cacerts", sys)
         }
+        husk_native_set_extra_fonts(CJKFonts.directory.path)
         let started: Bool
         switch engine {
         case .sdl:
@@ -330,7 +334,7 @@ final class TLUnityUIView: UIView, UIKeyInput {
 
     /// A game asks for the keyboard when its text field is tapped. The keyboard belongs to this view; what it types goes
     /// to the game, and a strip above the keyboard shows the text, because in landscape the keyboard covers the game's field.
-    override var canBecomeFirstResponder: Bool { engine == .cocos || engine == .sdl || engine == .minecraft || engine == .flutter || engine == .java }
+    override var canBecomeFirstResponder: Bool { engine == .cocos || engine == .sdl || engine == .minecraft || engine == .flutter || engine == .java || engine == .unity }
     var hasText: Bool { true }
     var autocorrectionType: UITextAutocorrectionType = .no
     var autocapitalizationType: UITextAutocapitalizationType = .none
@@ -367,7 +371,7 @@ final class TLUnityUIView: UIView, UIKeyInput {
         bar.addSubview(done)
         return bar
     }()
-    override var inputAccessoryView: UIView? { engine == .cocos || engine == .sdl || engine == .minecraft ? keyboardBar : nil }
+    override var inputAccessoryView: UIView? { engine == .cocos || engine == .sdl || engine == .minecraft || engine == .unity ? keyboardBar : nil }
 
     func insertText(_ text: String) {
         if engine == .java {
@@ -380,7 +384,16 @@ final class TLUnityUIView: UIView, UIKeyInput {
             if text == "\n", !husk_flutter_text_multiline() { husk_flutter_text_action() } else { husk_flutter_insert_text(text) }
             return
         }
-        if text == "\n" { finishTyping(); return }
+        if text == "\n", !(engine == .unity && unityMultiline) { finishTyping(); return }
+        if engine == .unity {
+            // The game's field may refuse characters past its limit: the strip shows what the field holds.
+            husk_unity_insert_text(text)
+            var buf = [CChar](repeating: 0, count: 4096)
+            husk_unity_text(&buf, UInt(buf.count))
+            let field = String(cString: buf)
+            setTyped(isSecureTextEntry ? String(repeating: "•", count: field.count) : field)
+            return
+        }
         typed += text
         typedLabel.text = typed
         if engine == .sdl { husk_sdl_commit_text(text) } else if engine == .minecraft { husk_ga_insert_text(text) } else { husk_cocos_insert_text(text) }
@@ -389,18 +402,20 @@ final class TLUnityUIView: UIView, UIKeyInput {
     func deleteBackward() {
         if engine == .java { husk_java_delete_backward(); return }
         if engine == .flutter { husk_flutter_delete_backward(); return }
+        if engine == .unity { husk_unity_delete_backward() }
         if !typed.isEmpty { typed.removeLast() }
         typedLabel.text = typed
         if engine == .sdl { husk_sdl_key(67, 1); husk_sdl_key(67, 0) }   // KEYCODE_DEL
         else if engine == .minecraft { husk_ga_delete_backward() }
-        else { husk_cocos_delete_backward() }
+        else if engine != .unity { husk_cocos_delete_backward() }
     }
 
     private func setTyped(_ text: String) { typed = text; typedLabel.text = text }
 
     /// Return, or the Done button: what Android's "done" action does -- the game gets a newline, and the keyboard goes.
     private func finishTyping() {
-        if engine == .sdl { husk_sdl_key(66, 1); husk_sdl_key(66, 0) }   // KEYCODE_ENTER
+        if engine == .unity { husk_unity_finish_text(1) }   // the dialog's OK: the field keeps the text, and the game hears it is done
+        else if engine == .sdl { husk_sdl_key(66, 1); husk_sdl_key(66, 0) }   // KEYCODE_ENTER
         else if engine == .minecraft { husk_ga_editor_action() }        // the field's own action: send the chat, name the world
         else { husk_cocos_insert_text("\n") }
         resignFirstResponder()
@@ -527,6 +542,48 @@ final class TLUnityUIView: UIView, UIKeyInput {
                 }
             }
         }
+    }
+
+    /// Whether the Unity field that asked for the keyboard takes new lines (Return types one instead of finishing).
+    private var unityMultiline = false
+
+    /// A Unity game's requests (TouchScreenKeyboard.Open from an InputField, on its own thread): 1 shows the keyboard, 2 hides it.
+    static func installUnityKeyboardHandler() {
+        husk_unity_set_keyboard_handler { action, kind in
+            DispatchQueue.main.async {
+                guard let view = TLUnityUIView.cocosView, view.engine == .unity else { return }
+                if action == 1 {
+                    // TouchScreenKeyboardType
+                    switch kind & 0xFF {
+                    case 2: view.keyboardType = .numbersAndPunctuation
+                    case 3: view.keyboardType = .URL
+                    case 4: view.keyboardType = .numberPad
+                    case 5: view.keyboardType = .phonePad
+                    case 6: view.keyboardType = .namePhonePad
+                    case 7: view.keyboardType = .emailAddress
+                    case 8: view.keyboardType = .twitter
+                    case 9: view.keyboardType = .webSearch
+                    case 10: view.keyboardType = .decimalPad
+                    case 1: view.keyboardType = .asciiCapable
+                    default: view.keyboardType = .default
+                    }
+                    view.isSecureTextEntry = kind & 0x100 != 0
+                    view.unityMultiline = kind & 0x200 != 0
+                    var buf = [CChar](repeating: 0, count: 4096)
+                    husk_unity_text(&buf, UInt(buf.count))
+                    view.setTyped(view.isSecureTextEntry ? "" : String(cString: buf))
+                    if view.isFirstResponder { view.reloadInputViews() } else { view.becomeFirstResponder() }
+                } else {
+                    view.resignFirstResponder()
+                }
+            }
+        }
+    }
+
+    override func resignFirstResponder() -> Bool {
+        // Put away without Done (the game hid it, or the view went): the field is dismissed, as the dialog's back button does.
+        if engine == .unity { husk_unity_finish_text(0) }
+        return super.resignFirstResponder()
     }
 
     /// An SDL game's requests (SDL_StartTextInput / SDL_StopTextInput, from its main thread): 1 shows the keyboard, 2 hides it.
@@ -784,9 +841,9 @@ struct TLCocosAttemptView: View {
             }
         }
         .statusBarHidden(true)
-        .persistentSystemOverlays(.hidden)
+        .huskHideSystemOverlays()
         // Swipes near the edges are the game's.
-        .defersSystemGestures(on: .all)
+        .huskDefersSystemGestures(on: .all)
         .onAppear {
             HuskOrientation.set(portrait ? .portrait : .landscape)
             UIApplication.shared.isIdleTimerDisabled = settings.keepAwake

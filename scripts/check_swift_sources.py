@@ -16,7 +16,7 @@ targets = [
      ["-application-extension", "-F", str(APP / "Frameworks/StikJIT.xcframework/ios-arm64")]),
     ("HuskDownloadsWidget", "16.1", sorted((APP / "HuskDownloadsWidget").rglob("*.swift")) + shared,
      ["-application-extension"]),
-    ("Husk", "16.0", sorted((APP / "Husk").rglob("*.swift")) + shared + [APP / "HuskJITHelper/HuskJITMessages.swift"],
+    ("Husk", "15.5", sorted((APP / "Husk").rglob("*.swift")) + shared + [APP / "HuskJITHelper/HuskJITMessages.swift"],
      ["-import-objc-header", str(APP / "Husk/HuskBridge.h")]),
 ]
 failed = False

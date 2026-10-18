@@ -2,10 +2,10 @@ name: Husk
 options:
   bundleIdPrefix: com.husk
   deploymentTarget:
-    # 16.0: the lowest the app builds at as written (its SwiftUI is iOS 16), so
-    # it installs on the iOS 16 versions TrollStore runs on. QEMU, ANGLE and
-    # rppairing are built for 15.5, below it.
-    iOS: "16.0"
+    # 15.5: what QEMU, ANGLE and rppairing are built for, and the TrollStore
+    # and Dopamine iOS 15 devices (#92). Compat15.swift stands in for the
+    # iOS 16 SwiftUI the screens use.
+    iOS: "15.5"
   createIntermediateGroups: true
   developmentLanguage: zh-Hans
 
@@ -149,6 +149,13 @@ targets:
       # KhronosGroup/MoltenVK v1.4.2 with `make ios` (third_party/build/MoltenVK-1.4.2) and copied to
       # build/ios-arm64/lib. Embedded, not linked: the native runtime opens it by path when an Unreal game starts.
       - framework: ../../build/ios-arm64/lib/MoltenVK.xcframework
+        embed: true
+        codeSign: true
+        link: false
+      # The PS4 layer: Bachata-S4's core (branch husk) on husk-fex's FEXCore, as one dylib exporting husk_console_module_v1.
+      # Built by scripts/build_ps4_ios.sh. Embedded, not linked: it needs iOS 17.4 and is opened by path only there
+      # (PS4Store.moduleURL), by the console host (src/translation-layer-next/husk-console-host.c).
+      - framework: ../../build/ios-arm64/lib/libhuskps4.dylib
         embed: true
         codeSign: true
         link: false

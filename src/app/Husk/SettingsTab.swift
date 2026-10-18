@@ -27,6 +27,8 @@ struct SettingsTab: View {
                     row(LibrarySettings(), "square.grid.2x2.fill", .blue, "应用库", "应用和图标")
                     row(PerformanceSettings(), "speedometer", .orange, "性能", "渲染器、声音")
                     row(AppearanceSettings(), "paintbrush.fill", .pink, "外观", "深浅模式、强调色、应用图标")
+                    row(FontSettings(), "textformat", .indigo, "字体", "中文、日文和韩文显示")
+                    row(FAQTab(), "questionmark.circle.fill", .teal, "帮助", "常见问题解答")
                 }
 
                 Section {
@@ -38,7 +40,7 @@ struct SettingsTab: View {
                             }
                         } icon: {
                             RoundedRectangle(cornerRadius: 7, style: .continuous)
-                                .fill(Color.purple.gradient)
+                                .fill(Color.purple.huskGradient)
                                 .frame(width: 30, height: 30)
                                 .overlay {
                                     Image(systemName: "macwindow.on.rectangle")
@@ -65,7 +67,7 @@ struct SettingsTab: View {
                             }
                         } icon: {
                             RoundedRectangle(cornerRadius: 7, style: .continuous)
-                                .fill(Color.green.gradient)
+                                .fill(Color.green.huskGradient)
                                 .frame(width: 30, height: 30)
                                 .overlay {
                                     Image(systemName: "list.bullet.clipboard")
@@ -84,10 +86,16 @@ struct SettingsTab: View {
                        + "并附带设备型号、iOS 版本、Husk 构建版本和 JIT 开启方式。")
                 }
 
-                Section("模拟器") {
+                Section {
+                    row(AndroidSystemPage(), "apps.iphone", AndroidMark.green, "Android", "实验性功能：完整 Android 模拟器")
                     row(InputSettings(), "hand.tap.fill", .indigo, "输入", "屏幕、触控、键盘")
                     row(NetworkSettings(), "globe", .green, "网络", "互联网与状态保存")
                     row(SavedMachineSettings(), "externaldrive.fill", .teal, "系统快照", "快照与自动保存")
+                } header: {
+                    Text("Android 模拟器")
+                } footer: {
+                    Text("在模拟器中运行完整 Android 系统，用于转译层暂不支持的应用。此功能仍处于实验阶段，运行较慢，"
+                       + "并可能出现卡死或崩溃。")
                 }
             }
             .listStyle(.insetGrouped)
@@ -118,7 +126,7 @@ struct SettingsTab: View {
                 }
             } icon: {
                 RoundedRectangle(cornerRadius: 7, style: .continuous)
-                    .fill(tint.gradient)
+                    .fill(tint.huskGradient)
                     .frame(width: 30, height: 30)
                     .overlay {
                         Image(systemName: icon)
@@ -185,6 +193,85 @@ struct LibrarySettings: View {
         }
         .huskForm()
         .navigationTitle("应用库")
+    }
+}
+
+// MARK: - Fonts
+
+/// The Chinese, Japanese and Korean fonts the bundle leaves out (#95: 58 MB of Android's 82 MB of fonts), downloaded on request. Apps
+/// on the translation layer find them where Android keeps them, through fonts.xml, which already names the file.
+@MainActor
+final class CJKFonts: ObservableObject {
+    static let shared = CJKFonts()
+    static let fileName = "NotoSansCJK-Regular.ttc"
+    static let source = URL(string: "https://github.com/notofonts/noto-cjk/raw/main/Sans/OTC/NotoSansCJK-Regular.ttc")!
+    nonisolated static var directory: URL {
+        FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask)[0].appendingPathComponent("Fonts", isDirectory: true)
+    }
+    nonisolated static var installed: Bool { FileManager.default.fileExists(atPath: directory.appendingPathComponent(fileName).path) }
+    nonisolated static var bundled: Bool {
+        Bundle.main.url(forResource: "NotoSansCJK-Regular", withExtension: "ttc", subdirectory: "android-system/fonts") != nil
+    }
+
+    @Published private(set) var isInstalled = CJKFonts.installed
+    @Published private(set) var downloading = false
+    @Published private(set) var failure: String?
+
+    func download() {
+        guard !downloading else { return }
+        downloading = true
+        failure = nil
+        Task {
+            do {
+                let (temp, response) = try await URLSession.shared.download(from: Self.source)
+                guard (response as? HTTPURLResponse)?.statusCode == 200 else { throw URLError(.badServerResponse) }
+                try FileManager.default.createDirectory(at: Self.directory, withIntermediateDirectories: true)
+                let dest = Self.directory.appendingPathComponent(Self.fileName)
+                try? FileManager.default.removeItem(at: dest)
+                try FileManager.default.moveItem(at: temp, to: dest)
+                HuskLog.log("fonts", "CJK fonts installed at \(dest.path)")
+                isInstalled = true
+            } catch {
+                failure = "下载失败：\(error.localizedDescription)"
+                HuskLog.log("fonts", "CJK font download failed: \(error.localizedDescription)")
+            }
+            downloading = false
+        }
+    }
+
+    func remove() {
+        try? FileManager.default.removeItem(at: Self.directory.appendingPathComponent(Self.fileName))
+        isInstalled = Self.installed
+    }
+}
+
+struct FontSettings: View {
+    @ObservedObject private var fonts = CJKFonts.shared
+
+    var body: some View {
+        Form {
+            Section {
+                if CJKFonts.bundled {
+                    Label("已内置中日韩字体", systemImage: "checkmark.circle.fill").foregroundStyle(.green)
+                } else if fonts.isInstalled {
+                    Label("已安装", systemImage: "checkmark.circle.fill").foregroundStyle(.green)
+                    Button(role: .destructive) { fonts.remove() } label: { Label("移除", systemImage: "trash") }
+                } else {
+                    Button { fonts.download() } label: {
+                        Label(fonts.downloading ? "正在下载…" : "下载（19.5 MB）", systemImage: "arrow.down.circle")
+                    }
+                    .disabled(fonts.downloading)
+                }
+                if let failure = fonts.failure { Text(failure).font(.caption).foregroundStyle(.red) }
+            } header: {
+                Text("中文、日文和韩文")
+            } footer: {
+                Text("Noto Sans CJK 是 Android 用于显示这些语言的字体。缺少此字体时，自行绘制文字的游戏和应用（Unity、Flutter、"
+                   + "cocos2d-x）会将这些字符显示为空方框。更改将在下次打开应用时生效。")
+            }
+        }
+        .huskForm()
+        .navigationTitle("字体")
     }
 }
 
@@ -456,6 +543,7 @@ struct JITSettings: View {
     @ObservedObject private var jit = JITCoordinator.shared
     @State private var autoStart = Onboarding.autoStart
     @AppStorage(JITCoordinator.autoEnableKey) private var autoJIT = false
+    @AppStorage(JITCoordinator.trollStoreAutoKey) private var trollStoreJIT = true
     @State private var keepAttached = JITBootstrap.keepDebuggerAttached
 
     private var pairingLabel: String {
@@ -558,6 +646,14 @@ struct JITSettings: View {
                    + "因此 Husk 会分别测试两种方式。")
             }
 
+            if JITBootstrap.isInstalledWithTrollStore {
+                Section {
+                    Toggle("启动时通过 TrollStore 开启 JIT", isOn: $trollStoreJIT)
+                } footer: {
+                    Text("每次打开 Husk 时，若 JIT 尚未开启，就会请求 TrollStore 开启。需要在 TrollStore 中启用“URL Scheme”设置。")
+                }
+            }
+
             Section {
                 Toggle("启动时开启 JIT", isOn: $autoJIT)
                     .disabled(!HuskBuiltInJIT.isAvailable)
@@ -612,6 +708,9 @@ struct SavedMachineSettings: View {
         UserDefaults.standard.object(forKey: "husk.downloadSnapshot") as? Bool ?? true
     @State private var askWhichToDelete = false
     @State private var deleteResult: String?
+    @State private var askRemoveAndroid = false
+    @State private var removeResult: String?
+    @State private var androidBytes = GuestImage.shared.androidBytes
     @AppStorage(GuestImage.askUpdatesKey) private var askUpdates = true
 
     var body: some View {
@@ -664,6 +763,21 @@ struct SavedMachineSettings: View {
             }
 
             Section {
+                Button(role: .destructive) { askRemoveAndroid = true } label: {
+                    Label("移除 Android", systemImage: "trash.slash")
+                }
+                .disabled(runner.isRunning || androidBytes == 0)
+                if let removeResult {
+                    Text(removeResult).font(.caption).foregroundStyle(.secondary)
+                }
+            } footer: {
+                Text(androidBytes > 0
+                     ? "Android 系统、用户数据和运行快照共占用 \(ByteCountFormatter.string(fromByteCount: androidBytes, countStyle: .file))。"
+                     + "转译层应用和游戏无需这些文件。下次启动 Android 时会重新下载。"
+                     : "尚未下载 Android。")
+            }
+
+            Section {
                 Toggle("提示 Android 更新", isOn: $askUpdates)
             } footer: {
                 Text("有新的 Android 镜像或快照发布时，Husk 会询问是否下载。"
@@ -679,6 +793,16 @@ struct SavedMachineSettings: View {
             Button("取消", role: .cancel) { }
         } message: {
             Text("Android 将冷启动一次，然后保存新的快照。")
+        }
+        .confirmationDialog("移除 Android？", isPresented: $askRemoveAndroid, titleVisibility: .visible) {
+            Button("移除 Android", role: .destructive) {
+                let freed = GuestImage.shared.removeAll()
+                androidBytes = GuestImage.shared.androidBytes
+                removeResult = "已释放 \(ByteCountFormatter.string(fromByteCount: freed, countStyle: .file))。"
+            }
+            Button("取消", role: .cancel) { }
+        } message: {
+            Text("Android 系统内安装的内容和保存的数据都将删除，转译层应用的数据会保留。")
         }
     }
 
@@ -718,7 +842,8 @@ struct AppearanceSettings: View {
                 Text("主题")
             } footer: {
                 Text("“跟随系统”会使用手机当前的浅色或深色模式。"
-                   + "客户系统画面不受此设置影响，它显示的是另一套系统的画面。")
+                   + "无论选择哪种外观，Android 屏幕都保持深色，因为它显示的是另一套系统的画面。"
+                   + "节日装饰会在 12 月至次年 1 月初显示。")
             }
 
             Section {
@@ -790,7 +915,7 @@ struct AppearanceSettings: View {
             .overlay {
                 if selected {
                     Image(systemName: "checkmark")
-                        .font(.caption.bold())
+                        .font(.caption.weight(.bold))
                         .foregroundStyle(color.isLight ? .black : .white)
                 }
             }

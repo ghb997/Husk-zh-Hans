@@ -200,9 +200,9 @@ public class TelephonyManager {
     public static final java.lang.String EXTRA_SPECIFIC_CARRIER_ID = "android.telephony.extra.SPECIFIC_CARRIER_ID";
     public static final java.lang.String EXTRA_SPECIFIC_CARRIER_NAME = "android.telephony.extra.SPECIFIC_CARRIER_NAME";
     public static final java.lang.String EXTRA_SPN = "android.telephony.extra.SPN";
-    public static java.lang.String EXTRA_STATE_IDLE;
-    public static java.lang.String EXTRA_STATE_OFFHOOK;
-    public static java.lang.String EXTRA_STATE_RINGING;
+    public static java.lang.String EXTRA_STATE_IDLE = "IDLE";
+    public static java.lang.String EXTRA_STATE_OFFHOOK = "OFFHOOK";
+    public static java.lang.String EXTRA_STATE_RINGING = "RINGING";
     public static final java.lang.String EXTRA_SUBSCRIPTION_ID = "android.telephony.extra.SUBSCRIPTION_ID";
     public static final java.lang.String EXTRA_VISUAL_VOICEMAIL_ENABLED_BY_USER_BOOL = "android.telephony.extra.VISUAL_VOICEMAIL_ENABLED_BY_USER_BOOL";
     public static final java.lang.String EXTRA_VOICEMAIL_NUMBER = "android.telephony.extra.VOICEMAIL_NUMBER";

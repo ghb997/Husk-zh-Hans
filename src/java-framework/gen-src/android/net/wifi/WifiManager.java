@@ -379,7 +379,15 @@ public class WifiManager {
     public java.util.List getCallerConfiguredNetworks() { return (huskProps.get("CallerConfiguredNetworks") != null ? (java.util.List) huskProps.get("CallerConfiguredNetworks") : new java.util.ArrayList()); }
     public void getChannelData(java.util.concurrent.Executor p0, java.util.function.Consumer p1) {}
     public java.util.List getConfiguredNetworks() { return (huskProps.get("ConfiguredNetworks") != null ? (java.util.List) huskProps.get("ConfiguredNetworks") : new java.util.ArrayList()); }
-    public android.net.wifi.WifiInfo getConnectionInfo() { return (android.net.wifi.WifiInfo) huskProps.get("ConnectionInfo"); }
+    /** Never null on Android: what an app without location permission sees there (Android 10+ masks the network and MAC). */
+    public android.net.wifi.WifiInfo getConnectionInfo() {
+        Object set = huskProps.get("ConnectionInfo");
+        if (set instanceof android.net.wifi.WifiInfo) return (android.net.wifi.WifiInfo) set;
+        android.net.wifi.WifiInfo w = new android.net.wifi.WifiInfo();
+        w.huskProps.put("SSID", "<unknown ssid>"); w.huskProps.put("BSSID", "02:00:00:00:00:00"); w.huskProps.put("MacAddress", "02:00:00:00:00:00");
+        w.huskProps.put("NetworkId", Integer.valueOf(-1)); w.huskProps.put("Rssi", Integer.valueOf(-55)); w.huskProps.put("LinkSpeed", Integer.valueOf(433));
+        return w;
+    }
     public java.lang.String getCountryCode() { return (java.lang.String) huskProps.get("CountryCode"); }
     public android.net.Network getCurrentNetwork() { return (android.net.Network) huskProps.get("CurrentNetwork"); }
     public java.lang.String getCurrentNetworkWpsNfcConfigurationToken() { return (java.lang.String) huskProps.get("CurrentNetworkWpsNfcConfigurationToken"); }

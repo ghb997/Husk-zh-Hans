@@ -92,6 +92,34 @@ static void note_engine(engine_scan *s, const char *f)
     else if (!strcmp(f, "libVendor_mpg123.so")) s->mpg123 = true;
 }
 
+/* Whether the app really starts through a NativeActivity: its manifest names android.app.NativeActivity, or a class in its dex
+ * extends it. A library exporting ANativeActivity_onCreate is not enough on its own: Go's libgojni carries the glue for Go's
+ * own mobile package even in an Ebitengine game (AAAAXY), which starts from an ordinary Java activity. */
+static bool starts_native_activity(const char *const *paths, int count)
+{
+    static const char name8[] = "android.app.NativeActivity", desc[] = "Landroid/app/NativeActivity;";
+    char name16[2 * (sizeof(name8) - 1)];
+    for (size_t i = 0; i < sizeof(name8) - 1; i++) { name16[2 * i] = name8[i]; name16[2 * i + 1] = 0; }
+    bool found = false;
+    for (int p = 0; p < count && !found; p++) {
+        tl_zip z;
+        char zerr[160] = "";
+        if (!tl_zip_open(&z, paths[p], zerr, sizeof(zerr))) continue;
+        for (size_t i = 0; i < z.count && !found; i++) {
+            const tl_zip_entry *e = &z.entries[i];
+            bool man = !strcmp(e->name, "AndroidManifest.xml");
+            if (!man && !is_dex(e->name)) continue;
+            const uint8_t *data; size_t len; bool owned; char derr[160] = "";
+            if (!tl_zip_data(&z, e, (size_t)256 << 20, &data, &len, &owned, derr, sizeof(derr))) continue;
+            found = man ? (memmem(data, len, name16, sizeof(name16)) || memmem(data, len, name8, sizeof(name8) - 1))
+                        : memmem(data, len, desc, sizeof(desc) - 1) != NULL;
+            if (owned) free((void *)data);
+        }
+        tl_zip_close(&z);
+    }
+    return found;
+}
+
 static const char *engine_name(const engine_scan *s)
 {
     /* Rockstar's GTA port: libGame with its own OpenAL and mpg123 (a Flutter shell around it would otherwise make it look like a Flutter app). */
@@ -338,6 +366,7 @@ char *husk_tl_scan(const char *const *paths, int count)
         tl_zip_close(&z);
     }
     tl_json_end_array(&j);
+    if (eng.native_activity && !starts_native_activity(paths, count)) eng.native_activity = false;
 
     bool any_native = false;
     for (size_t i = 0; i < NABIS; i++) {

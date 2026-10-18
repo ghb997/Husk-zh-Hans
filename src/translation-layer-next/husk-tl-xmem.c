@@ -1,6 +1,7 @@
 /* SPDX-License-Identifier: GPL-2.0-or-later */
 #include "husk-tl-xmem.h"
 
+#include <dlfcn.h>
 #include <errno.h>
 #include <pthread.h>
 #include <stdio.h>
@@ -28,7 +29,7 @@ void tl_log_line(const char *fmt, ...);
 static struct {
     uint8_t *rx, *rw;
     size_t size, used;
-    bool open;
+    bool open, shared;
     pthread_mutex_t lock;
 } g_x = { .lock = PTHREAD_MUTEX_INITIALIZER };
 
@@ -194,6 +195,7 @@ static bool open_platform(size_t host_bytes, char *err, size_t errlen)
         g_x.rx = m->rx_addr;
         g_x.rw = m->rw_addr;
         g_x.size = m->size;
+        g_x.shared = true;
         near_alias();
         return true;
     }
@@ -275,12 +277,24 @@ bool tl_xmem_open(size_t host_bytes, char *err, size_t errlen)
     return ok;
 }
 
+static bool (*g_reserve)(size_t);
+static void find_reserve(void) { g_reserve = (bool (*)(size_t))dlsym(RTLD_DEFAULT, "husk_ios_jit_reserve_bottom"); }
+
+/* Takes the region up to `end` from the bottom, unless QEMU holds that part of it (husk-ios-jit.c). No QEMU, no limit. */
+bool tl_jit_reserve_bottom(size_t end)
+{
+    static pthread_once_t once = PTHREAD_ONCE_INIT;
+    pthread_once(&once, find_reserve);
+    return !g_reserve || g_reserve(end);
+}
+
 bool tl_xmem_alloc(size_t bytes, uint8_t **rx, uint8_t **rw)
 {
     size_t n = (bytes + TL_XMEM_PAGE - 1) & ~(size_t)(TL_XMEM_PAGE - 1);
     bool ok = false;
     pthread_mutex_lock(&g_x.lock);
-    if (g_x.open && n <= g_x.size - g_x.used) {
+    /* StikDebug's region is QEMU's too: Android, when it runs, holds the top of it (husk-ios-jit.c) */
+    if (g_x.open && n <= g_x.size - g_x.used && (!g_x.shared || tl_jit_reserve_bottom(g_x.used + n))) {
         if (rx) *rx = g_x.rx + g_x.used;
         if (rw) *rw = g_x.rw + g_x.used;
         g_x.used += n;

@@ -56,6 +56,9 @@ if [ "${HUSK_DEPENDENCIES_ONLY:-false}" = true ]; then
     exit 0
 fi
 
+step "official PS4 module (verified upstream 3.0 IPA)"
+python3 scripts/prepare_ps4_module.py
+
 step "app + IPA"
 mkdir -p "$(dirname "$OUT")"
 ./scripts/package_ipa.sh "$OUT"

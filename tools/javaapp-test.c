@@ -90,7 +90,7 @@ static void on_crash(int sig, siginfo_t *info, void *uctx)
     for (int i = 0; i < 4096 && shown < 24; i++) {
         uint64_t v;
         if (!safe_read((uintptr_t)(sp + i), &v, 8)) break;
-        if (v > 0x7000000000ull && v < 0x7100000000ull && tl_ld_lib_of((void *)v) && (v & 3) == 0) { describe("stk", (void *)v); shown++; }
+        if (v > 0x7000000000ull && v < 0x8000000000ull && tl_ld_lib_of((void *)v) && (v & 3) == 0) { describe("stk", (void *)v); shown++; }
     }
     for (int i = 0; i < 29; i += 4)
         fprintf(stderr, "  x%d=%#llx x%d=%#llx x%d=%#llx x%d=%#llx\n", i, ss->__x[i], i + 1, ss->__x[i + 1], i + 2, i + 2 < 29 ? ss->__x[i + 2] : 0, i + 3, i + 3 < 29 ? ss->__x[i + 3] : 0);

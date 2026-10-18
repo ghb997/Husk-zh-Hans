@@ -168,10 +168,10 @@ struct GamePage: View {
             }
 
             Section {
-                NavigationLink(value: LibraryRoute.gameSettings(app.id)) {
+                HuskLink(value: LibraryRoute.gameSettings(app.id)) {
                     Label("游戏设置", systemImage: "slider.horizontal.3")
                 }
-                NavigationLink(value: LibraryRoute.gameReport(app.id)) {
+                HuskLink(value: LibraryRoute.gameReport(app.id)) {
                     Label("技术详情", systemImage: "cpu")
                 }
             }
@@ -358,6 +358,91 @@ struct GamePage: View {
     }
 }
 
+// MARK: - a PS4 game
+
+/// A PS4 game from Documents/PS4 Games: Play, and what it is. Run by the PS4 layer (libhuskps4.dylib) on Husk's JIT.
+struct PS4GamePage: View {
+    let game: PS4Game
+    @ObservedObject private var jit = JITCoordinator.shared
+    @State private var playing = false
+    @State private var confirmQuit = false
+
+    private var item: LibraryItem { .ps4(game) }
+
+    /// Another game already loaded in this run of Husk (an Android game's engine, or another PS4 game).
+    private var blockedBy: String? {
+        if Router.shared.androidStarted { return "Android" }   // QEMU holds the JIT region the PS4 layer needs
+        guard let loaded = husk_native_loaded_apk().map({ String(cString: $0) }), loaded != game.libraryID else { return nil }
+        if loaded.hasPrefix("ps4:") { return PS4Store.shared.game(String(loaded.dropFirst(4)))?.title ?? "另一个游戏" }
+        return TranslationLayerStore.shared.apps.first { $0.apks.first == loaded }?.label ?? "另一个游戏"
+    }
+
+    private var subtitle: String {
+        if let used = item.usedText { return used }
+        return "PlayStation 4" + (game.version.map { " · v\($0)" } ?? "")
+    }
+
+    var body: some View {
+        List {
+            PageHero(item: item, subtitle: subtitle) { primary }
+                .heroRow()
+            if !PS4Store.available {
+                Section {
+                    Text(PS4Store.moduleURL == nil
+                         ? "此版本的 Husk 未包含 PS4 运行模块。"
+                         : "PS4 游戏需要 iOS 17.4 或更高版本。")
+                        .foregroundStyle(.secondary)
+                }
+            }
+            Section("关于") {
+                LabeledContent("运行引擎", value: "Husk PS4 运行模块")
+                LabeledContent("游戏编号", value: game.titleID)
+                if let v = game.version { LabeledContent("版本", value: v) }
+                LabeledContent("上次游玩", value: game.lastPlayed.map { $0.formatted(date: .abbreviated, time: .shortened) } ?? "从未")
+                LabeledContent("文件夹", value: "PS4 Games/" + game.folder.lastPathComponent)
+            }
+        }
+        .listStyle(.insetGrouped)
+        .navigationTitle(game.title)
+        .navigationBarTitleDisplayMode(.inline)
+        .fullScreenCover(isPresented: $playing) { PS4PlayView(game: game) }
+        .confirmationDialog("关闭 Husk？", isPresented: $confirmQuit, titleVisibility: .visible) {
+            Button("关闭 Husk") {
+                Router.shared.switchTo(game.libraryID)
+                CrashReport.gameEnded()
+                HuskLog.flushNow()
+                exit(0)
+            }
+        } message: {
+            Text("\(blockedBy ?? "另一款游戏") 仍处于已加载状态，每次启动 Husk 只能运行一款游戏。Husk 将关闭；再次打开后，\(game.title) 会自动启动。")
+        }
+        .id(jit.attachGeneration)
+        .onAppear {
+            guard Router.shared.autoPlay == game.libraryID, Launcher.jitOn, blockedBy == nil, PS4Store.available else { return }
+            Router.shared.autoPlay = nil
+            playing = true
+        }
+    }
+
+    @ViewBuilder
+    private var primary: some View {
+        if !PS4Store.available {
+            BigButton(title: "无法在此运行", systemImage: "xmark.octagon", prominent: false) { }.disabled(true)
+        } else if blockedBy != nil {
+            BigButton(title: "关闭 Husk 以切换游戏", systemImage: "xmark.circle", prominent: false) { confirmQuit = true }
+        } else if !Launcher.jitOn {
+            if jit.busy {
+                HStack(spacing: 10) { ProgressView(); Text(jit.status ?? "正在开启 JIT…").foregroundStyle(.secondary) }
+                    .frame(maxWidth: .infinity).frame(height: 50)
+            } else {
+                BigButton(title: "开启 JIT 以开始游戏", systemImage: "bolt.fill", action: turnOnJIT)
+            }
+        } else {
+            BigButton(title: "开始游戏", systemImage: "play.fill") { playing = true }
+        }
+    }
+}
+
 // MARK: - an app inside Android
 
 /// An app installed in Android: Open (starting Android first when it is not running), what it is, and its files.
@@ -455,7 +540,7 @@ struct AndroidAppPage: View {
                 router.startAndroid()
             }
         } else {
-            NavigationLink(value: LibraryRoute.androidSystem) {
+            HuskLink(value: LibraryRoute.androidSystem) {
                 Label("请先下载 Android", systemImage: "arrow.down.circle")
                     .font(.system(.headline, design: .rounded))
                     .frame(maxWidth: .infinity).frame(height: 50)

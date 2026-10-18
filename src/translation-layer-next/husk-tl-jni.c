@@ -223,6 +223,16 @@ void tl_jni_register_hle(const tl_jhle *table)
     if (g_nhle < 32) g_hle[g_nhle++] = table;
 }
 
+/* Whether Husk's C side implements anything of the class: a method in an HLE table, or natives registered on it. */
+bool tl_jni_class_known(const tl_jclass *c)
+{
+    if (!c) return false;
+    if (c->nnatives > 0) return true;
+    for (int t = 0; t < g_nhle; t++)
+        for (const tl_jhle *e = g_hle[t]; e->cls; e++) if (!strcmp(e->cls, c->name)) return true;
+    return false;
+}
+
 static tl_jhle_fn hle_find(const char *cls, const char *name, const char *sig)
 {
     for (int t = 0; t < g_nhle; t++)

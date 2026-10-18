@@ -89,6 +89,10 @@ if [ -f "$JRT/husk-framework.dex" ]; then
 fi
 [ -d "$APP" ] || { echo "no app bundle at $APP" >&2; exit 1; }
 
+# Record and verify the exact upstream PS4 module before ad-hoc signing changes
+# its signature. Its private source branches are not needed to rebuild the UI.
+python3 "$HUSK_ROOT/scripts/prepare_ps4_module.py" --stage-bundle "$APP"
+
 # Stamp the build's identity into the bundle so its logs can name themselves.
 # A log from a stale install is otherwise indistinguishable from a log proving a
 # fix did not work.
@@ -132,7 +136,7 @@ fi
 # @rpath/libANGLE-shared.dylib". Everything else in this validation passed. A
 # check that covers one of two required libraries is a check that reports
 # success on a bundle that cannot launch.
-for lib in libqemu-aarch64-softmmu.dylib libANGLE-shared.dylib; do
+for lib in libqemu-aarch64-softmmu.dylib libANGLE-shared.dylib libhuskps4.dylib; do
     if [ ! -f "$APP/Frameworks/$lib" ]; then
         echo "  MISSING  Frameworks/$lib" >&2
         rc=1

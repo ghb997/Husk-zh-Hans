@@ -19,6 +19,7 @@
 #include <mach/vm_map.h>        /* vm_remap/vm_protect: mach_vm.h is absent from the iOS SDK */
 #include <os/log.h>
 #include <os/proc.h>
+#include <pthread.h>
 #include <setjmp.h>
 #include <signal.h>
 #include <stdatomic.h>
@@ -409,15 +410,31 @@ static HuskDualMapping husk_self_dual_mapping(size_t bytes)
         HUSK_LOG("self: could not reserve %zu MiB: %s", (size * 2) >> 20, strerror(errno));
         return none;
     }
-    rx = mmap(base, size, PROT_READ | PROT_WRITE | PROT_EXEC, MAP_FIXED | MAP_PRIVATE | MAP_ANON, -1, 0);
-    uint8_t *rw = rx == MAP_FAILED ? NULL : husk_rw_alias(rx, size, true);
-    if (rw && vm_protect(mach_task_self(), (vm_address_t)rx, size, FALSE, VM_PROT_READ | VM_PROT_EXECUTE) == KERN_SUCCESS && husk_self_selftest(rx, rw)) {
-        HuskDualMapping m = { rw, rx, size };
-        atomic_store(&g_jit_available, true);
-        g_self_route = "plain";
-        HUSK_LOG("self: PASS -- %zu MiB of plain memory (%s), rx=%p rw=%p", size >> 20,
-                 debugged ? "process is debugged" : "jailbreak allows invalid pages", (void *)rx, (void *)rw);
-        return m;
+    /* Two layouts: writable+executable asked for and then made read+execute (the kernel drops execute from the first), or
+     * read+execute from the start, as UTM and Dolphin map it. Each step that fails says so (#127: an A15 on iOS 18 with
+     * CS_DEBUGGED set failed one of them without saying which). */
+    static const int first_prot[2] = { PROT_READ | PROT_WRITE | PROT_EXEC, PROT_READ | PROT_EXEC };
+    static const char *const layout[2] = { "rwx then rx", "rx" };
+    for (int i = 0; i < 2; i++) {
+        rx = mmap(base, size, first_prot[i], MAP_FIXED | MAP_PRIVATE | MAP_ANON, -1, 0);
+        if (rx == MAP_FAILED) { HUSK_LOG("self: plain (%s): mmap failed: %s", layout[i], strerror(errno)); continue; }
+        uint8_t *rw = husk_rw_alias(rx, size, true);
+        if (!rw) { HUSK_LOG("self: plain (%s): no writable alias", layout[i]); continue; }
+        kern_return_t kr = vm_protect(mach_task_self(), (vm_address_t)rx, size, FALSE, VM_PROT_READ | VM_PROT_EXECUTE);
+        if (kr != KERN_SUCCESS) {
+            HUSK_LOG("self: plain (%s): vm_protect r-x failed: %d (%s)", layout[i], (int)kr, mach_error_string(kr));
+            continue;
+        }
+        if (!husk_page_is_executable(rx)) { HUSK_LOG("self: plain (%s): the kernel did not keep execute on the page", layout[i]); continue; }
+        if (husk_self_selftest(rx, rw)) {
+            HuskDualMapping m = { rw, rx, size };
+            atomic_store(&g_jit_available, true);
+            g_self_route = "plain";
+            HUSK_LOG("self: PASS -- %zu MiB of plain memory (%s, %s), rx=%p rw=%p", size >> 20,
+                     debugged ? "process is debugged" : "jailbreak allows invalid pages", layout[i], (void *)rx, (void *)rw);
+            return m;
+        }
+        HUSK_LOG("self: plain (%s): code written through the alias faulted or returned the wrong value", layout[i]);
     }
     HUSK_LOG("self: plain memory did not execute (%s)", debugged ? "debugged" : "jailbroken");
     munmap(base, size * 2);
@@ -464,6 +481,28 @@ HUSK_EXPORT HuskDualMapping *husk_ios_jit_get_mapping(void)
     return husk_prewarmed.rw_addr ? &husk_prewarmed : NULL;
 }
 
+/*
+ * One region, two users. The native runtime writes from the bottom of it and QEMU's TCG takes the top, so an Android app
+ * started while Android itself runs (or Android started after one) does not write its code over the other's: that ended in
+ * SIGILL inside cpu_tb_exec. Whichever comes second and does not fit gets a failure instead.
+ */
+static pthread_mutex_t husk_share_lock = PTHREAD_MUTEX_INITIALIZER;
+static size_t husk_runtime_high;   /* bytes from the bottom the native runtime has taken */
+static size_t husk_qemu_top;       /* bytes at the top QEMU holds */
+
+HUSK_EXPORT bool husk_ios_jit_reserve_bottom(size_t end)
+{
+    pthread_mutex_lock(&husk_share_lock);
+    bool ok = end <= husk_prewarmed.size - husk_qemu_top;
+    if (ok && end > husk_runtime_high) husk_runtime_high = end;
+    pthread_mutex_unlock(&husk_share_lock);
+    if (!ok) {
+        fprintf(stderr, "[husk-jit] the native runtime wants %zu MiB of the JIT region, but QEMU holds its top %zu MiB\n",
+                end >> 20, husk_qemu_top >> 20);
+    }
+    return ok;
+}
+
 HuskDualMapping husk_ios_jit_allocate(size_t bytes)
 {
     /*
@@ -472,9 +511,21 @@ HuskDualMapping husk_ios_jit_allocate(size_t bytes)
      * path -- the fallback below only runs if prewarm never happened.
      */
     if (husk_prewarmed.rw_addr && husk_prewarmed.size >= bytes) {
-        fprintf(stderr, "[husk-jit] using the prewarmed region (%zu bytes)\n",
-                husk_prewarmed.size);
-        return husk_prewarmed;
+        size_t off = (husk_prewarmed.size - bytes) & ~(size_t)0x3FFF;
+        pthread_mutex_lock(&husk_share_lock);
+        bool fits = husk_runtime_high <= off;
+        if (fits) husk_qemu_top = husk_prewarmed.size - off;
+        pthread_mutex_unlock(&husk_share_lock);
+        if (!fits) {
+            fprintf(stderr, "[husk-jit] the native runtime already uses %zu MiB of the %zu MiB region; no room for %zu MiB of TCG\n",
+                    husk_runtime_high >> 20, husk_prewarmed.size >> 20, bytes >> 20);
+            HuskDualMapping none = { NULL, NULL, 0 };
+            return none;
+        }
+        fprintf(stderr, "[husk-jit] using the top %zu MiB of the prewarmed region (%zu MiB)\n",
+                (husk_prewarmed.size - off) >> 20, husk_prewarmed.size >> 20);
+        HuskDualMapping top = { husk_prewarmed.rw_addr + off, husk_prewarmed.rx_addr + off, husk_prewarmed.size - off };
+        return top;
     }
     /*
      * No second trap after a prewarm already went unanswered.
@@ -804,6 +855,7 @@ HuskDualMapping husk_ios_jit_allocate(size_t bytes)
     return husk_ios_jit_allocate_real(bytes);
 }
 bool husk_ios_jit_prewarm(size_t bytes) { (void)bytes; return false; }
+bool husk_ios_jit_reserve_bottom(size_t end) { (void)end; return true; }
 void husk_ios_jit_release(HuskDualMapping *m) { (void)m; }
 void husk_ios_jit_detach(void) {}
 bool husk_ios_jit_is_available(void) { return false; }
